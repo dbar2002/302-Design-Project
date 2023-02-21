@@ -4,43 +4,51 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class InputBox extends StatelessWidget {
-  final String title;
+  final TextEditingController textEditingController;
   final bool obscureText;
+  final String hintText;
+  final TextInputType title;
   const InputBox({
     Key? key,
+    required this.textEditingController,
+    this.obscureText = false,
+    required this.hintText,
     required this.title,
-    required this.obscureText,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final inputBorder = OutlineInputBorder(
+      borderSide: Divider.createBorderSide(context),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: GoogleFonts.montserrat(
-            fontSize: regularTextSize,
-            color: regularTextSizeColor,
-          ),
-        ),
-        SizedBox(
-          height: 5,
-        ),
         TextField(
-          obscureText: obscureText,
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.all(10),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
+            style: GoogleFonts.montserrat(
+              fontSize: regularTextSize,
+              color: regularTextSizeColor,
             ),
-            border:
-                OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          ),
-        ),
-        SizedBox(
-          height: 15,
-        )
+            controller: textEditingController,
+            decoration: InputDecoration(
+              hintStyle: GoogleFonts.montserrat(
+                fontSize: regularTextSize,
+                color: smallerTextColor,
+              ),
+              hintText: hintText,
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                ),
+              ),
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey)),
+              filled: true,
+              contentPadding: const EdgeInsets.all(8),
+            ),
+            keyboardType: title,
+            obscureText: obscureText),
       ],
     );
   }
