@@ -1,46 +1,61 @@
+import '../utils/colors.dart';
+import '../screens/sign_up.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
+  //This following will be uncommented when we add firebase, but it is here
+  //for now
+
+  /* WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
+  */
+
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        ),
-        home: MyHomePage(),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Avandra',
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: splashpageColor,
       ),
-    );
-  }
-}
+      home: SignUpScreen(),
+      /*routes: {
+        '/SignUp': (context) => const SignUpScreen(),
+        //'/home': (context) => const HomeScreen(),
+        //etc.
+        //etc.
+      },
+      */
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-}
+      //This is for persistent state, which we will need, but not quite yet
+      //It also needs to be adjusted to allow for the splash page
 
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+      /*home: StreamBuilder(
+        stream: AuthMethods().authChanges,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
 
-    return Scaffold(
-      body: Column(
-        children: [
-          Text('A random idea:'),
-          Text(appState.current.asLowerCase),
-        ],
-      ),
+          if (snapshot.hasData) {
+            return const HomeScreen();
+          }
+
+          return const LoginScreen();
+        },
+      ),*/
     );
   }
 }
