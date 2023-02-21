@@ -71,7 +71,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: CircleAvatar(
                         radius: 50,
                         backgroundImage:
-                            AssetImage('lib/assets/images/logo.jpg'),
+                            AssetImage('lib/assets/images/logo1.jpg'),
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -125,6 +125,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               const SizedBox(
                                 height: 24,
                               ),
+                              Text(
+                                'Select who you are:',
+                                style: GoogleFonts.montserrat(
+                                  color: headingSizeColor,
+                                  fontSize: regularTextSize,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               Center(
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton2(
@@ -134,7 +142,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         Icon(
                                           Icons.list,
                                           size: 16,
-                                          color: Colors.yellow,
+                                          color: regularTextSizeColor,
                                         ),
                                         SizedBox(
                                           width: 4,
@@ -145,7 +153,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.yellow,
+                                              color: regularTextSizeColor,
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -160,7 +168,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                 style: const TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
+                                                  color: regularTextSizeColor,
                                                 ),
                                                 overflow: TextOverflow.ellipsis,
                                               ),
@@ -176,7 +184,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       Icons.arrow_forward_ios_outlined,
                                     ),
                                     iconSize: 14,
-                                    iconEnabledColor: Colors.yellow,
+                                    iconEnabledColor: regularTextSizeColor,
                                     iconDisabledColor: Colors.grey,
                                     buttonHeight: 50,
                                     buttonWidth: 160,
@@ -187,7 +195,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       border: Border.all(
                                         color: Colors.black26,
                                       ),
-                                      color: Colors.redAccent,
+                                      color: Colors.white,
                                     ),
                                     buttonElevation: 2,
                                     itemHeight: 40,
@@ -198,7 +206,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     dropdownPadding: null,
                                     dropdownDecoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(14),
-                                      color: Colors.redAccent,
+                                      color: smallerTextColor,
                                     ),
                                     dropdownElevation: 8,
                                     scrollbarRadius: const Radius.circular(40),
