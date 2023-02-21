@@ -63,11 +63,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               width: double.infinity,
               child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     CircleAvatar(
                       backgroundColor: Colors.black,
-                      radius: 60,
+                      radius: 51,
                       child: CircleAvatar(
                         radius: 50,
                         backgroundImage:
@@ -85,7 +85,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 38.0, horizontal: 20),
+                          vertical: 25.0, horizontal: 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -189,7 +189,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     buttonHeight: 50,
                                     buttonWidth: 160,
                                     buttonPadding: const EdgeInsets.only(
-                                        left: 14, right: 14),
+                                        left: 14, right: 14, bottom: 0),
                                     buttonDecoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(14),
                                       border: Border.all(
@@ -200,7 +200,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     buttonElevation: 2,
                                     itemHeight: 40,
                                     itemPadding: const EdgeInsets.only(
-                                        left: 14, right: 14),
+                                        left: 14, right: 14, bottom: 0),
                                     dropdownMaxHeight: 200,
                                     dropdownWidth: 200,
                                     dropdownPadding: null,
@@ -209,8 +209,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       color: smallerTextColor,
                                     ),
                                     dropdownElevation: 8,
-                                    scrollbarRadius: const Radius.circular(40),
-                                    scrollbarThickness: 6,
+                                    scrollbarRadius: const Radius.circular(30),
+                                    scrollbarThickness: 4,
                                     scrollbarAlwaysShow: true,
                                     offset: const Offset(-20, 0),
                                   ),
