@@ -1,13 +1,13 @@
 
-import 'package:avandra/utils/colors.dart';
-import 'package:avandra/utils/fonts.dart';
+import '../utils/colors.dart';
+import '../utils/fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CustomButton extends StatelessWidget {
+class BasicButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
-  const CustomButton({
+  const BasicButton({
     Key? key,
     required this.text,
     required this.onPressed,

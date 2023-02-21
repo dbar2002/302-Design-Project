@@ -1,4 +1,5 @@
-import 'package:avandra/utils/colors.dart';
+import '../utils/colors.dart';
+import '../screens/sign_up.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,12 +28,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: splashpageColor,
       ),
-      routes: {
-        //'/login': (context) => const LoginScreen(),
+      home: SignUpScreen(),
+      /*routes: {
+        '/SignUp': (context) => const SignUpScreen(),
         //'/home': (context) => const HomeScreen(),
         //etc.
         //etc.
       },
+      */
 
       //This is for persistent state, which we will need, but not quite yet
       //It also needs to be adjusted to allow for the splash page
