@@ -1,6 +1,7 @@
 import 'package:avandra/widgets/input_box.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../utils/colors.dart';
 import '../utils/fonts.dart';
@@ -20,7 +21,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
-  String? person;
+  final List<String> items = [
+    'Administration',
+    'Visitor',
+    'Student',
+    'Employee',
+  ];
+  String? selectedValue;
 
   @override
   void dispose() {
@@ -118,77 +125,93 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               const SizedBox(
                                 height: 24,
                               ),
+                              Center(
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton2(
+                                    isExpanded: true,
+                                    hint: Row(
+                                      children: const [
+                                        Icon(
+                                          Icons.list,
+                                          size: 16,
+                                          color: Colors.yellow,
+                                        ),
+                                        SizedBox(
+                                          width: 4,
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            'Select Type',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.yellow,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    items: items
+                                        .map((item) => DropdownMenuItem<String>(
+                                              value: item,
+                                              child: Text(
+                                                item,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ))
+                                        .toList(),
+                                    value: selectedValue,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedValue = value as String;
+                                      });
+                                    },
+                                    icon: const Icon(
+                                      Icons.arrow_forward_ios_outlined,
+                                    ),
+                                    iconSize: 14,
+                                    iconEnabledColor: Colors.yellow,
+                                    iconDisabledColor: Colors.grey,
+                                    buttonHeight: 50,
+                                    buttonWidth: 160,
+                                    buttonPadding: const EdgeInsets.only(
+                                        left: 14, right: 14),
+                                    buttonDecoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: Colors.black26,
+                                      ),
+                                      color: Colors.redAccent,
+                                    ),
+                                    buttonElevation: 2,
+                                    itemHeight: 40,
+                                    itemPadding: const EdgeInsets.only(
+                                        left: 14, right: 14),
+                                    dropdownMaxHeight: 200,
+                                    dropdownWidth: 200,
+                                    dropdownPadding: null,
+                                    dropdownDecoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(14),
+                                      color: Colors.redAccent,
+                                    ),
+                                    dropdownElevation: 8,
+                                    scrollbarRadius: const Radius.circular(40),
+                                    scrollbarThickness: 6,
+                                    scrollbarAlwaysShow: true,
+                                    offset: const Offset(-20, 0),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ],
                       ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        RadioListTile(
-                          title: Text(
-                            "Administration",
-                            style: GoogleFonts.montserrat(
-                              fontSize: regularTextSize,
-                              color: regularTextSizeColor,
-                            ),
-                          ),
-                          value: "Administration",
-                          groupValue: person,
-                          activeColor: buttonColor,
-                          onChanged: (value) {
-                            setState(() {
-                              person = value.toString();
-                            });
-                          },
-                        ),
-                        RadioListTile(
-                          title: Text("Visitor",
-                              style: GoogleFonts.montserrat(
-                                fontSize: regularTextSize,
-                                color: regularTextSizeColor,
-                              )),
-                          value: "Visitor",
-                          groupValue: person,
-                          activeColor: buttonColor,
-                          onChanged: (value) {
-                            setState(() {
-                              person = value.toString();
-                            });
-                          },
-                        ),
-                        RadioListTile(
-                          title: Text("Employee",
-                              style: GoogleFonts.montserrat(
-                                fontSize: regularTextSize,
-                                color: regularTextSizeColor,
-                              )),
-                          value: "Employee",
-                          groupValue: person,
-                          activeColor: buttonColor,
-                          onChanged: (value) {
-                            setState(() {
-                              person = value.toString();
-                            });
-                          },
-                        ),
-                        RadioListTile(
-                          title: Text("Student",
-                              style: GoogleFonts.montserrat(
-                                fontSize: regularTextSize,
-                                color: regularTextSizeColor,
-                              )),
-                          value: "Student",
-                          groupValue: person,
-                          activeColor: buttonColor,
-                          onChanged: (value) {
-                            setState(() {
-                              person = value.toString();
-                            });
-                          },
-                        )
-                      ],
                     ),
                     BasicButton(
                       text: 'Sign Up',
