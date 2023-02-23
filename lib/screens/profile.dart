@@ -52,6 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           const SizedBox(height: 8),
           Text(
+            // this will need to be updated from the edit profile page
             'Calamity Jane',
             style: TextStyle(
                 fontSize: regularTextSize, color: regularTextSizeColor),
