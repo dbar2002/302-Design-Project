@@ -11,42 +11,42 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomePage(),
+      home: Menu(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+// class HomePage extends StatefulWidget {
+//   const HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+//   @override
+//   State<HomePage> createState() => _HomePageState();
+// }
 
-class _HomePageState extends State<HomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: MenuScreen()
-      );
-  }
-}
+// class _HomePageState extends State<HomePage> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: MenuScreen()
+//       );
+//   }
+// }
 
-class MenuScreen extends StatefulWidget {
-  const MenuScreen({super.key});
+// class MenuScreen extends StatefulWidget {
+//   const MenuScreen({super.key});
 
-  @override
-  State<MenuScreen> createState() => _MenuScreenState();
-}
+//   @override
+//   State<MenuScreen> createState() => _MenuScreenState();
+// }
 
-class _MenuScreenState extends State<MenuScreen> {
+// class _MenuScreenState extends State<MenuScreen> {
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Menu(),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Center(
+//         child: Menu(),
+//       ),
+//     );
+//   }
+// }
