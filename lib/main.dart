@@ -1,5 +1,6 @@
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
+import '../screens/profile.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: splashpageColor,
       ),
-      home: SignUpScreen(),
+      // home: SignUpScreen(),
+      home: ProfilePage(),
       /*routes: {
         '/SignUp': (context) => const SignUpScreen(),
         //'/home': (context) => const HomeScreen(),
