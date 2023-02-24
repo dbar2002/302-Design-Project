@@ -88,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage("..assets/images/natureBackground.jpg"),
+                  image: AssetImage('assets/images/natureBackground.jpg'),
                   fit: BoxFit.cover),
             )),
 
@@ -106,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget buildProfileImage() => CircleAvatar(
         radius: profileHeight / 2,
         backgroundColor: Colors.grey.shade800,
-        backgroundImage: AssetImage('..assets/images/naturebackground.jpg'),
+        backgroundImage: AssetImage('assets/images/influencerProfilePic.jpeg'),
         // NetworkImage creates an object that provides an image from the URL
         // backgroundImage: NetworkImage(
         //   'https://www.google.com/imgres?imgurl=https%3A%2F%2Fwww.plannthat.com%2Fwp-content%2Fuploads%2F2018%2F11%2Finfluencer-instagram-business-profile.jpeg&imgrefurl=https%3A%2F%2Fwww.plannthat.com%2Fneed-an-instagram-business-profile%2F&tbnid=aEjzsqFGj0K0_M&vet=12ahUKEwjx7_m2uar9AhVjOkQIHSNtBuwQMygkegUIARCBAw..i&docid=FEt7mHXDB9ocyM&w=1920&h=1280&q=profile%20picture&hl=en&ved=2ahUKEwjx7_m2uar9AhVjOkQIHSNtBuwQMygkegUIARCBAw',

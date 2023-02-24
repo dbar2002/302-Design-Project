@@ -1,5 +1,189 @@
+import 'package:flutter/material.dart';
+import 'package:avandra/utils/colors.dart';
 
-class EditProfilePage() {
-  const String firstName = "Calamity";
-  const String lastName = "Jane";
+import '../utils/fonts.dart';
+
+class SettingUI extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Setting UI',
+      home: EditProfilePage(),
+    );
+  }
+}
+
+class EditProfilePage extends StatefulWidget {
+  @override
+  // ignore: library_private_types_in_public_api
+  _EditProfilePageState createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+  bool showPassword = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      // this creates the small navbar on the top of the page
+      appBar: AppBar(
+        backgroundColor: buttonColor,
+        elevation: 1,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            // figure out how to make this the buttonColor
+            color: Colors.white,
+          ),
+          onPressed: () {},
+        ),
+      ),
+      body: Container(
+        padding: EdgeInsets.only(left: 16, top: 25, right: 16),
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: ListView(children: [
+            Text(
+              'Edit Profile',
+              style: TextStyle(
+                fontSize: titleSize,
+                fontWeight: FontWeight.bold,
+                color: titleSizeColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            SizedBox(
+              height: 15,
+            ),
+
+            Center(
+              child: Stack(children: [
+                Container(
+                    width: 130,
+                    height: 130,
+
+                    // this creates the white circle behind the profile pic
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 4,
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                              spreadRadius: 2,
+                              blurRadius: 10,
+                              color: Colors.black.withOpacity(0.1),
+                              offset: Offset(0, 10))
+                        ],
+
+                        // this creates the profile pic
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(
+                            "https://www.plannthat.com/wp-content/uploads/2018/11/influencer-instagram-business-profile.jpeg",
+                          ),
+                        ))),
+                Positioned(
+                    bottom: 0,
+                    right: 0,
+
+                    // this Container creates the edit pencil icon
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          width: 4,
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                        ),
+                        color: Colors.green,
+                      ),
+                      child: Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                      ),
+                    ))
+              ]),
+            ),
+
+            SizedBox(
+              height: 35,
+            ),
+
+            // this is for all text fields
+            buildTextField("Username", "Jane Doe", false),
+            buildTextField("Email", "Calamity.Jane@gmail.com", false),
+            buildTextField("Phone Number", "+14987889999", false),
+            buildTextField("Password", "password", true),
+            // SizedBox(
+            //   height: 5,
+            // ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // this creates the Update button at the bottom of the screen
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: buttonColor,
+                    elevation: 2,
+                    padding: EdgeInsets.symmetric(horizontal: 50),
+                  ),
+                  onPressed: () {},
+                  child: Text(
+                    "Update",
+                    style: TextStyle(
+                        fontSize: directionInstructionSize,
+                        letterSpacing: 2.2,
+                        color: Colors.white),
+                  ),
+                ),
+              ],
+            )
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget buildTextField(
+      String labelText, String placeholder, bool isPasswordTextField) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 35.0),
+      child: TextField(
+        obscureText: isPasswordTextField ? showPassword : false,
+        decoration: InputDecoration(
+          suffixIcon: isPasswordTextField
+              ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      showPassword = !showPassword;
+                    });
+                  },
+                  icon: Icon(
+                    Icons.remove_red_eye,
+                    color: Colors.grey,
+                  ),
+                )
+              : null,
+          contentPadding: EdgeInsets.only(bottom: 3),
+          labelText: labelText,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hintText: placeholder,
+          hintStyle: TextStyle(
+            fontSize: regularTextSize,
+            // fontWeight: FontWeight.bold,
+            color: regularTextSizeColor,
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -1,3 +1,5 @@
+import 'package:avandra/screens/edit_profile.dart';
+
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
 import '../screens/profile.dart';
@@ -30,7 +32,9 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: splashpageColor,
       ),
       // home: SignUpScreen(),
-      home: ProfilePage(),
+
+      home: SettingUI(),
+      // home: ProfilePage(),
       /*routes: {
         '/SignUp': (context) => const SignUpScreen(),
         //'/home': (context) => const HomeScreen(),
