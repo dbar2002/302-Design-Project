@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/fonts.dart';
 import '../utils/colors.dart';
+import '../utils/global.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -54,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 8),
           Text(
             // this will need to be updated from the edit profile page
-            'Calamity Jane',
+            username,
             style: TextStyle(
                 fontSize: regularTextSize, color: regularTextSizeColor),
           ),
@@ -81,25 +82,17 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 
   /* this widget build the cover image */
-  // TODO: no image shows up for whatever reason
   Widget buildCoverImage() => Container(
         color: backgroundColor,
         child: Container(
-            height: 200,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage("lib/assets/images/natureBackground.jpg"),
-                  fit: BoxFit.cover),
-            )),
-
-        // Image.network creates a widget that displays an image onscreen
-        // child: Image.network(
-        //   AssetImage('..assets/images/'),
-        //   width: double.infinity,
-        //   height: coverHeight,
-        //   fit: BoxFit.cover,
-        // ),
+          height: 200,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage("lib/assets/images/natureBackground.jpg"),
+                fit: BoxFit.cover),
+          ),
+        ),
       );
 
   /* this widget builds the profile iamge */

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:avandra/utils/colors.dart';
 
 import '../utils/fonts.dart';
+import '../utils/global.dart';
 
 class SettingUI extends StatelessWidget {
   @override
@@ -27,7 +28,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      // this creates the small navbar on the top of the page
+      // this creates the small navbad\r on the top of the page
       appBar: AppBar(
         backgroundColor: buttonColor,
         elevation: 1,
@@ -85,9 +86,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         shape: BoxShape.circle,
                         image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: NetworkImage(
-                            "https://www.plannthat.com/wp-content/uploads/2018/11/influencer-instagram-business-profile.jpeg",
-                          ),
+                          image: AssetImage(
+                              "lib/assets/images/influencer_profile_pic.jpeg"),
                         ))),
                 Positioned(
                     bottom: 0,
@@ -103,11 +103,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           width: 4,
                           color: Theme.of(context).scaffoldBackgroundColor,
                         ),
-                        color: Colors.green,
+                        color: buttonColor,
                       ),
                       child: Icon(
                         Icons.edit,
-                        color: Colors.white,
+                        color: Colors.black,
                       ),
                     ))
               ]),
@@ -119,9 +119,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
             // this is for all text fields
             buildTextField("Username", "Jane Doe", false),
-            buildTextField("Email", "Calamity.Jane@gmail.com", false),
-            buildTextField("Phone Number", "+14987889999", false),
-            buildTextField("Password", "password", true),
+            buildTextField("Email", "janedoe@gmail.com", false),
+            buildTextField("Phone Number", "+1478238899", false),
+            buildTextField("Password", "mypassword", true),
             // SizedBox(
             //   height: 5,
             // ),
@@ -179,7 +179,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           hintText: placeholder,
           hintStyle: TextStyle(
             fontSize: regularTextSize,
-            // fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w300,
             color: regularTextSizeColor,
           ),
         ),
