@@ -33,8 +33,8 @@ class MyApp extends StatelessWidget {
       ),
       // home: SignUpScreen(),
 
-      home: SettingUI(),
-      // home: ProfilePage(),
+      // home: SettingUI(),
+      home: ProfilePage(),
       /*routes: {
         '/SignUp': (context) => const SignUpScreen(),
         //'/home': (context) => const HomeScreen(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/fonts.dart';
+import '../utils/colors.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -67,7 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SavedPinWidget(),
+              SavedPin(),
             ],
           ),
           const SizedBox(height: 16),
@@ -82,13 +83,13 @@ class _ProfilePageState extends State<ProfilePage> {
   /* this widget build the cover image */
   // TODO: no image shows up for whatever reason
   Widget buildCoverImage() => Container(
-        color: Colors.grey,
+        color: backgroundColor,
         child: Container(
             height: 200,
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('assets/images/natureBackground.jpg'),
+                  image: AssetImage("assets/images/natureBackground.jpg"),
                   fit: BoxFit.cover),
             )),
 
@@ -105,20 +106,21 @@ class _ProfilePageState extends State<ProfilePage> {
   // TODO: no image shows up for the profile pic
   Widget buildProfileImage() => CircleAvatar(
         radius: profileHeight / 2,
-        backgroundColor: Colors.grey.shade800,
-        backgroundImage: AssetImage('assets/images/influencerProfilePic.jpeg'),
+        backgroundColor: Colors.white,
+        // backgroundImage:
+        //     AssetImage('assets/images/influnecer_profile_pic.jpeg'),
         // NetworkImage creates an object that provides an image from the URL
-        // backgroundImage: NetworkImage(
-        //   'https://www.google.com/imgres?imgurl=https%3A%2F%2Fwww.plannthat.com%2Fwp-content%2Fuploads%2F2018%2F11%2Finfluencer-instagram-business-profile.jpeg&imgrefurl=https%3A%2F%2Fwww.plannthat.com%2Fneed-an-instagram-business-profile%2F&tbnid=aEjzsqFGj0K0_M&vet=12ahUKEwjx7_m2uar9AhVjOkQIHSNtBuwQMygkegUIARCBAw..i&docid=FEt7mHXDB9ocyM&w=1920&h=1280&q=profile%20picture&hl=en&ved=2ahUKEwjx7_m2uar9AhVjOkQIHSNtBuwQMygkegUIARCBAw',
-        // ),
+        backgroundImage: NetworkImage(
+          'https://www.plannthat.com/wp-content/uploads/2018/11/influencer-instagram-business-profile.jpeg',
+        ),
       );
 }
 
 /* this class creates the user's saved pins */
-class SavedPinWidget extends StatelessWidget {
+class SavedPin extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           _buildSavedPin(text: 'Physics class'),
           _buildDivider(),
@@ -129,7 +131,7 @@ class SavedPinWidget extends StatelessWidget {
       );
 
   /* this widget creates the spaces between pins */
-  Widget _buildDivider() => Container(
+  Widget _buildDivider() => SizedBox(
         height: 24,
         child: VerticalDivider(),
       );
