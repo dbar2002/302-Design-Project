@@ -89,7 +89,7 @@ class _ProfilePageState extends State<ProfilePage> {
             width: double.infinity,
             decoration: const BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage("assets/images/natureBackground.jpg"),
+                  image: AssetImage("lib/assets/images/natureBackground.jpg"),
                   fit: BoxFit.cover),
             )),
 
@@ -103,16 +103,14 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 
   /* this widget builds the profile iamge */
-  // TODO: no image shows up for the profile pic
   Widget buildProfileImage() => CircleAvatar(
         radius: profileHeight / 2,
         backgroundColor: Colors.white,
         // backgroundImage:
         //     AssetImage('assets/images/influnecer_profile_pic.jpeg'),
         // NetworkImage creates an object that provides an image from the URL
-        backgroundImage: NetworkImage(
-          'https://www.plannthat.com/wp-content/uploads/2018/11/influencer-instagram-business-profile.jpeg',
-        ),
+        backgroundImage:
+            AssetImage("lib/assets/images/influencer_profile_pic.jpeg"),
       );
 }
 

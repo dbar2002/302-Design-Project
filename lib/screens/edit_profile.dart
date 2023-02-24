@@ -33,7 +33,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         elevation: 1,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back,
+            Icons.arrow_back_ios,
             // figure out how to make this the buttonColor
             color: Colors.white,
           ),
