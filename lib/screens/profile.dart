@@ -1,3 +1,4 @@
+import 'package:avandra/screens/edit_profile.dart';
 import 'package:flutter/material.dart';
 import '../utils/fonts.dart';
 import '../utils/colors.dart';
@@ -44,6 +45,22 @@ class _ProfilePageState extends State<ProfilePage> {
         Positioned(
           top: top,
           child: buildProfileImage(),
+        ),
+
+        // this text button creates a route to the edit profile page
+        Positioned(
+          top: top,
+          child: TextButton(
+            style: TextButton.styleFrom(
+                textStyle: const TextStyle(
+                    fontSize: regularTextSize, color: Colors.white)),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => EditProfilePage(),
+              ));
+            },
+            child: const Text("Edit Profile"),
+          ),
         ),
       ],
     );

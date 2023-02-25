@@ -1,3 +1,4 @@
+import 'package:avandra/screens/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:avandra/utils/colors.dart';
 
@@ -38,7 +39,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
             // figure out how to make this the buttonColor
             color: Colors.white,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pop(
+              MaterialPageRoute(
+                builder: (context) => ProfilePage(),
+              ),
+            );
+          },
         ),
       ),
       body: Container(
