@@ -1,9 +1,9 @@
 import 'package:avandra/screens/profile.dart';
+import 'package:avandra/utils/global.dart';
 import 'package:flutter/material.dart';
 import 'package:avandra/utils/colors.dart';
 
 import '../utils/fonts.dart';
-import '../utils/global.dart';
 
 class SettingUI extends StatelessWidget {
   @override
@@ -23,7 +23,21 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  final usernameController = TextEditingController(text: username);
+  final userEmailController = TextEditingController(text: email);
+  final userPhoneNumberController = TextEditingController(text: phoneNumber);
+  final userPasswordController = TextEditingController(text: password);
   bool showPassword = false;
+
+  @override
+  void dispose() {
+    // cleans up the controller when the widget is disposed
+    usernameController.dispose();
+    userEmailController.dispose();
+    userPhoneNumberController.dispose();
+    userPasswordController.dispose();
+    super.dispose;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +54,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.of(context).pop(
+            Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => ProfilePage(),
               ),
@@ -125,10 +139,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
 
             // this is for all text fields
-            buildTextField("Username", "Jane Doe", false),
-            buildTextField("Email", "janedoe@gmail.com", false),
-            buildTextField("Phone Number", "+1478238899", false),
-            buildTextField("Password", "mypassword", true),
+            buildTextField("Username", username, false, usernameController),
+            buildTextField("Email", email, false, userEmailController),
+            buildTextField(
+                "Phone Number", phoneNumber, false, userPhoneNumberController),
+            buildTextField("Password", password, true, userPasswordController),
             // SizedBox(
             //   height: 5,
             // ),
@@ -143,7 +158,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     elevation: 2,
                     padding: EdgeInsets.symmetric(horizontal: 50),
                   ),
-                  onPressed: () {},
+                  // I don't think I'm doing this part right
+                  onPressed: () async {
+                    bool updated = true;
+                    if (updated) {
+                      // might need to fix this so it goes back to the profile page
+                      Navigator.pushNamed(context, '/profile');
+                    }
+                  },
                   child: Text(
                     "Update",
                     style: TextStyle(
@@ -153,18 +175,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
               ],
-            )
+            ),
           ]),
         ),
       ),
     );
   }
 
-  Widget buildTextField(
-      String labelText, String placeholder, bool isPasswordTextField) {
+  Widget buildTextField(String labelText, String value,
+      bool isPasswordTextField, TextEditingController userController) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 35.0),
       child: TextField(
+        controller: userController,
         obscureText: isPasswordTextField ? showPassword : false,
         decoration: InputDecoration(
           suffixIcon: isPasswordTextField
@@ -182,13 +205,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               : null,
           contentPadding: EdgeInsets.only(bottom: 3),
           labelText: labelText,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          hintText: placeholder,
-          hintStyle: TextStyle(
+          labelStyle: TextStyle(
             fontSize: regularTextSize,
-            fontWeight: FontWeight.w300,
             color: regularTextSizeColor,
           ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
       ),
     );

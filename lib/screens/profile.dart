@@ -11,17 +11,34 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final double coverHeight = 280;
-  final double profileHeight = 144;
+  final double coverHeight = 100;
+  final double profileHeight = 100;
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: buttonColor,
+        elevation: 1,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
+          ),
+          onPressed: () {},
+        ),
+      ),
       body: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           buildTop(),
           buildContent(),
+          // TODO: figure out the right height for this thing
+          Divider(height: screenHeight - coverHeight - (profileHeight / 2)),
+          buildBottom(),
         ],
       ),
     );
@@ -29,31 +46,36 @@ class _ProfilePageState extends State<ProfilePage> {
 
   /* this widget creates the top background of the profile page */
   Widget buildTop() {
-    final top = coverHeight - profileHeight / 2;
-    final bottom = profileHeight / 2;
+    // final top = coverHeight - profileHeight / 2;
+    final bottom = profileHeight / 4;
 
-    // Stack lets you overlap things
-    return Stack(
+    return Center(
+        // Stack lets you overlap things
+        child: Stack(
       clipBehavior: Clip.none,
-      alignment: Alignment.center,
-      // all widgets in children will then be overalpped
+
+      // all widgets in children will be overlapped because they're in the
+      // Stack Widget
       children: [
+        // this creates the backgroundImage
         Container(
-          margin: EdgeInsets.only(bottom: bottom),
-          child: buildCoverImage(),
+          // margin: EdgeInsets.only(bottom: 0),
+          child: buildCoverImage(Alignment.center),
         ),
-        Positioned(
-          top: top,
+
+        // this creates the profile image
+        Container(
+          alignment: Alignment.bottomCenter,
           child: buildProfileImage(),
         ),
 
         // this text button creates a route to the edit profile page
-        Positioned(
-          top: top,
+        Container(
+          alignment: Alignment.topRight,
           child: TextButton(
             style: TextButton.styleFrom(
                 textStyle: const TextStyle(
-                    fontSize: regularTextSize, color: Colors.white)),
+                    fontSize: regularTextSize, color: Colors.black)),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => EditProfilePage(),
@@ -63,51 +85,83 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ],
-    );
+    ));
   }
 
   /* this widget creates the profile name, city, and saved pins */
-  Widget buildContent() => Column(
-        children: [
-          const SizedBox(height: 8),
-          Text(
-            // this will need to be updated from the edit profile page
-            username,
-            style: TextStyle(
-                fontSize: regularTextSize, color: regularTextSizeColor),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'San Francisco',
-            style: TextStyle(
-                fontSize: regularTextSize, color: regularTextSizeColor),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SavedPin(),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Divider(),
-          const SizedBox(height: 16),
-          // TO DO: create buildPins function
-          // buildPins(),
-          const SizedBox(height: 32),
-        ],
-      );
+  Widget buildContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        // const SizedBox(height: 8),
+        Divider(height: 10),
+        Text(
+          // this will need to be updated from the edit profile page
+          username,
+          style:
+              TextStyle(fontSize: regularTextSize, color: regularTextSizeColor),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'San Francisco',
+          style:
+              TextStyle(fontSize: regularTextSize, color: regularTextSizeColor),
+        ),
+        // const SizedBox(height: 16),
+
+        // This is my attempt to make the My Pins button open to the saved pins
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //   children: [
+        //     TextButton(
+        //       onPressed: () {
+        //         SavedPin();
+        //       },
+        //       child: Text(
+        //         "My Pins",
+        //         textAlign: TextAlign.center,
+        //         style: TextStyle(
+        //           color: regularTextSizeColor,
+        //           fontSize: regularTextSize,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SavedPin(),
+          ],
+        ),
+        // const SizedBox(height: 16),
+        Divider(),
+        // const SizedBox(height: 16),
+        // TO DO: create buildPins function
+        // buildPins(),
+        // const SizedBox(height: 32),
+      ],
+    );
+  }
+
+  Widget buildBottom() {
+    return Container(
+      child: buildCoverImage(Alignment.bottomCenter),
+    );
+  }
 
   /* this widget build the cover image */
-  Widget buildCoverImage() => Container(
+  Widget buildCoverImage(Alignment pos) => Container(
         color: backgroundColor,
+        alignment: pos,
         child: Container(
-          height: 200,
+          height: coverHeight,
           width: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
                 image: AssetImage("lib/assets/images/natureBackground.jpg"),
-                fit: BoxFit.cover),
+                fit: BoxFit.fitWidth),
           ),
         ),
       );
@@ -116,9 +170,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget buildProfileImage() => CircleAvatar(
         radius: profileHeight / 2,
         backgroundColor: Colors.white,
-        // backgroundImage:
-        //     AssetImage('assets/images/influnecer_profile_pic.jpeg'),
-        // NetworkImage creates an object that provides an image from the URL
         backgroundImage:
             AssetImage("lib/assets/images/influencer_profile_pic.jpeg"),
       );
@@ -130,6 +181,34 @@ class SavedPin extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
+          // DefaultTabController(
+          //   length: 2,
+          //   child: Scaffold(
+          //     appBar: AppBar(
+          //       title: Text('Tabs Demo'),
+          //       bottom: TabBar(
+          //         indicatorColor: Colors.amberAccent,
+          //         indicatorSize: TabBarIndicatorSize.label,
+          //         indicatorWeight: 10,
+          //         indicator: BoxDecoration(
+          //           color: Colors.grey,
+          //         ),
+          //         tabs: [
+          //           Tab(icon: Icon(Icons.pin), text: 'My Saved Pins'),
+          //           Tab(icon: Icon(Icons.house), text: 'My Organizations'),
+          //         ],
+          //       ),
+          //     ),
+          //     body: TabBarView(
+          //       controller: TabController(length: 3, vsync: ),
+          //       children: <Widget>[
+          //         _buildSavedPin(text: 'Physics Class'),
+          //         _buildSavedPin(text: 'Circuits'),
+          //         // _buildSavedPin(text: 'Global Christianity'),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           _buildSavedPin(text: 'Physics class'),
           _buildDivider(),
           _buildSavedPin(text: 'Circuits'),
