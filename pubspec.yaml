@@ -17,6 +17,7 @@ dependencies:
   google_fonts: ^4.0.3
   flutter_svg: ^2.0.1
   dropdown_button2: ^1.9.3
+  getwidget: ^2.0.4
 
 dev_dependencies:
   flutter_test:
@@ -25,6 +26,8 @@ dev_dependencies:
   flutter_lints: ^2.0.0
 
 flutter:
+  fonts:
+    - family: Proxima Nova 
   uses-material-design: true
   assets:
     - lib/assets/images/logo1.jpg
