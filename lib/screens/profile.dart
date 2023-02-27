@@ -113,19 +113,35 @@ class _ProfilePageState extends State<ProfilePage> {
         // Row(
         //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         //   children: [
-        //     TextButton(
-        //       onPressed: () {
-        //         SavedPin();
-        //       },
-        //       child: Text(
-        //         "My Pins",
-        //         textAlign: TextAlign.center,
-        //         style: TextStyle(
-        //           color: regularTextSizeColor,
-        //           fontSize: regularTextSize,
-        //         ),
-        //       ),
-        //     ),
+        //     DefaultTabController(
+        //         length: 2,
+        //         child: Scaffold(
+        //           resizeToAvoidBottomInset: true,
+        //           appBar: AppBar(
+        //             bottom: TabBar(
+        //               tabs: [
+        //                 Tab(icon: Icon(Icons.pin)),
+        //                 Tab(icon: Icon(Icons.house)),
+        //               ],
+        //             ),
+        //           ),
+        //           body: TabBarView(
+        //             children: [
+        //               Text("Pin 1 of many"),
+        //               Text("Organization 1 of many")
+        //               // creates the organizations
+        //               // DefaultTabController(
+        //               //     length: organizations.length,
+        //               //     child: Scaffold(
+        //               //         appBar: AppBar(
+        //               //             bottom: TabBar(isScrollable: true, tabs: [
+        //               //       Tab(text: organizations[0]),
+        //               //       Tab(text: organizations[1]),
+        //               //       Tab(text: organizations[2]),
+        //               //     ])))),
+        //             ],
+        //           ),
+        //         )),
         //   ],
         // ),
 
@@ -181,34 +197,6 @@ class SavedPin extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          // DefaultTabController(
-          //   length: 2,
-          //   child: Scaffold(
-          //     appBar: AppBar(
-          //       title: Text('Tabs Demo'),
-          //       bottom: TabBar(
-          //         indicatorColor: Colors.amberAccent,
-          //         indicatorSize: TabBarIndicatorSize.label,
-          //         indicatorWeight: 10,
-          //         indicator: BoxDecoration(
-          //           color: Colors.grey,
-          //         ),
-          //         tabs: [
-          //           Tab(icon: Icon(Icons.pin), text: 'My Saved Pins'),
-          //           Tab(icon: Icon(Icons.house), text: 'My Organizations'),
-          //         ],
-          //       ),
-          //     ),
-          //     body: TabBarView(
-          //       controller: TabController(length: 3, vsync: ),
-          //       children: <Widget>[
-          //         _buildSavedPin(text: 'Physics Class'),
-          //         _buildSavedPin(text: 'Circuits'),
-          //         // _buildSavedPin(text: 'Global Christianity'),
-          //       ],
-          //     ),
-          //   ),
-          // ),
           _buildSavedPin(text: 'Physics class'),
           _buildDivider(),
           _buildSavedPin(text: 'Circuits'),
@@ -243,3 +231,28 @@ class SavedPin extends StatelessWidget {
                 ),
               ]));
 }
+
+
+// class PinsAction extends StatefulWidget {
+//   @override
+//   State<StatefulWidget> createState() {
+//     return PinsActionApp();
+//   }
+// }
+
+// class PinsActionApp extends State<PinsAction> {
+//   int i = 0;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       children: [
+//         for(var i = 0; i < pins.length; i++) {
+//           Text(pins[i])
+//         }
+//       ]
+//       while (i < pins.length()) {
+//         data: pins[i];
+//       }
+//     );
+//   }
+// }

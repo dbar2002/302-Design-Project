@@ -43,14 +43,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      // this creates the small navbad\r on the top of the page
+      // this creates the small navbar on the top of the page
       appBar: AppBar(
         backgroundColor: buttonColor,
         elevation: 1,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,
-            // figure out how to make this the buttonColor
             color: Colors.white,
           ),
           onPressed: () {
@@ -64,6 +63,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       body: Container(
         padding: EdgeInsets.only(left: 16, top: 25, right: 16),
+
+        // this lets you focus on each text box
         child: GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
@@ -158,7 +159,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     elevation: 2,
                     padding: EdgeInsets.symmetric(horizontal: 50),
                   ),
-                  // I don't think I'm doing this part right
                   onPressed: () async {
                     bool updated = true;
                     if (updated) {
@@ -201,6 +201,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         obscureText: isPasswordTextField ? showPassword : false,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
+          // toggles the password as seen or hidden
           suffixIcon: isPasswordTextField
               ? IconButton(
                   onPressed: () {
