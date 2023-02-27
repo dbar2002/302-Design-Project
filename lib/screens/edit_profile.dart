@@ -162,8 +162,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   onPressed: () async {
                     bool updated = true;
                     if (updated) {
-                      // might need to fix this so it goes back to the profile page
-                      Navigator.pushNamed(context, '/profile');
+                      // this updates each global variable to the current text
+                      username = usernameController.text;
+                      email = userEmailController.text;
+                      phoneNumber = userPhoneNumberController.text;
+                      password = userPasswordController.text;
+
+                      // when update is pushed, it sends the user back to the profile page
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ProfilePage(),
+                        ),
+                      );
                     }
                   },
                   child: Text(
@@ -190,6 +200,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         controller: userController,
         obscureText: isPasswordTextField ? showPassword : false,
         decoration: InputDecoration(
+          border: OutlineInputBorder(),
           suffixIcon: isPasswordTextField
               ? IconButton(
                   onPressed: () {

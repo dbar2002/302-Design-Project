@@ -1,6 +1,6 @@
 library avandra.global;
 
-String username = '';
-String email = '';
-String phoneNumber = '';
-String password = '';
+String username = 'Jane Doe';
+String email = 'janedoe@gmail.com';
+String phoneNumber = '14897651895';
+String password = '1ihteObnef';
