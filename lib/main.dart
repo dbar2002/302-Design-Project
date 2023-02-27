@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   //This following will be uncommented when we add firebase, but it is here
