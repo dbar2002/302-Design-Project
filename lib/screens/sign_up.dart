@@ -172,7 +172,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                               fontSize: 15,
                                               fontWeight: FontWeight.bold,
                                               color: smallerTextColor,
-                                              fontFamily: 'Proxima Nova',
+                                              
                                             ),
                                             textAlign: TextAlign.left,
                                             overflow: TextOverflow.ellipsis,
