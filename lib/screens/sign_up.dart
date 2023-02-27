@@ -1,3 +1,4 @@
+import 'package:avandra/screens/email_confirmation.dart';
 import 'package:avandra/screens/home.dart';
 import 'package:avandra/screens/sign_in.dart';
 import 'package:avandra/widgets/input_box.dart';
@@ -39,7 +40,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   final List<String> items = [
-    'Administration',
     'Visitor',
     'Student',
     'Employee',
@@ -66,7 +66,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       // navigate to the home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
+          builder: (context) => const EmailConfirmationScreen(),
         ),
       );
     } else {
