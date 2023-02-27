@@ -1,12 +1,16 @@
+import 'package:avandra/screens/home.dart';
 import 'package:avandra/screens/sign_in.dart';
 import 'package:avandra/widgets/input_box.dart';
 import 'package:avandra/widgets/sign_up_header.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
+import '../resources/authentication.dart';
+import '../resources/validator.dart';
 import '../utils/colors.dart';
 import '../utils/fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../utils/util.dart';
 import '../widgets/basic_button.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -17,17 +21,13 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final _registerFormKey = GlobalKey<FormState>();
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
-  final List<String> items = [
-    'Administration',
-    'Visitor',
-    'Student',
-    'Employee',
-  ];
-  String? selectedValue;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -37,6 +37,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _usernameController.dispose();
     _organizationController.dispose();
   }
+
+  final List<String> items = [
+    'Administration',
+    'Visitor',
+    'Student',
+    'Employee',
+  ];
+  String? selectedValue;
+/*
+  void signUpUser() async {
+    // set loading to true
+    setState(() {
+      _isLoading = true;
+    });
+
+    // signup user using our authmethodds
+    String res = await AuthMethods().signUpUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+      username: _usernameController.text,
+    );
+    // if string returned is sucess, user has been created
+    if (res == "success") {
+      setState(() {
+        _isLoading = false;
+      });
+      // navigate to the home screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      // show the error
+      showSnackBar(context, res);
+    }
+  }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -65,12 +106,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 hintText: 'Enter your full name',
                                 title: TextInputType.text,
                                 textEditingController: _usernameController,
-                                validator: (textValue) {
-                                  if (textValue == null || textValue.isEmpty) {
-                                    return 'Name field is required!';
-                                  }
-                                  return null;
-                                }),
+                                validator: (value) => Validator.validateName(
+                                      name: value,
+                                    )),
                             const SizedBox(
                               height: 24,
                             ),
@@ -79,13 +117,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 title: TextInputType.emailAddress,
                                 textEditingController: _emailController,
                                 isDense: true,
-                                validator: (textValue) {
-                                  if (textValue == null || textValue.isEmpty) {
-                                    return 'Email is required!';
-                                  }
-
-                                  return null;
-                                }),
+                                validator: (value) => Validator.validateEmail(
+                                      email: value,
+                                    )),
                             const SizedBox(
                               height: 24,
                             ),
@@ -93,13 +127,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               hintText: 'Enter your password',
                               title: TextInputType.text,
                               textEditingController: _passwordController,
-                              
-                              validator: (textValue) {
-                                if (textValue == null || textValue.isEmpty) {
-                                  return 'Password is required!';
-                                }
-                                return null;
-                              },
+                              validator: (value) => Validator.validatePassword(
+                                password: value,
+                              ),
                               suffixIcon: true,
                             ),
                             const SizedBox(
@@ -212,6 +242,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ],
                     ),
+                  ),
+
+                  //FIXME
+                  InkWell(
+                    child: Container(
+                      child: !_isLoading
+                          ? const Text(
+                              'Sign up',
+                            )
+                          : const CircularProgressIndicator(
+                              color: smallerTextColor,
+                            ),
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: const ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                        ),
+                        color: backgroundColor,
+                      ),
+                    ),
+                    //onTap: signUpUser,
                   ),
                   BasicButton(
                     text: 'Sign Up',
