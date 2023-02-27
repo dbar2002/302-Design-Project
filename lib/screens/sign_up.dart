@@ -45,7 +45,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     'Employee',
   ];
   String? selectedValue;
-/*
+
   void signUpUser() async {
     // set loading to true
     setState(() {
@@ -77,7 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       showSnackBar(context, res);
     }
   }
-  */
+  
 
   @override
   Widget build(BuildContext context) {

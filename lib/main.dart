@@ -1,10 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   //This following will be uncommented when we add firebase, but it is here
@@ -12,7 +9,7 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
