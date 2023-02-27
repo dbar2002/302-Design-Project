@@ -18,7 +18,7 @@ class InputBox extends StatefulWidget {
     required this.hintText,
     this.suffixIcon = false,
     this.isDense,
-    this.obscureText = true,
+    this.obscureText = false,
     required this.title,
   }) : super(key: key);
 
@@ -27,7 +27,7 @@ class InputBox extends StatefulWidget {
 }
 
 class _InputBox extends State<InputBox> {
-  bool _obscureText = true;
+  bool _obscureText = false;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +79,7 @@ class _InputBox extends State<InputBox> {
               contentPadding: const EdgeInsets.all(8),
             ),
             keyboardType: widget.title,
-            obscureText: (widget.obscureText && _obscureText)),
+            obscureText: (widget.obscureText && !_obscureText)),
       ],
     );
   }

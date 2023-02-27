@@ -77,7 +77,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       showSnackBar(context, res);
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Column(
                           children: [
                             InputBox(
+                                obscureText: false,
                                 hintText: 'Enter your full name',
                                 title: TextInputType.text,
                                 textEditingController: _usernameController,
@@ -113,6 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               height: 24,
                             ),
                             InputBox(
+                                obscureText: false,
                                 hintText: 'Enter your email',
                                 title: TextInputType.emailAddress,
                                 textEditingController: _emailController,
@@ -124,6 +125,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               height: 24,
                             ),
                             InputBox(
+                              obscureText: true,
                               hintText: 'Enter your password',
                               title: TextInputType.text,
                               textEditingController: _passwordController,
@@ -136,6 +138,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               height: 24,
                             ),
                             InputBox(
+                                obscureText: false,
                                 hintText: 'Organization',
                                 title: TextInputType.text,
                                 textEditingController: _organizationController,
@@ -172,7 +175,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                               fontSize: 15,
                                               fontWeight: FontWeight.bold,
                                               color: smallerTextColor,
-                                              
                                             ),
                                             textAlign: TextAlign.left,
                                             overflow: TextOverflow.ellipsis,
@@ -243,37 +245,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
                   ),
-
-                  //FIXME
-                  InkWell(
-                    child: Container(
-                      child: !_isLoading
-                          ? const Text(
-                              'Sign up',
-                            )
-                          : const CircularProgressIndicator(
-                              color: smallerTextColor,
-                            ),
-                      width: double.infinity,
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: const ShapeDecoration(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                        ),
-                        color: backgroundColor,
-                      ),
-                    ),
-                    //onTap: signUpUser,
-                  ),
                   BasicButton(
                     text: 'Sign Up',
                     onPressed: () async {
-                      bool res =
-                          true; //await _authMethods.signInWithGoogle(context);
-                      if (res) {
-                        Navigator.pushNamed(context, '/confirmation');
-                      }
+                      signUpUser();
                     },
                   ),
                   Row(
