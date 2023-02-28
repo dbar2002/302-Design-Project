@@ -15,7 +15,6 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignInScreen> {
-  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String? selectedValue;
@@ -25,7 +24,6 @@ class _SignUpScreenState extends State<SignInScreen> {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _usernameController.dispose();
   }
 
   @override
