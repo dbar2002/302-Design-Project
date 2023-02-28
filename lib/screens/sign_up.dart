@@ -1,8 +1,10 @@
 import 'package:avandra/screens/email_confirmation.dart';
 import 'package:avandra/screens/home.dart';
 import 'package:avandra/screens/sign_in.dart';
+import 'package:avandra/utils/global.dart';
 import 'package:avandra/widgets/input_box.dart';
 import 'package:avandra/widgets/sign_up_header.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../resources/authentication.dart';
@@ -13,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/util.dart';
 import '../widgets/basic_button.dart';
+import '../widgets/firestore_search.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -29,6 +32,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
   bool _isLoading = false;
+  String dropDownValue = "Select Organization";
 
   @override
   void dispose() {
@@ -44,7 +48,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     'Student',
     'Employee',
   ];
+
+  Future<List<String>> orgs = getOrganizations.getOrgs();
+
   String? selectedValue;
+  bool showDropdown = true;
 
   void signUpUser() async {
     // set loading to true
@@ -137,6 +145,55 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             const SizedBox(
                               height: 24,
                             ),
+                            FutureBuilder(
+                                future: orgs,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<dynamic> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Stack(
+                                      children: [
+                                        TextField(
+                                          onTap: () {
+                                            setState(() {
+                                              showDropdown = true;
+                                            });
+                                          },
+                                          controller: _organizationController,
+                                        ), DropdownButton(
+                                                value: dropDownValue!.isEmpty
+                                                    ? null
+                                                    : dropDownValue!,
+                                                icon: const Icon(
+                                                    Icons.keyboard_arrow_down),
+                                                items: snapshot.data!.map<
+                                                        DropdownMenuItem<
+                                                            String>>(
+                                                    (String orgs) {
+                                                  return DropdownMenuItem<
+                                                      String>(
+                                                    value: orgs.toString(),
+                                                    child: Text(orgs.toString()),
+                                                  );
+                                                }).toList(),
+                                                onChanged: (String? newValue) {
+                                                  setState(() {
+                                                    _organizationController
+                                                        .text = newValue!;
+                                                  });
+                                                },
+                                              )
+                                         
+                                      ],
+                                    );
+                                  } else {
+                                    //Just in case something goes horribly wrong
+                                    return Container(
+                                      color: Colors.black,
+                                      width: 100,
+                                      height: 100,
+                                    );
+                                  }
+                                }),
                             InputBox(
                                 obscureText: false,
                                 hintText: 'Organization',
