@@ -11,6 +11,18 @@ static String? validateName({required String? name}) {
   return null;
 }
 
+//FIXME
+static String? validateOrg({required String? org}) {
+  if (org == null) {
+    return null;
+  }
+
+  if (org.isEmpty) {
+    return 'Organization can\'t be empty';
+  }
+  return null;
+}
+
 static String? validateEmail({required String? email}) {
   if (email == null) {
     return null;

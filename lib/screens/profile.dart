@@ -13,6 +13,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final double coverHeight = 100;
   final double profileHeight = 100;
+  String username = "Jane Doe";
 
   @override
   Widget build(BuildContext context) {

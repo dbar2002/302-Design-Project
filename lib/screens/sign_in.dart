@@ -1,6 +1,7 @@
 import 'package:avandra/widgets/input_box.dart';
 import 'package:flutter/services.dart';
 
+import '../resources/validator.dart';
 import '../utils/colors.dart';
 import '../utils/fonts.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +70,9 @@ class _SignUpScreenState extends State<SignInScreen> {
                           hintText: 'Enter your email',
                           title: TextInputType.emailAddress,
                           textEditingController: _emailController,
+                          validator: (value) => Validator.validateEmail(
+                                      email: value,
+                                    )
                         ),
                         const SizedBox(
                           height: 24,
@@ -77,6 +81,9 @@ class _SignUpScreenState extends State<SignInScreen> {
                           hintText: 'Enter your password',
                           title: TextInputType.text,
                           textEditingController: _passwordController,
+                          validator: (value) => Validator.validatePassword(
+                                      password: value,
+                                    ),
                         ),
                         const SizedBox(
                           height: 24,

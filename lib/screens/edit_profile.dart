@@ -5,6 +5,15 @@ import 'package:avandra/utils/colors.dart';
 
 import '../utils/fonts.dart';
 
+//FIXME
+   var username;
+  
+   var email;
+  
+   var phoneNumber;
+  
+   var password;
+
 class SettingUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -28,6 +37,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final userPhoneNumberController = TextEditingController(text: phoneNumber);
   final userPasswordController = TextEditingController(text: password);
   bool showPassword = false;
+
 
   @override
   void dispose() {
