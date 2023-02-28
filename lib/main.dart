@@ -1,123 +1,61 @@
+import '../utils/colors.dart';
+import '../screens/sign_up.dart';
+import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
+  //This following will be uncommented when we add firebase, but it is here
+  //for now
+
+  /* WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
+  */
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: LoginScreen()
-      );
-  }
-}
-
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "MyApp",
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Text(
-            "Login to App",
-            style: TextStyle(
-              color: Colors.black, 
-              fontSize: 44, 
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Text(
-            "Login to App",
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 44,
-              fontWeight: FontWeight.bold,
-            ),
-            ),
-            const SizedBox(
-              height: 44,
-            ),
-            const TextField(keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-              hintText: "User Email",
-              prefixIcon: Icon(Icons.mail, color: Colors.black),
-            ),
-            ),
-            const SizedBox(
-              height: 26,
-            ),
-            const TextField(
-            obscureText: true,
-            decoration: InputDecoration(
-              hintText: "User Password",
-              prefixIcon: Icon(Icons.mail, color: Colors.blue),
-            ),
-            ),
-            const SizedBox(
-              height: 12,
-            ),
-            const Text(
-              "Reset your Password",
-              style: TextStyle(color: Colors.blue),
-            ),
-            const SizedBox(
-              height: 88,
-            ),
-            Container(
-              width: double.infinity,
-              child: RawMaterialButton(
-                fillColor: Color(0xFF0069FE),
-                elevation: 0,
-                padding: EdgeInsets.symmetric(vertical: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-                  onPressed: () {},
-                  child: Text("Login",
-                  style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  )),
-              ),
-            ),
-        ],
+      debugShowCheckedModeBanner: false,
+      title: 'Avandra',
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: splashpageColor,
       ),
+      home: SignUpScreen(),
+      /*routes: {
+        '/SignUp': (context) => const SignUpScreen(),
+        //'/home': (context) => const HomeScreen(),
+        //etc.
+        //etc.
+      },
+      */
+
+      //This is for persistent state, which we will need, but not quite yet
+      //It also needs to be adjusted to allow for the splash page
+
+      /*home: StreamBuilder(
+        stream: AuthMethods().authChanges,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (snapshot.hasData) {
+            return const HomeScreen();
+          }
+
+          return const LoginScreen();
+        },
+      ),*/
     );
   }
 }

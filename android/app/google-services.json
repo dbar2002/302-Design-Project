@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "242908023765",
+    "project_id": "avandra-log-in",
+    "storage_bucket": "avandra-log-in.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242908023765:android:519e85da6151bc39b54b5c",
+        "android_client_info": {
+          "package_name": "com.example.avandra"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "242908023765-5ievt4462u69dvf45422npafvopti2ga.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAM-ySzbbjdo3a1LJ9b47yMmJcaOl1gXcM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "242908023765-5ievt4462u69dvf45422npafvopti2ga.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "242908023765-8ds7kkd2t6581kq1ep28oeo0s8qdqrkf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "avandra"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

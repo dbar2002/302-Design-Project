@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>242908023765-elbj2vb7i10jl6j6oib5nt7403bjq3sj.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.242908023765-elbj2vb7i10jl6j6oib5nt7403bjq3sj</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAZ8Ca_00PabaqgdyPTnuoV5DPObuKyj2w</string>
+	<key>GCM_SENDER_ID</key>
+	<string>242908023765</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.avandra</string>
+	<key>PROJECT_ID</key>
+	<string>avandra-log-in</string>
+	<key>STORAGE_BUCKET</key>
+	<string>avandra-log-in.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:242908023765:ios:a25e9ef026482389b54b5c</string>
+</dict>
+</plist>
