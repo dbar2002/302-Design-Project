@@ -1,3 +1,4 @@
+
 import 'package:avandra/screens/edit_profile.dart';
 
 import '../utils/colors.dart';
@@ -14,6 +15,7 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(const MyApp());
 }
 
@@ -23,6 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+
       debugShowCheckedModeBanner: false,
       title: 'Avandra',
       theme: ThemeData.dark().copyWith(
@@ -63,3 +66,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
