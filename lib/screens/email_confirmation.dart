@@ -55,7 +55,7 @@ Future sendEmail() async {
 
   @override
   Widget build(BuildContext context) => isEmailVerified!
-  ? AddNewOrg() //placeholder page for now can be replaced with our main homepage later
+  ? AddNewOrgScreen() //placeholder page for now can be replaced with our main homepage later
     : Scaffold(
         body: Padding (padding: EdgeInsets.all(45),
               child: Column(
