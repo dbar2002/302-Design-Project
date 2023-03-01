@@ -1,3 +1,5 @@
+import 'package:avandra/screens/sign_in.dart';
+
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
 import 'package:english_words/english_words.dart';
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: splashpageColor,
       ),
-      home: SignUpScreen(),
+      home: LoginScreen(),
       /*routes: {
         '/SignUp': (context) => const SignUpScreen(),
         //'/home': (context) => const HomeScreen(),
