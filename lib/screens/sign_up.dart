@@ -50,7 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           backgroundColor: backgroundColor,
           leading: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context) ;
               },
               icon: Icon(
                 Icons.arrow_back_ios,

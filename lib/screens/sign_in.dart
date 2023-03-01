@@ -61,7 +61,6 @@ class _SignUpScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    //PUT A PICTURE HERE SOMEHOW
 
                     Column(
                       children: [
@@ -101,7 +100,8 @@ class _SignUpScreenState extends State<LoginScreen> {
                                 color: regularTextSizeColor,
                               ),
                             ),
-                            Text(
+                            TextButton(onPressed: () async {Navigator.pushNamed(context, '/SignUp');}, 
+                            child:  Text(
                               "Create An Account",
                               style: GoogleFonts.montserrat(
                                 fontWeight: FontWeight.bold,
@@ -109,7 +109,8 @@ class _SignUpScreenState extends State<LoginScreen> {
                                 color: regularTextSizeColor,
                                 decoration: TextDecoration.underline,
                               ),
-                            ),
+                            ),)
+                           
                           ],
                         ),
                       ],
