@@ -3,18 +3,31 @@ import '../utils/fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class InputBox extends StatelessWidget {
+class InputBox extends StatefulWidget {
   final TextEditingController textEditingController;
   final bool obscureText;
   final String hintText;
   final TextInputType title;
+  final String? Function(String?) validator;
+  final bool suffixIcon;
+  final bool? isDense;
   const InputBox({
     Key? key,
     required this.textEditingController,
-    this.obscureText = false,
+    required this.validator,
     required this.hintText,
+    this.suffixIcon = false,
+    this.isDense,
+    this.obscureText = false,
     required this.title,
   }) : super(key: key);
+
+  @override
+  State<InputBox> createState() => _InputBox();
+}
+
+class _InputBox extends State<InputBox> {
+  bool _obscureText = false;
 
   @override
   Widget build(BuildContext context) {
@@ -25,18 +38,36 @@ class InputBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField(
+        TextFormField(
             style: GoogleFonts.montserrat(
               fontSize: regularTextSize,
               color: regularTextSizeColor,
             ),
-            controller: textEditingController,
+            controller: widget.textEditingController,
             decoration: InputDecoration(
               hintStyle: GoogleFonts.montserrat(
                 fontSize: regularTextSize,
                 color: smallerTextColor,
               ),
-              hintText: hintText,
+              hintText: widget.hintText,
+              suffixIcon: widget.suffixIcon
+                  ? IconButton(
+                      icon: Icon(
+                        _obscureText
+                            ? Icons.remove_red_eye
+                            : Icons.visibility_off_outlined,
+                        color: Colors.black54,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    )
+                  : null,
+              suffixIconConstraints: (widget.isDense != null)
+                  ? const BoxConstraints(maxHeight: 33)
+                  : null,
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
                   color: Colors.black,
@@ -47,8 +78,8 @@ class InputBox extends StatelessWidget {
               filled: true,
               contentPadding: const EdgeInsets.all(8),
             ),
-            keyboardType: title,
-            obscureText: obscureText),
+            keyboardType: widget.title,
+            obscureText: (widget.obscureText && !_obscureText)),
       ],
     );
   }

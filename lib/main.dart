@@ -1,19 +1,22 @@
+
+import 'package:avandra/screens/edit_profile.dart';
+
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
+import '../screens/profile.dart';
 import 'package:english_words/english_words.dart';
-import 'package:flutter/material.dart';
-import '../screens/menu.dart';
 
-void main() {
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+Future<void> main() async {
   //This following will be uncommented when we add firebase, but it is here
   //for now
 
-  /* WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
-  */
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,12 +25,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+
       debugShowCheckedModeBanner: false,
       title: 'Avandra',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: splashpageColor,
       ),
-      home: Menu(),
+      // home: SignUpScreen(),
+
+      // home: SettingUI(),
+      home: ProfilePage(),
+
       /*routes: {
         '/SignUp': (context) => const SignUpScreen(),
         //'/home': (context) => const HomeScreen(),
@@ -58,3 +66,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
