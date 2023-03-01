@@ -1,4 +1,5 @@
 import 'package:avandra/screens/sign_in.dart';
+import 'package:avandra/screens/splash_page.dart';
 
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
@@ -31,13 +32,13 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: splashpageColor,
       ),
       home: LoginScreen(),
-      /*routes: {
+      routes: {
         '/SignUp': (context) => const SignUpScreen(),
         //'/home': (context) => const HomeScreen(),
         //etc.
         //etc.
       },
-      */
+      
 
       //This is for persistent state, which we will need, but not quite yet
       //It also needs to be adjusted to allow for the splash page
