@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 class Menu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
-      appBar: AppBar(title: const Text('Main Menu')),        
       body: ListView(
-            shrinkWrap: true,
+            // shrinkWrap: true,
             padding: EdgeInsets.all(16),
             children: [
               ListTile(
@@ -69,4 +67,10 @@ class Menu extends StatelessWidget {
         ),
     );
   }
+
+  Widget _buildMenu() {
+    return SafeArea(child: Scaffold(appBar: ),)
+  }
+  //https://stackoverflow.com/questions/62021186/how-do-i-put-a-listview-under-a-scaffold-with-padding
 }
+
