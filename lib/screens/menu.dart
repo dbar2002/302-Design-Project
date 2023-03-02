@@ -30,31 +30,33 @@ class _MenuScreenState extends State<MenuScreen> {
       ),
       body: 
       ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.only(left: 90.0, top: 170.0), 
         children: [
           ListTile(
-                leading: Icon(Icons.home, color: Colors.black),
-                title: Text('Home', style: TextStyle(color: Colors.black)),
+                leading: Icon(Icons.home, color: Colors.black, size: 30,),
+                title: Text('Home', style: TextStyle(color: Colors.black, fontSize: 23)),
                 onTap: () => Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false),
           ),
           ListTile(
-            leading: Icon(Icons.account_circle, color: Colors.black),
-            title: Text('Profile', style: TextStyle(color: Colors.black)),
-            onTap: () => print('Profile'),
+            leading: Icon(Icons.account_circle, color: Colors.black, size: 30),
+            title: Text('Profile', style: TextStyle(color: Colors.black, fontSize: 23)),
+            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil('/profile', (route) => false),
           ),
           ListTile(
-            leading: Icon(Icons.push_pin, color: Colors.black),
-            title: Text('Pins', style: TextStyle(color: Colors.black)),
-            onTap: () => print('Pins'),
+            leading: Icon(Icons.push_pin, color: Colors.black, size: 30),
+            title: Text('Pins', style: TextStyle(color: Colors.black, fontSize: 23)),
+            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil('/pins', (route) => false),
           ),
           ListTile(
-            leading: Icon(Icons.map_outlined, color: Colors.black),
-            title: Text('Select Map', style: TextStyle(color: Colors.black)),
-            onTap: () => print('Select Map'),
+            leading: Icon(Icons.map_outlined, color: Colors.black, size: 30),
+            title: Text('Select Map', style: TextStyle(color: Colors.black, fontSize: 23)),
+            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false),
           ),
-          Divider(),
+          Divider(color: Colors.black, endIndent: 90,),
           ListTile(
-            leading: Icon(Icons.logout, color: Colors.black),
-            title: Text('Log out', style: TextStyle(color: Colors.black)),
+            leading: Icon(Icons.logout, color: Colors.black, size: 30),
+            title: Text('Log out', style: TextStyle(color: Colors.black, fontSize: 23)),
             onTap: () => print('Log out'),
           ),
         ],
