@@ -36,12 +36,14 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: splashpageColor,
       body: Center(
+        
         child: Container(
           height: height / 2,
           width: width,
           child: const Image(
             image: AssetImage('lib/assets/images/logo1.jpg'),
             fit: BoxFit.fill,
+            
           ),
         ),
       ),

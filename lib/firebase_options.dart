@@ -67,7 +67,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '242908023765',
     projectId: 'avandra-log-in',
     storageBucket: 'avandra-log-in.appspot.com',
-    iosClientId: '242908023765-elbj2vb7i10jl6j6oib5nt7403bjq3sj.apps.googleusercontent.com',
+    iosClientId:
+        '242908023765-elbj2vb7i10jl6j6oib5nt7403bjq3sj.apps.googleusercontent.com',
     iosBundleId: 'com.example.avandra',
   );
 
@@ -77,7 +78,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '242908023765',
     projectId: 'avandra-log-in',
     storageBucket: 'avandra-log-in.appspot.com',
-    iosClientId: '242908023765-elbj2vb7i10jl6j6oib5nt7403bjq3sj.apps.googleusercontent.com',
+    iosClientId:
+        '242908023765-elbj2vb7i10jl6j6oib5nt7403bjq3sj.apps.googleusercontent.com',
     iosBundleId: 'com.example.avandra',
   );
 }
