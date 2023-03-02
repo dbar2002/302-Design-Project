@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 const backgroundColor = Color.fromRGBO(251, 242, 217, 1);
-const splashpageColor = Color.fromRGBO(241, 249, 255, 1);
+const splashpageColor = Color.fromRGBO(239, 238, 233, 1);
 const buttonColor = Color.fromRGBO(184, 212, 246, 0.8);
 const menuAndNavigationColor = Color.fromRGBO(217, 217, 217, 1);
 const darkerNavigationColor = Color.fromRGBO(51, 51, 51, 1);

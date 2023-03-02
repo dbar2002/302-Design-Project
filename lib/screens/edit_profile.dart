@@ -65,7 +65,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => ProfilePage(),
+                builder: (context) => const ProfilePage(),
               ),
             );
           },
