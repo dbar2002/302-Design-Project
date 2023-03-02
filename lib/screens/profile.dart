@@ -1,4 +1,6 @@
 import 'package:avandra/screens/edit_profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../utils/fonts.dart';
 import '../utils/colors.dart';
@@ -10,6 +12,8 @@ class ProfilePage extends StatefulWidget {
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
+
+enum MenuAction { logout }
 
 class _ProfilePageState extends State<ProfilePage> {
   final double coverHeight = 100;
@@ -30,8 +34,30 @@ class _ProfilePageState extends State<ProfilePage> {
             Icons.arrow_back_ios,
             color: Colors.white,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pushNamed('/Menu');
+          },
         ),
+        actions: [
+          PopupMenuButton<MenuAction>(
+            onSelected: (value) async {
+              switch (value) {
+                case MenuAction.logout:
+                  final shouldLogout = await showLogoutDialog(context);
+                  if (shouldLogout) {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushNamedAndRemoveUntil('/Login', (route) => false);
+                  }
+              }
+            },
+            itemBuilder: (context) {
+              return const [
+                PopupMenuItem<MenuAction>(
+                    value: MenuAction.logout, child: Text('Logout'))
+              ];
+            },
+          )
+        ],
       ),
       body: ListView(
         padding: EdgeInsets.zero,
@@ -234,7 +260,6 @@ class SavedPin extends StatelessWidget {
               ]));
 }
 
-
 // class PinsAction extends StatefulWidget {
 //   @override
 //   State<StatefulWidget> createState() {
@@ -258,3 +283,28 @@ class SavedPin extends StatelessWidget {
 //     );
 //   }
 // }
+Future<bool> showLogoutDialog(BuildContext context) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Sign out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Log out'),
+          ),
+        ],
+      );
+    },
+  ).then((value) => value ?? false);
+}
