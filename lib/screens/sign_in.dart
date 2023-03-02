@@ -8,7 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/basic_button.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({Key? key, required String title}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _SignUpScreenState();
