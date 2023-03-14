@@ -22,6 +22,7 @@ class AuthMethods {
     required String email,
     required String password,
     required String username,
+    required String organization,
   }) async {
     String res = "Some error Occurred";
     try {
@@ -34,8 +35,9 @@ class AuthMethods {
 
         model.User _user = model.User(
           fullname: username,
-          //uid: cred.user!.uid, //IDK MAN
+          uid: cred.user!.uid, //IDK MAN
           email: email,
+          organizations: organization,
         );
 
         // adding user in our database

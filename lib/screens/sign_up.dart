@@ -25,12 +25,14 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  var selectedOrg;
   final _registerFormKey = GlobalKey<FormState>();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
+
   bool _isLoading = false;
   String dropDownValue = "Select Organization";
 
@@ -63,6 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       email: _emailController.text,
       password: _passwordController.text,
       username: _usernameController.text,
+      organization: _organizationController.text,
     );
     // if string returned is sucess, user has been created
     if (res == "success") {
@@ -144,27 +147,82 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             const SizedBox(
                               height: 24,
                             ),
-                            InputBox(
-                                obscureText: false,
-                                hintText: 'Organization',
-                                title: TextInputType.text,
-                                textEditingController: _organizationController,
-                                validator: (textValue) {
-                                  if (textValue == null || textValue.isEmpty) {
-                                    return 'An organization is required!';
+                            StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('organizations')
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    const Text("Loading.....");
+                                  } else {
+                                    List<DropdownMenuItem> organizations = [];
+                                    for (int i = 0;
+                                        i <
+                                            (snapshot.data! as dynamic)
+                                                .docs
+                                                .length;
+                                        i++) {
+                                      DocumentSnapshot snap =
+                                          snapshot.data!.docs[i];
+                                      organizations.add(
+                                        DropdownMenuItem(
+                                          child: Text(
+                                            snap['name'],
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: regularTextSize,
+                                              color: regularTextSizeColor,
+                                            ),
+                                          ),
+                                          value: "${snap['name']}",
+                                        ),
+                                      );
+                                    }
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        SizedBox(width: 50.0),
+                                        DropdownButton(
+                                          iconDisabledColor: smallerTextColor,
+                                          icon: Icon(Icons.arrow_drop_down,
+                                              color: Colors.black54),
+                                          dropdownColor: backgroundColor,
+                                          items: organizations,
+                                          onChanged: (orgValue) {
+                                            _organizationController.text =
+                                                orgValue;
+                                            final snackBar = SnackBar(
+                                              content: Text(
+                                                  'Selected Organization is $orgValue',
+                                                  style: GoogleFonts.montserrat(
+                                                    fontSize: regularTextSize,
+                                                    color: regularTextSizeColor,
+                                                  )),
+                                            );
+                                            setState(() {
+                                              selectedOrg = orgValue;
+                                            });
+                                          },
+                                          value: selectedOrg,
+                                          isExpanded: false,
+                                          hint: new Text(
+                                            "Choose Organization",
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: regularTextSize,
+                                              color: regularTextSizeColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
                                   }
-
-                                  return null;
+                                  return Container();
                                 }),
-                            const SizedBox(
+
+                            /*const SizedBox(
                               height: 24,
                             ),
-
                             
-
-                        
-
-                           
                             Center(
                               child: DropdownButtonHideUnderline(
                                 child: ButtonTheme(
@@ -252,7 +310,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   ),
                                 ),
                               ),
-                            ),
+                            ), */
                           ],
                         ),
                       ],
@@ -279,7 +337,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const LoginScreen(title: "")))
+                                  builder: (context) =>
+                                      const LoginScreen(title: "")))
                         },
                         child: Text("Login",
                             style: GoogleFonts.montserrat(
