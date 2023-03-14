@@ -18,6 +18,14 @@ dependencies:
   flutter_svg: ^2.0.1
   dropdown_button2: ^1.9.3
 
+  getwidget: ^3.0.1
+  firebase_auth: ^4.2.9
+  firebase_core: ^2.7.0
+  firebase_storage: ^11.0.14
+  cloud_firestore: ^4.4.3
+  uuid: ^3.0.7
+  google_maps_flutter: ^2.2.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "53447629858",
+    "project_id": "avandra2023",
+    "storage_bucket": "avandra2023.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:53447629858:android:a89c3ad0c728382b567e7b",
+        "android_client_info": {
+          "package_name": "com.example.avandra"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "53447629858-jjqvdoqttq4d3fik7n0dlu893oklsri3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.avandra",
+            "certificate_hash": "9b82912facbda159c9dd1e335186e1cf29cc508c"
+          }
+        },
+        {
+          "client_id": "53447629858-kn686ufi8r4a969a7rnd43s6evuj8ej6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP1SKb2ocDhsZTycw18RXtvQBEDs176C4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "53447629858-kn686ufi8r4a969a7rnd43s6evuj8ej6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "53447629858-s64futdc1r552lamrsn1pd391tr449a1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.avandra"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
