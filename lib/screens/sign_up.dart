@@ -49,8 +49,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     'Employee',
   ];
 
-  Future<List<String>> orgs = getOrganizations.getOrgs();
-
   String? selectedValue;
   bool showDropdown = true;
 
@@ -74,7 +72,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       // navigate to the home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const EmailConfirmationScreen(),
+          builder: (context) => const VerifyEmailScreen(),
         ),
       );
     } else {
@@ -88,6 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String selectedValueSingleDialog = "Select an Organization";
     return SafeArea(
         child: Scaffold(
       resizeToAvoidBottomInset: false,
@@ -145,55 +144,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             const SizedBox(
                               height: 24,
                             ),
-                            FutureBuilder(
-                                future: orgs,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<dynamic> snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Stack(
-                                      children: [
-                                        TextField(
-                                          onTap: () {
-                                            setState(() {
-                                              showDropdown = true;
-                                            });
-                                          },
-                                          controller: _organizationController,
-                                        ), DropdownButton(
-                                                value: dropDownValue!.isEmpty
-                                                    ? null
-                                                    : dropDownValue!,
-                                                icon: const Icon(
-                                                    Icons.keyboard_arrow_down),
-                                                items: snapshot.data!.map<
-                                                        DropdownMenuItem<
-                                                            String>>(
-                                                    (String orgs) {
-                                                  return DropdownMenuItem<
-                                                      String>(
-                                                    value: orgs.toString(),
-                                                    child: Text(orgs.toString()),
-                                                  );
-                                                }).toList(),
-                                                onChanged: (String? newValue) {
-                                                  setState(() {
-                                                    _organizationController
-                                                        .text = newValue!;
-                                                  });
-                                                },
-                                              )
-                                         
-                                      ],
-                                    );
-                                  } else {
-                                    //Just in case something goes horribly wrong
-                                    return Container(
-                                      color: Colors.black,
-                                      width: 100,
-                                      height: 100,
-                                    );
-                                  }
-                                }),
                             InputBox(
                                 obscureText: false,
                                 hintText: 'Organization',
@@ -209,6 +159,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             const SizedBox(
                               height: 24,
                             ),
+
+                            
+
+                        
+
+                           
                             Center(
                               child: DropdownButtonHideUnderline(
                                 child: ButtonTheme(
@@ -323,7 +279,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const LoginScreen()))
+                                  builder: (context) => const LoginScreen(title: "")))
                         },
                         child: Text("Login",
                             style: GoogleFonts.montserrat(

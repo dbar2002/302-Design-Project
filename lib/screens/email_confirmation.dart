@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:avandra/screens/menu.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:avandra/screens/add_new_org.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -55,7 +56,7 @@ Future sendEmail() async {
 
   @override
   Widget build(BuildContext context) => isEmailVerified!
-  ? AddNewOrgScreen() //placeholder page for now can be replaced with our main homepage later
+  ? MenuScreen() //placeholder page for now can be replaced with our main homepage later
     : Scaffold(
         body: Padding (padding: EdgeInsets.all(45),
               child: Column(
