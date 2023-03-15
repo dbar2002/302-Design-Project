@@ -1,7 +1,6 @@
 import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'roles.dart';
 
 //WILL ADD ROLES LATER
@@ -11,16 +10,14 @@ class User {
   final String? email;
   final String? password;
   final String? fullname;
-  String? organizations;
-  //final Roles? roles;
+  Map<String, String>? organizationsAndRoles;
 
   User({
     this.uid,
     this.email,
     this.password,
     this.fullname,
-    this.organizations,
-    /*this.roles*/
+    this.organizationsAndRoles,
   });
 
   static User fromSnap(DocumentSnapshot snap) {
@@ -31,8 +28,7 @@ class User {
       email: snap['email'] as String,
       password: snapshot['password'] as String,
       fullname: snapshot['fullname'] as String,
-      organizations: snapshot['organizations'],
-      //roles: Roles.fromJson(snapshot['Role']));
+      organizationsAndRoles: snapshot['organizations'],
     );
   }
 
@@ -40,7 +36,7 @@ class User {
         "username": fullname,
         "uid": uid,
         "email": email,
-        "organizations": organizations,
+        "organizations": organizationsAndRoles
       };
 
   @override

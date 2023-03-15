@@ -22,11 +22,11 @@ class AuthMethods {
     required String email,
     required String password,
     required String username,
-    required String organization,
+    required Map<String,String> organization,
   }) async {
     String res = "Some error Occurred";
     try {
-      if (email.isNotEmpty || password.isNotEmpty || username.isNotEmpty) {
+      if (email.isNotEmpty || password.isNotEmpty || username.isNotEmpty || organization.isNotEmpty) {
         // registering user in auth with email and password
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email,
@@ -35,9 +35,9 @@ class AuthMethods {
 
         model.User _user = model.User(
           fullname: username,
-          uid: cred.user!.uid, //IDK MAN
+          uid: cred.user!.uid,
           email: email,
-          organizations: organization,
+          organizationsAndRoles: organization,
         );
 
         // adding user in our database

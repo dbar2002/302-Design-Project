@@ -33,6 +33,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
 
+  String role = "Visitor";
+
   bool _isLoading = false;
   String dropDownValue = "Select Organization";
 
@@ -44,6 +46,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _usernameController.dispose();
     _organizationController.dispose();
   }
+
+  late Map<String, String> orgAndRole = {_organizationController.text: role};
 
   final List<String> items = [
     'Visitor',
@@ -65,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       email: _emailController.text,
       password: _passwordController.text,
       username: _usernameController.text,
-      organization: _organizationController.text,
+      organization: orgAndRole,
     );
     // if string returned is sucess, user has been created
     if (res == "success") {
