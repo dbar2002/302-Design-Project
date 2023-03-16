@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'roles.dart';
 
 //WILL ADD ROLES LATER
@@ -11,7 +12,6 @@ class User {
   final String? password;
   final String? fullname;
   Map<String, String>? organizationsAndRoles;
-
   User({
     this.uid,
     this.email,
@@ -22,6 +22,8 @@ class User {
 
   static User fromSnap(DocumentSnapshot snap) {
     var snapshot = snap.data() as Map<String, dynamic>;
+    final user = FirebaseAuth.instance.currentUser;
+      // If refresh is set to true, a refresh of the id token is forced.
 
     return User(
       uid: snapshot['id'] as String,

@@ -35,6 +35,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   String role = "Visitor";
 
+
   bool _isLoading = false;
   String dropDownValue = "Select Organization";
 

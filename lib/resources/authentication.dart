@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:avandra/model/user.dart' as model;
@@ -22,11 +24,14 @@ class AuthMethods {
     required String email,
     required String password,
     required String username,
-    required Map<String,String> organization,
+    required Map<String, String> organization,
   }) async {
     String res = "Some error Occurred";
     try {
-      if (email.isNotEmpty || password.isNotEmpty || username.isNotEmpty || organization.isNotEmpty) {
+      if (email.isNotEmpty ||
+          password.isNotEmpty ||
+          username.isNotEmpty ||
+          organization.isNotEmpty) {
         // registering user in auth with email and password
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email,
@@ -47,6 +52,7 @@ class AuthMethods {
             .set(_user.toJson());
 
         res = "success";
+        
       } else {
         res = "Please enter all the fields";
       }
