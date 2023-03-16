@@ -15,13 +15,23 @@ class ProfilePage extends StatefulWidget {
 
 enum MenuAction { logout }
 
-class _ProfilePageState extends State<ProfilePage> {
+// TickerProviderStateMixin is to allow the tabContoller to work
+class _ProfilePageState extends State<ProfilePage>
+    with TickerProviderStateMixin {
   final double coverHeight = 100;
   final double profileHeight = 100;
   String username = "Jane Doe";
+  TabController? _tabController;
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     final double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
@@ -46,7 +56,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   final shouldLogout = await showLogoutDialog(context);
                   if (shouldLogout) {
                     await FirebaseAuth.instance.signOut();
-                    Navigator.of(context).pushNamedAndRemoveUntil('/Login', (route) => false);
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil('/Login', (route) => false);
                   }
               }
             },
@@ -135,6 +146,47 @@ class _ProfilePageState extends State<ProfilePage> {
           style:
               TextStyle(fontSize: regularTextSize, color: regularTextSizeColor),
         ),
+
+        Align(
+            alignment: Alignment.centerLeft,
+            child: TabBar(
+              controller: _tabController,
+              tabs: [
+                Tab(text: "My Pins"),
+                Tab(text: "My Organizations"),
+              ],
+            )),
+
+// TODO: once pins and organizations are set up, sync them here
+        Container(
+          padding: const EdgeInsets.only(left: 20),
+          child: TabBarView(controller: _tabController, children: [
+            // this will hold all the saved pins
+            ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                Text("Physics Class"),
+                Text("Global Christianity"),
+                Text("Circuits"),
+                Text("English class"),
+                Text("FYE class"),
+              ],
+            ),
+
+            // this will hold all the organizations
+            ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                Text("California Baptist University"),
+                Text("University of California Riverside"),
+                Text("Riverside Public Library"),
+                Text("University of California Irvine"),
+                Text("Colorado Christian University"),
+              ],
+            ),
+          ]),
+        ),
+
         // const SizedBox(height: 16),
 
         // This is my attempt to make the My Pins button open to the saved pins
