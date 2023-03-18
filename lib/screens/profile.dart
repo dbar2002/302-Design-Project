@@ -21,11 +21,25 @@ class _ProfilePageState extends State<ProfilePage>
   final double coverHeight = 100;
   final double profileHeight = 100;
   String username = "Jane Doe";
+  // TODO: connect the pins and organizations to user's stored ones
+  List<String> pins = [
+    "Physics Class",
+    "Global Christianity",
+    "Circuits",
+    "English class",
+    "FYE"
+  ];
+  List<String> organizations = [
+    "California Baptist University",
+    "University of California Riverside",
+    "Riverside Public Library",
+    "University of California Irvine",
+  ];
   TabController? _tabController;
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -160,71 +174,50 @@ class _ProfilePageState extends State<ProfilePage>
 // TODO: once pins and organizations are set up, sync them here
         Container(
           padding: const EdgeInsets.only(left: 20),
-          child: TabBarView(controller: _tabController, children: [
-            // this will hold all the saved pins
-            ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                Text("Physics Class"),
-                Text("Global Christianity"),
-                Text("Circuits"),
-                Text("English class"),
-                Text("FYE class"),
-              ],
-            ),
+          constraints: BoxConstraints.tightFor(),
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              // this will hold all the saved pins
+              Expanded(
+                  // ListView is the error-causing Widget for some unknown reason
+                  child: ListView.builder(
+                      itemCount: pins.length,
+                      // ignore: non_constant_identifier_names
+                      itemBuilder: (BuildContext context, int Index) {
+                        return Text(pins[Index]);
+                      })),
+              // ListView(
+              //   scrollDirection: Axis.horizontal,
+              //   shrinkWrap: true,
+              //   children: [
+              //     Text("Physics Class"),
+              //     Text("Global Christianity"),
+              //     Text("Circuits"),
+              //     Text("English class"),
+              //     Text("FYE class"),
+              //   ],
+              // ),
 
-            // this will hold all the organizations
-            ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                Text("California Baptist University"),
-                Text("University of California Riverside"),
-                Text("Riverside Public Library"),
-                Text("University of California Irvine"),
-                Text("Colorado Christian University"),
-              ],
-            ),
-          ]),
+              //       // this will hold all the organizations
+              //       ListView(
+              //         scrollDirection: Axis.horizontal,
+              //         shrinkWrap: true,
+              //         children: [
+              //           Text("California Baptist University"),
+              //           Text("University of California Riverside"),
+              //           Text("Riverside Public Library"),
+              //           Text("University of California Irvine"),
+              //           Text("Colorado Christian University"),
+              //         ],
+              //       ),
+            ],
+          ),
         ),
 
         // const SizedBox(height: 16),
 
-        // This is my attempt to make the My Pins button open to the saved pins
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        //   children: [
-        //     DefaultTabController(
-        //         length: 2,
-        //         child: Scaffold(
-        //           resizeToAvoidBottomInset: true,
-        //           appBar: AppBar(
-        //             bottom: TabBar(
-        //               tabs: [
-        //                 Tab(icon: Icon(Icons.pin)),
-        //                 Tab(icon: Icon(Icons.house)),
-        //               ],
-        //             ),
-        //           ),
-        //           body: TabBarView(
-        //             children: [
-        //               Text("Pin 1 of many"),
-        //               Text("Organization 1 of many")
-        //               // creates the organizations
-        //               // DefaultTabController(
-        //               //     length: organizations.length,
-        //               //     child: Scaffold(
-        //               //         appBar: AppBar(
-        //               //             bottom: TabBar(isScrollable: true, tabs: [
-        //               //       Tab(text: organizations[0]),
-        //               //       Tab(text: organizations[1]),
-        //               //       Tab(text: organizations[2]),
-        //               //     ])))),
-        //             ],
-        //           ),
-        //         )),
-        //   ],
-        // ),
-
+        // This used to be how I make my pins
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
