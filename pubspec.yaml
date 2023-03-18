@@ -37,5 +37,5 @@ flutter:
   assets:
     - lib/assets/images/logo1.jpg
     - lib/assets/images/influencer_profile_pic.jpeg
-    - lib/assets/images/natureBackground.jpg
+    - lib/assets/images/cover_image2.jpg
 
