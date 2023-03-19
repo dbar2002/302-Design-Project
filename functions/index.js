@@ -25,6 +25,45 @@ exports.updateAccess = functions.firestore
             console.log(error);
           });
     });
+exports.assignUserRoleforCBU = functions.https.onCall(async (data, context) => {
+    try {
+      const {email} = data;
+      const domain = email.split('@')[1]; //saves what comes after the @
+      const first = email.split(domain).join('');// saves what comes before the @
+      const isPartofOrg = false;
+        
+      let role;
+
+        switch (isPartofOrg) {
+          case 'calbaptist.edu':
+            isPartofOrg = true;
+            break;
+          default:
+            role = 'visitor';
+            break;
+        }
+        if(isPartofOrg) {
+        switch (first) {
+          case first.includes('.'):
+            role = 'student';
+            break;
+          default:
+            role = 'employee';
+            break;
+        }
+        }
+        const uid = context.auth.uid;
+        const customClaims = {role};
+    
+        await admin.auth().setCustomUserClaims(uid, customClaims);
+        console.log(`${email} was granted the ${role} role`);
+    
+        return `User ${email} was granted the ${role} role`;
+      } catch (err) {
+        console.error(err);
+        throw new functions.https.HttpsError('internal', 'Internal server error');
+      }
+    });
 
 
 /*
