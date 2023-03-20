@@ -1,3 +1,5 @@
+
+
 import 'package:avandra/screens/email_confirmation.dart';
 import 'package:avandra/screens/home.dart';
 import 'package:avandra/screens/sign_in.dart';
@@ -5,7 +7,10 @@ import 'package:avandra/utils/global.dart';
 import 'package:avandra/widgets/input_box.dart';
 import 'package:avandra/widgets/sign_up_header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../resources/authentication.dart';
 import '../resources/validator.dart';
@@ -24,6 +29,15 @@ class SignUpScreen extends StatefulWidget {
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
+Future<Map<String, dynamic>?> get currentUserClaims async {
+  final user = FirebaseAuth.instance.currentUser;
+
+  // If refresh is set to true, a refresh of the id token is forced.
+  final idTokenResult = await user?.getIdTokenResult(true);
+
+  return idTokenResult?.claims;
+}
+
 class _SignUpScreenState extends State<SignUpScreen> {
   var selectedOrg;
   final _registerFormKey = GlobalKey<FormState>();
@@ -33,8 +47,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
 
-  String role = "Visitor";
-
+  String role = 'visitor';
 
   bool _isLoading = false;
   String dropDownValue = "Select Organization";
@@ -77,6 +90,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _isLoading = false;
       });
+      FirebaseFunctions.instance
+          .httpsCallable('assignUserRoleforCBU')
+          .call({"data": _emailController.toString()});
+
       // navigate to the home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -322,11 +339,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   BasicButton(
-                    text: 'Sign Up',
-                    onPressed: () async {
-                      signUpUser();
-                    },
-                  ),
+                      text: 'Sign Up',
+                      onPressed: () async {
+                        signUpUser();
+                      }),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

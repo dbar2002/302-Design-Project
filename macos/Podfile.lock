@@ -603,14 +603,16 @@ PODS:
     - BoringSSL-GRPC/Interface (= 0.0.24)
   - BoringSSL-GRPC/Interface (0.0.24)
   - cloud_firestore (4.4.3):
-    - Firebase/Firestore (= 10.6.0)
+    - Firebase/CoreOnly (~> 10.6.0)
+    - Firebase/Firestore (~> 10.6.0)
     - firebase_core
-    - Flutter
+    - FlutterMacOS
     - nanopb (< 2.30910.0, >= 2.30908.0)
   - cloud_functions (4.0.13):
-    - Firebase/Functions (= 10.6.0)
+    - Firebase/CoreOnly (~> 10.6.0)
+    - Firebase/Functions (~> 10.6.0)
     - firebase_core
-    - Flutter
+    - FlutterMacOS
   - Firebase/Auth (10.6.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 10.6.0)
@@ -626,16 +628,18 @@ PODS:
     - Firebase/CoreOnly
     - FirebaseStorage (~> 10.6.0)
   - firebase_auth (4.2.9):
-    - Firebase/Auth (= 10.6.0)
+    - Firebase/Auth (~> 10.6.0)
+    - Firebase/CoreOnly (~> 10.6.0)
     - firebase_core
-    - Flutter
+    - FlutterMacOS
   - firebase_core (2.8.0):
-    - Firebase/CoreOnly (= 10.6.0)
-    - Flutter
+    - Firebase/CoreOnly (~> 10.6.0)
+    - FlutterMacOS
   - firebase_storage (11.0.14):
-    - Firebase/Storage (= 10.6.0)
+    - Firebase/CoreOnly (~> 10.6.0)
+    - Firebase/Storage (~> 10.6.0)
     - firebase_core
-    - Flutter
+    - FlutterMacOS
   - FirebaseAppCheckInterop (10.6.0)
   - FirebaseAuth (10.6.0):
     - FirebaseCore (~> 10.0)
@@ -680,15 +684,7 @@ PODS:
     - FirebaseCore (~> 10.0)
     - FirebaseCoreExtension (~> 10.0)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
-  - Flutter (1.0.0)
-  - google_maps_flutter_ios (0.0.1):
-    - Flutter
-    - GoogleMaps
-  - GoogleMaps (5.2.0):
-    - GoogleMaps/Maps (= 5.2.0)
-  - GoogleMaps/Base (5.2.0)
-  - GoogleMaps/Maps (5.2.0):
-    - GoogleMaps/Base
+  - FlutterMacOS (1.0.0)
   - GoogleUtilities/AppDelegateSwizzler (7.11.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -774,14 +770,13 @@ PODS:
   - PromisesObjC (2.2.0)
 
 DEPENDENCIES:
-  - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
-  - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
-  - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
-  - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
-  - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
-  - Flutter (from `Flutter`)
-  - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
+  - cloud_firestore (from `Flutter/ephemeral/.symlinks/plugins/cloud_firestore/macos`)
+  - cloud_functions (from `Flutter/ephemeral/.symlinks/plugins/cloud_functions/macos`)
+  - firebase_auth (from `Flutter/ephemeral/.symlinks/plugins/firebase_auth/macos`)
+  - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
+  - firebase_storage (from `Flutter/ephemeral/.symlinks/plugins/firebase_storage/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/macos`)
 
 SPEC REPOS:
   trunk:
@@ -799,7 +794,6 @@ SPEC REPOS:
     - FirebaseMessagingInterop
     - FirebaseSharedSwift
     - FirebaseStorage
-    - GoogleMaps
     - GoogleUtilities
     - "gRPC-C++"
     - gRPC-Core
@@ -811,31 +805,29 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   cloud_firestore:
-    :path: ".symlinks/plugins/cloud_firestore/ios"
+    :path: Flutter/ephemeral/.symlinks/plugins/cloud_firestore/macos
   cloud_functions:
-    :path: ".symlinks/plugins/cloud_functions/ios"
+    :path: Flutter/ephemeral/.symlinks/plugins/cloud_functions/macos
   firebase_auth:
-    :path: ".symlinks/plugins/firebase_auth/ios"
+    :path: Flutter/ephemeral/.symlinks/plugins/firebase_auth/macos
   firebase_core:
-    :path: ".symlinks/plugins/firebase_core/ios"
+    :path: Flutter/ephemeral/.symlinks/plugins/firebase_core/macos
   firebase_storage:
-    :path: ".symlinks/plugins/firebase_storage/ios"
-  Flutter:
-    :path: Flutter
-  google_maps_flutter_ios:
-    :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
+    :path: Flutter/ephemeral/.symlinks/plugins/firebase_storage/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
   path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/ios"
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/macos
 
 SPEC CHECKSUMS:
   abseil: ebe5b5529fb05d93a8bdb7951607be08b7fa71bc
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
-  cloud_firestore: e4309340b63ef6f579f43b7f16fd179351e05309
-  cloud_functions: 535896961b2c42350ae76f62eb01a273997c5fd2
+  cloud_firestore: 6c20e5eac213acbbde47840068d197740a965ce3
+  cloud_functions: d150e3fc1e2c89f78d15b440143e30cc9e79ff8f
   Firebase: f13680471b021937f2230ea8503c7809d8c29806
-  firebase_auth: ade2a58f7ba3ed5c12494ad65a648da1bcbc34e4
-  firebase_core: 58542d7399889ebdbb034baa72d081e54c5c814d
-  firebase_storage: 4fb057f5d3d2350cb4f1152cbc89e73c790eb926
+  firebase_auth: f57a12656ae1392746c3c2de0b2f2e0dff383a5b
+  firebase_core: 7cad6afc6d420690c239021131b133b3920d092e
+  firebase_storage: 24217b96c7867b903309cb8f2d9d6edf1df4168d
   FirebaseAppCheckInterop: 13e5394346a811e7158cc136c01f10e3302a3514
   FirebaseAuth: 743e5cd568af59d6d99a91ea9300843672515cf7
   FirebaseAuthInterop: e407335bca1938d65c58db8f4ad14b3c1f862a82
@@ -847,9 +839,7 @@ SPEC CHECKSUMS:
   FirebaseMessagingInterop: 9607c116534fc11e11925a312da989a5dd8e6827
   FirebaseSharedSwift: 103ae5bacb5468cd7727ae141f338fa94d7ee1f2
   FirebaseStorage: 10d4f43a4ef98e7554da72197ad52216686ea990
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  google_maps_flutter_ios: 53f75334bad87ccd0473f4b0142756169846b42b
-  GoogleMaps: 025272d5876d3b32604e5c080dc25eaf68764693
+  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   GoogleUtilities: c2bdc4cf2ce786c4d2e6b3bcfd599a25ca78f06f
   "gRPC-C++": 9675f953ace2b3de7c506039d77be1f2e77a8db2
   gRPC-Core: 943e491cb0d45598b0b0eb9e910c88080369290b
@@ -860,6 +850,6 @@ SPEC CHECKSUMS:
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
 
-PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
+PODFILE CHECKSUM: 353c8bcc5d5b0994e508d035b5431cfe18c1dea7
 
 COCOAPODS: 1.12.0

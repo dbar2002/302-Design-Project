@@ -1,6 +1,5 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:avandra/model/user.dart' as model;
 
@@ -45,6 +44,10 @@ class AuthMethods {
           organizationsAndRoles: organization,
         );
 
+        //
+        FirebaseFunctions.instance.httpsCallable('assignUserRoleforCBU').call({
+          "data": email,
+        });
         // adding user in our database
         await _firestore
             .collection("users")
@@ -52,7 +55,6 @@ class AuthMethods {
             .set(_user.toJson());
 
         res = "success";
-        
       } else {
         res = "Please enter all the fields";
       }

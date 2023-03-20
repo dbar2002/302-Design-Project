@@ -6,7 +6,6 @@ import 'package:avandra/screens/splash_page.dart';
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
 import '../screens/profile.dart';
-import 'package:english_words/english_words.dart';
 
 
 import 'package:flutter/material.dart';

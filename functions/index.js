@@ -26,6 +26,99 @@ exports.updateAccess = functions.firestore
           });
     });
 
+exports.assignUserRoleforCBU = functions.https
+.onCall(async (data, context) => {
+  try {
+    const {email} = data;
+    const domain = email.split('@')[1]; //saves what comes after the @
+    const first = email.split(domain).join('');// saves what comes before the @
+    const isPartofOrg = false;
+          
+    let role;
+  
+      switch (isPartofOrg) {
+        case 'calbaptist.edu':
+          isPartofOrg = true;
+          break;
+        default:
+          role = 'visitor';
+          break;
+      }
+
+      if(isPartofOrg) {
+      switch (first) {
+       case first.includes('.'):
+          role = 'student';
+          break;
+        default:
+          role = 'employee';
+          break;
+        }
+      }
+      const uid = context.auth.uid;
+      const customClaims = {
+        CBUAccess: role,
+      };
+      
+      await admin.auth().setCustomUserClaims(uid, customClaims);
+
+      // Update real-time database to notify client to force refresh.
+      const metadataRef = getDatabase().ref('metadata/' + user.uid);
+      
+      console.log(`${email} was granted the ${role} role`);
+      return `User ${email} was granted the ${role} role`;
+      } catch (err) {
+        console.error(err);
+        throw new functions.https.HttpsError('internal', 'Internal server error');
+        }
+});
+
+exports.assignUserRole = functions.firestore.document("users/{uid}")
+.onUpdate(async (data, context) => {
+  try {
+    const {email} = data;
+    const domain = email.split('@')[1]; //saves what comes after the @
+    const first = email.split(domain).join('');// saves what comes before the @
+    const isPartofOrg = false;
+          
+    let role;
+  
+      switch (isPartofOrg) {
+        case 'calbaptist.edu':
+          isPartofOrg = true;
+          break;
+        default:
+          role = 'visitor';
+          break;
+      }
+
+      if(isPartofOrg) {
+      switch (first) {
+       case first.includes('.'):
+          role = 'student';
+          break;
+        default:
+          role = 'employee';
+          break;
+        }
+      }
+      const uid = context.auth.uid;
+      const customClaims = {
+        CBUAccess: role,
+      };
+      
+      await admin.auth().setCustomUserClaims(uid, customClaims);
+
+      // Update real-time database to notify client to force refresh.
+      const metadataRef = getDatabase().ref('metadata/' + user.uid);
+      
+      console.log(`${email} was granted the ${role} role`);
+      return `User ${email} was granted the ${role} role`;
+      } catch (err) {
+        console.error(err);
+        throw new functions.https.HttpsError('internal', 'Internal server error');
+        }
+});
 
 /*
 // Verify the ID token first.
