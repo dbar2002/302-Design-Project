@@ -2,8 +2,21 @@ import 'package:avandra/screens/profile.dart';
 import 'package:avandra/utils/global.dart';
 import 'package:flutter/material.dart';
 import 'package:avandra/utils/colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+import '../resources/validator.dart';
 import '../utils/fonts.dart';
+import '../widgets/back_button.dart';
+import '../widgets/input_box.dart';
+
+//FIXME
+var username;
+
+var email;
+
+var phoneNumber;
+
+var password;
 
 class SettingUI extends StatelessWidget {
   @override
@@ -44,22 +57,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       backgroundColor: backgroundColor,
       // this creates the small navbar on the top of the page
-      appBar: AppBar(
-        backgroundColor: buttonColor,
-        elevation: 1,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => ProfilePage(),
-              ),
-            );
-          },
-        ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100),
+        child: BackButtonWidget(),
       ),
       body: Container(
         padding: EdgeInsets.only(left: 16, top: 25, right: 16),
@@ -140,11 +140,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
 
             // this is for all text fields
-            buildTextField("Username", username, false, usernameController),
-            buildTextField("Email", email, false, userEmailController),
-            buildTextField(
-                "Phone Number", phoneNumber, false, userPhoneNumberController),
-            buildTextField("Password", password, true, userPasswordController),
+
+            InputBox(
+              obscureText: true,
+              hintText: 'Enter new username',
+              title: TextInputType.text,
+              textEditingController: userEmailController,
+              validator: (value) => Validator.validateName(
+                name: value,
+              ),
+            ),
+
+            SizedBox(
+              height: 10,
+            ),
+
+            InputBox(
+              obscureText: true,
+              hintText: 'Enter new password',
+              title: TextInputType.text,
+              textEditingController: userPasswordController,
+              validator: (value) => Validator.validatePassword(
+                password: value,
+              ),
+              suffixIcon: true,
+            ),
+
             // SizedBox(
             //   height: 5,
             // ),
@@ -192,15 +213,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget buildTextField(String labelText, String value,
-      bool isPasswordTextField, TextEditingController userController) {
+  Widget buildTextField(
+      String labelText,
+      String value,
+      bool isPasswordTextField,
+      TextEditingController userController,
+      String hintText) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 35.0),
-      child: TextField(
+      child: TextFormField(
         controller: userController,
         obscureText: isPasswordTextField ? showPassword : false,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
+          hintStyle: GoogleFonts.montserrat(
+            fontSize: regularTextSize,
+            color: smallerTextColor,
+          ),
+          hintText: hintText,
           // toggles the password as seen or hidden
           suffixIcon: isPasswordTextField
               ? IconButton(
@@ -216,6 +246,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 )
               : null,
           contentPadding: EdgeInsets.only(bottom: 3),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.black,
+            ),
+          ),
+
           labelText: labelText,
           labelStyle: TextStyle(
             fontSize: regularTextSize,

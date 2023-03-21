@@ -1,3 +1,5 @@
+
+
 import 'package:avandra/screens/email_confirmation.dart';
 import 'package:avandra/screens/home.dart';
 import 'package:avandra/screens/sign_in.dart';
@@ -5,7 +7,10 @@ import 'package:avandra/utils/global.dart';
 import 'package:avandra/widgets/input_box.dart';
 import 'package:avandra/widgets/sign_up_header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../resources/authentication.dart';
 import '../resources/validator.dart';
@@ -24,13 +29,26 @@ class SignUpScreen extends StatefulWidget {
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
+Future<Map<String, dynamic>?> get currentUserClaims async {
+  final user = FirebaseAuth.instance.currentUser;
+
+  // If refresh is set to true, a refresh of the id token is forced.
+  final idTokenResult = await user?.getIdTokenResult(true);
+
+  return idTokenResult?.claims;
+}
+
 class _SignUpScreenState extends State<SignUpScreen> {
+  var selectedOrg;
   final _registerFormKey = GlobalKey<FormState>();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
+
+  String role = 'visitor';
+
   bool _isLoading = false;
   String dropDownValue = "Select Organization";
 
@@ -43,13 +61,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _organizationController.dispose();
   }
 
+  late Map<String, String> orgAndRole = {_organizationController.text: role};
+
   final List<String> items = [
     'Visitor',
     'Student',
     'Employee',
   ];
-
-  Future<List<String>> orgs = getOrganizations.getOrgs();
 
   String? selectedValue;
   bool showDropdown = true;
@@ -65,16 +83,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
       email: _emailController.text,
       password: _passwordController.text,
       username: _usernameController.text,
+      organization: orgAndRole,
     );
     // if string returned is sucess, user has been created
     if (res == "success") {
       setState(() {
         _isLoading = false;
       });
+      FirebaseFunctions.instance
+          .httpsCallable('assignUserRoleforCBU')
+          .call({"data": _emailController.toString()});
+
       // navigate to the home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const EmailConfirmationScreen(),
+          builder: (context) => const VerifyEmailScreen(),
         ),
       );
     } else {
@@ -88,6 +111,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String selectedValueSingleDialog = "Select an Organization";
     return SafeArea(
         child: Scaffold(
       resizeToAvoidBottomInset: false,
@@ -145,169 +169,87 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             const SizedBox(
                               height: 24,
                             ),
-                            FutureBuilder(
-                                future: orgs,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<dynamic> snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Stack(
-                                      children: [
-                                        TextField(
-                                          onTap: () {
+                            StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('organizations')
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    const Text("Loading.....");
+                                  } else {
+                                    List<DropdownMenuItem> organizations = [];
+                                    for (int i = 0;
+                                        i <
+                                            (snapshot.data! as dynamic)
+                                                .docs
+                                                .length;
+                                        i++) {
+                                      DocumentSnapshot snap =
+                                          snapshot.data!.docs[i];
+                                      organizations.add(
+                                        DropdownMenuItem(
+                                          child: Text(
+                                            snap['name'],
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: regularTextSize,
+                                              color: regularTextSizeColor,
+                                            ),
+                                          ),
+                                          value: "${snap['name']}",
+                                        ),
+                                      );
+                                    }
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        SizedBox(width: 50.0),
+                                        DropdownButton(
+                                          iconDisabledColor: smallerTextColor,
+                                          icon: Icon(Icons.arrow_drop_down,
+                                              color: Colors.black54),
+                                          dropdownColor: backgroundColor,
+                                          items: organizations,
+                                          onChanged: (orgValue) {
+                                            _organizationController.text =
+                                                orgValue;
+                                            final snackBar = SnackBar(
+                                              content: Text(
+                                                  'Selected Organization is $orgValue',
+                                                  style: GoogleFonts.montserrat(
+                                                    fontSize: regularTextSize,
+                                                    color: regularTextSizeColor,
+                                                  )),
+                                            );
                                             setState(() {
-                                              showDropdown = true;
+                                              selectedOrg = orgValue;
                                             });
                                           },
-                                          controller: _organizationController,
-                                        ), DropdownButton(
-                                                value: dropDownValue!.isEmpty
-                                                    ? null
-                                                    : dropDownValue!,
-                                                icon: const Icon(
-                                                    Icons.keyboard_arrow_down),
-                                                items: snapshot.data!.map<
-                                                        DropdownMenuItem<
-                                                            String>>(
-                                                    (String orgs) {
-                                                  return DropdownMenuItem<
-                                                      String>(
-                                                    value: orgs.toString(),
-                                                    child: Text(orgs.toString()),
-                                                  );
-                                                }).toList(),
-                                                onChanged: (String? newValue) {
-                                                  setState(() {
-                                                    _organizationController
-                                                        .text = newValue!;
-                                                  });
-                                                },
-                                              )
-                                         
-                                      ],
-                                    );
-                                  } else {
-                                    //Just in case something goes horribly wrong
-                                    return Container(
-                                      color: Colors.black,
-                                      width: 100,
-                                      height: 100,
-                                    );
-                                  }
-                                }),
-                            InputBox(
-                                obscureText: false,
-                                hintText: 'Organization',
-                                title: TextInputType.text,
-                                textEditingController: _organizationController,
-                                validator: (textValue) {
-                                  if (textValue == null || textValue.isEmpty) {
-                                    return 'An organization is required!';
-                                  }
-
-                                  return null;
-                                }),
-                            const SizedBox(
-                              height: 24,
-                            ),
-                            Center(
-                              child: DropdownButtonHideUnderline(
-                                child: ButtonTheme(
-                                  alignedDropdown: true,
-                                  child: DropdownButton2(
-                                    isExpanded: true,
-                                    hint: Row(
-                                      children: const [
-                                        Icon(
-                                          Icons.list,
-                                          size: 16,
-                                          color: regularTextSizeColor,
-                                        ),
-                                        SizedBox(
-                                          width: 4,
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            'Select Your Status',
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              color: smallerTextColor,
+                                          value: selectedOrg,
+                                          isExpanded: false,
+                                          hint: new Text(
+                                            "Choose Organization",
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: regularTextSize,
+                                              color: regularTextSizeColor,
                                             ),
-                                            textAlign: TextAlign.left,
-                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ],
-                                    ),
-                                    items: items
-                                        .map((item) => DropdownMenuItem<String>(
-                                              value: item,
-                                              child: Text(
-                                                item,
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: regularTextSizeColor,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ))
-                                        .toList(),
-                                    value: selectedValue,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedValue = value as String;
-                                      });
-                                    },
-                                    icon: const Icon(
-                                      Icons.arrow_drop_down,
-                                    ),
-                                    iconSize: 15,
-                                    iconEnabledColor: regularTextSizeColor,
-                                    iconDisabledColor: Colors.grey,
-                                    buttonHeight: 50,
-                                    buttonWidth: 200,
-                                    buttonPadding: const EdgeInsets.only(
-                                        left: 8, right: 8, bottom: 0),
-                                    buttonDecoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(
-                                        color: Colors.black26,
-                                      ),
-                                      color: Colors.white,
-                                    ),
-                                    buttonElevation: 2,
-                                    itemHeight: 40,
-                                    itemPadding: const EdgeInsets.only(
-                                        left: 8, right: 8, bottom: 0),
-                                    dropdownMaxHeight: 200,
-                                    dropdownWidth: 200,
-                                    dropdownPadding:
-                                        EdgeInsets.only(left: 8, right: 8),
-                                    dropdownDecoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: Colors.white,
-                                    ),
-                                    dropdownElevation: 8,
-                                    scrollbarRadius: const Radius.circular(30),
-                                    scrollbarThickness: 4,
-                                    scrollbarAlwaysShow: true,
-                                    offset: const Offset(-20, 0),
-                                  ),
-                                ),
-                              ),
-                            ),
+                                    );
+                                  }
+                                  return Container();
+                                }),
                           ],
                         ),
                       ],
                     ),
                   ),
                   BasicButton(
-                    text: 'Sign Up',
-                    onPressed: () async {
-                      signUpUser();
-                    },
-                  ),
+                      text: 'Sign Up',
+                      onPressed: () async {
+                        signUpUser();
+                      }),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -323,7 +265,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const LoginScreen()))
+                                  builder: (context) =>
+                                      const LoginScreen(title: "")))
                         },
                         child: Text("Login",
                             style: GoogleFonts.montserrat(
