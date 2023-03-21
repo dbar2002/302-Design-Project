@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:avandra/screens/menu.dart';
+import 'package:avandra/screens/navigation_page.dart';
+import 'package:avandra/widgets/maps.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:avandra/screens/add_new_org.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,9 +14,7 @@ class VerifyEmailScreen extends StatefulWidget {
 
   @override
   State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
-
 }
-
 
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   bool? isEmailVerified = false;
@@ -23,65 +23,73 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   void initState() {
     super.initState();
     isEmailVerified = FirebaseAuth.instance.currentUser?.emailVerified;
-    if(!isEmailVerified!) {
+    if (!isEmailVerified!) {
       sendEmail();
 
       timer = Timer.periodic(
-        Duration (seconds: 3), 
+        Duration(seconds: 3),
         (_) => checkVerification(),
       );
     }
   }
+
   @override
   void dispose() {
     timer?.cancel();
     super.dispose();
   }
+
   Future checkVerification() async {
     await FirebaseAuth.instance.currentUser!.reload();
     setState(() {
       isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
     });
   }
-Future sendEmail() async {
-    try {final user = FirebaseAuth.instance.currentUser!;
-    await user.sendEmailVerification();
+
+  Future sendEmail() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      await user.sendEmailVerification();
     } catch (e) {
       e.toString();
     }
     if (isEmailVerified!) {
       timer?.cancel();
-  }  
-}
+    }
+  }
 
   @override
   Widget build(BuildContext context) => isEmailVerified!
-  ? MenuScreen() //placeholder page for now can be replaced with our main homepage later
-    : Scaffold(
-        body: Padding (padding: EdgeInsets.all(45),
+      ? NavScreen() //placeholder page for now can be replaced with our main homepage later
+      : Scaffold(
+          body: Padding(
+              padding: EdgeInsets.all(45),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('A verification email has been sent to your email',
-                  style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
-                            fontSize: regularTextSize,
-                            color: regularTextSizeColor,
-                         ),
-                  textAlign: TextAlign.center,
-                  
+                  Text(
+                    'A verification email has been sent to your email',
+                    style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.bold,
+                      fontSize: regularTextSize,
+                      color: regularTextSizeColor,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  TextButton(onPressed: sendEmail, child: Text('Didnt receive an email? Click here',
-                  style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
-                            fontSize: regularTextSize,
-                            color: regularTextSizeColor,
-                            decoration: TextDecoration.underline,),
-                  textAlign: TextAlign.center,
-                  ),
-                  ) 
+                  TextButton(
+                    onPressed: sendEmail,
+                    child: Text(
+                      'Didnt receive an email? Click here',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.bold,
+                        fontSize: regularTextSize,
+                        color: regularTextSizeColor,
+                        decoration: TextDecoration.underline,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
                 ],
-                )
-              ),
-            );
+              )),
+        );
 }
