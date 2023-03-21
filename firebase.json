@@ -1,6 +1,0 @@
-{
-  "firestore": {
-    "rules": "firebase init functions",
-    "indexes": "firebase deploy"
-  }
-}

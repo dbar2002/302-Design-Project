@@ -1,23 +1,24 @@
+import 'package:avandra/screens/edit_profile.dart';
+import 'package:avandra/screens/menu.dart';
 import 'package:avandra/screens/sign_in.dart';
 import 'package:avandra/screens/splash_page.dart';
 
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
+import '../screens/profile.dart';
 import 'package:english_words/english_words.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-void main() {
+
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+Future<void> main() async {
   //This following will be uncommented when we add firebase, but it is here
   //for now
 
-  /* WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(const MyApp());
-  */
-
-  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -31,12 +32,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: splashpageColor,
       ),
+      // home: SignUpScreen(),
+
+      // home: SettingUI(),
       home: SplashScreen(),
+
       routes: {
+        '/Login': (context) => const LoginScreen(title: ''),
         '/SignUp': (context) => const SignUpScreen(),
-        //'/home': (context) => const HomeScreen(),
-        //etc.
-        //etc.
+        '/Menu': (context) => const MenuScreen(),
+        '/profile': (context) => const ProfilePage(),
       },
       
 
