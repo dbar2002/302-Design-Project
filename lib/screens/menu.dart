@@ -1,4 +1,5 @@
 
+import 'package:avandra/resources/authentication.dart';
 import 'package:avandra/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,11 +55,16 @@ class _MenuScreenState extends State<MenuScreen> {
             title: Text('Select Map', style: TextStyle(color: Colors.black, fontSize: 23)),
             onTap: () => Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false),
           ),
+                    ListTile(
+            leading: Icon(Icons.map_outlined, color: Colors.black, size: 30),
+            title: Text('Current Map', style: TextStyle(color: Colors.black, fontSize: 23)),
+            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil('/nav', (route) => false),
+          ),
           Divider(color: Colors.black, endIndent: 90,),
           ListTile(
             leading: Icon(Icons.logout, color: Colors.black, size: 30),
             title: Text('Log out', style: TextStyle(color: Colors.black, fontSize: 23)),
-            onTap: () => print('Log out'),
+            onTap: () => AuthMethods().signOut(),
           ),
         ],
       )

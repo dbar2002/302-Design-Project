@@ -1,4 +1,3 @@
-
 import 'package:avandra/widgets/maps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +5,13 @@ import 'package:avandra/resources/secrets.dart'; // Stores the Google Maps API K
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:map_launcher/map_launcher.dart' as mapLauch;
 
 import 'dart:math' show cos, sqrt, asin;
+
+import '../utils/fonts.dart';
 
 class NavScreen extends StatefulWidget {
   const NavScreen({Key? key}) : super(key: key);
@@ -54,7 +57,11 @@ class _NavScreenState extends State<NavScreen> {
   }) {
     return Container(
       width: width * 0.8,
-      child: TextField(
+      child: TextFormField(
+        style: GoogleFonts.montserrat(
+          fontSize: regularTextSize,
+          color: regularTextSizeColor,
+        ),
         onChanged: (value) {
           locationCallback(value);
         },
@@ -86,6 +93,10 @@ class _NavScreenState extends State<NavScreen> {
           ),
           contentPadding: EdgeInsets.all(15),
           hintText: hint,
+          hintStyle: GoogleFonts.montserrat(
+            fontSize: smallerTextSize,
+            color: smallerTextColor,
+          ),
         ),
       ),
     );
@@ -224,15 +235,6 @@ class _NavScreenState extends State<NavScreen> {
         ),
       );
 
-      // Calculating the distance between the start and the end positions
-      // with a straight path, without considering any route
-      // double distanceInMeters = await Geolocator.bearingBetween(
-      //   startLatitude,
-      //   startLongitude,
-      //   destinationLatitude,
-      //   destinationLongitude,
-      // );
-
       await _createPolylines(startLatitude, startLongitude, destinationLatitude,
           destinationLongitude);
 
@@ -254,6 +256,13 @@ class _NavScreenState extends State<NavScreen> {
         print('DISTANCE: $_placeDistance km');
       });
 
+      final availableMaps = await mapLauch.MapLauncher.installedMaps;
+      print(availableMaps);
+
+      await availableMaps.first.showDirections(
+          destination:
+              mapLauch.Coords(destinationLatitude, destinationLongitude),
+          origin: mapLauch.Coords(startLatitude, startLongitude));
       return true;
     } catch (e) {
       print(e);
@@ -334,6 +343,30 @@ class _NavScreenState extends State<NavScreen> {
                 mapController = controller;
               },
             ),
+            //Menu Button
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.orange.shade100, // button color
+                      child: InkWell(
+                        splashColor: Colors.orange, // inkwell color
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: Icon(Icons.menu),
+                        ),
+                        onTap: () => Navigator.of(context)
+                            .pushNamedAndRemoveUntil('/Menu', (route) => false),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             // Show zoom buttons
             SafeArea(
               child: Padding(
@@ -386,7 +419,7 @@ class _NavScreenState extends State<NavScreen> {
             // showing the route
             SafeArea(
               child: Align(
-                alignment: Alignment.topCenter,
+                alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10.0),
                   child: Container(
@@ -403,8 +436,12 @@ class _NavScreenState extends State<NavScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Text(
-                            'Places',
-                            style: TextStyle(fontSize: 20.0),
+                            'Go Places',
+                            style: GoogleFonts.montserrat(
+                              fontSize: regularTextSize,
+                              color: regularTextSizeColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           SizedBox(height: 10),
                           _textField(
@@ -444,8 +481,9 @@ class _NavScreenState extends State<NavScreen> {
                             visible: _placeDistance == null ? false : true,
                             child: Text(
                               'DISTANCE: $_placeDistance km',
-                              style: TextStyle(
-                                fontSize: 16,
+                              style: GoogleFonts.montserrat(
+                                fontSize: regularTextSize,
+                                color: regularTextSizeColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
