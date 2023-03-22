@@ -4,8 +4,12 @@
 // // https://firebase.google.com/docs/functions/get-started
 
 const functions = require("firebase-functions");
-const admin = require("firebase-admin");
+const admin = require('firebase-admin');
 admin.initializeApp();
+
+const firestore = admin.firestore();
+const settings = {timestampsInSnapshots: true};
+firestore.settings(settings);
 
 exports.updateAccess = functions.firestore
     .document("users/{uid}")
@@ -25,6 +29,59 @@ exports.updateAccess = functions.firestore
             console.log(error);
           });
     });
+
+
+    // On sign up.
+exports.processSignUp = functions.auth.user().onCreate(user => {
+
+  try {
+    const {email} = user.email;
+    const domain = email.split('@')[1]; //saves what comes after the @
+    const first = email.split(domain).join('');// saves what comes before the @
+    const isPartofOrg = false;
+          
+    let role;
+  
+      switch (isPartofOrg) {
+        case 'calbaptist.edu':
+          isPartofOrg = true;
+          break;
+        default:
+          role = 'visitor';
+          break;
+      }
+
+      if(isPartofOrg) {
+      switch (first) {
+       case first.includes('.'):
+          role = 'student';
+          break;
+        default:
+          role = 'employee';
+          break;
+        }
+      }
+      const uid = context.auth.uid;
+      const customClaims = {
+        CBUAccess: role,
+      };
+      
+      return admin.auth().setCustomUserClaims(user.uid, {
+        customClaims
+      })
+    .then(async () => {
+        await firestore.collection('users').doc(user.uid).set({
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+     })
+     .catch(error => {
+        console.log(error);
+     });
+      } catch (err) {
+        console.error(err);
+        throw new functions.https.HttpsError('internal', 'Internal server error');
+        }
+});
 
 exports.assignUserRoleforCBU = functions.https
 .onCall(async (data, context) => {
@@ -60,13 +117,22 @@ exports.assignUserRoleforCBU = functions.https
         CBUAccess: role,
       };
       
-      await admin.auth().setCustomUserClaims(uid, customClaims);
 
-      // Update real-time database to notify client to force refresh.
-      const metadataRef = getDatabase().ref('metadata/' + user.uid);
-      
-      console.log(`${email} was granted the ${role} role`);
-      return `User ${email} was granted the ${role} role`;
+      return admin.auth().setCustomUserClaims(user.uid, {
+        'https://hasura.io/jwt/claims': {
+        'x-hasura-default-role': 'user',
+        'x-hasura-allowed-roles': ['user'],
+        'x-hasura-user-id': user.uid
+    }
+      })
+    .then(async () => {
+        await firestore.collection('users').doc(user.uid).set({
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+     })
+     .catch(error => {
+        console.log(error);
+     });
       } catch (err) {
         console.error(err);
         throw new functions.https.HttpsError('internal', 'Internal server error');

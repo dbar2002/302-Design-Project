@@ -45,9 +45,7 @@ class AuthMethods {
         );
 
         //
-        FirebaseFunctions.instance.httpsCallable('assignUserRoleforCBU').call({
-          "data": email,
-        });
+        await waitForCustomClaims();
         // adding user in our database
         await _firestore
             .collection("users")
@@ -62,6 +60,21 @@ class AuthMethods {
       return err.toString();
     }
     return res;
+  }
+
+  Future waitForCustomClaims() async {
+    User currentUser = _auth.currentUser!;
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(currentUser!.uid);
+    Stream<DocumentSnapshot> docs =
+        userDocRef.snapshots(includeMetadataChanges: false);
+
+    DocumentSnapshot data = await docs
+        .firstWhere((DocumentSnapshot snapshot) => snapshot?.data != null);
+    print('data ${data.toString()}');
+
+    IdTokenResult idTokenResult = (await (currentUser.getIdTokenResult()));
+    print('claims : ${idTokenResult.claims}');
   }
 
   // logging in user
