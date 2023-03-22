@@ -9,7 +9,6 @@ import '../utils/colors.dart';
 import '../screens/sign_up.dart';
 import '../screens/profile.dart';
 
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -38,7 +37,8 @@ class MyApp extends StatelessWidget {
       // home: SignUpScreen(),
 
       // home: SettingUI(),
-      home: SplashScreen(),
+      //home: SplashScreen(),
+      home: MenuScreen(), //
 
       routes: {
         '/Login': (context) => const LoginScreen(title: ''),

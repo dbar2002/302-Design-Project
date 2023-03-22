@@ -20,37 +20,18 @@ class SelectMapScreen extends StatefulWidget {
 }
 
 class _SelectMapScreenState extends State<SelectMapScreen> {
-  bool _isLoading = false;
-  List<Object> objectList = [];
-  late String selectedFruit;
 
-  Future<String> loadFromAssets() async {
-    return await rootBundle.loadString('lib/json/organizations.json');
-  }
+  // final List<String> items = [
+  //   'One',
+  //   'Two',
+  //   'Three',
+  // ];
 
-  @override
-  void initState() {
-    super.initState();
-    loadYourData();
-  }
-
-  loadYourData() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    String jsonString = await loadFromAssets();
-    final orgResponse = fruitResponseFromJson(jsonString);
-    objectList = orgResponse.objects;
-    setState(() {
-      _isLoading = true;
-    });
-  }
-
+  // String? selectedValue;
+  // bool showDropdown = true;
 
   @override
   Widget build(BuildContext context) {    
-    String selectedFruit = "";
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -69,6 +50,8 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
         ),
       ),
       body: Center (
+
+        
       //   child: DropdownButtonHideUnderline(
       //     child: ButtonTheme(
       //       alignedDropdown: true,
@@ -113,67 +96,10 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
       //       });
       //     },
       // )
-      //     )
-      //   )
-      )
+          
+        )
       );
   
   }
 
-}
-
-FruitResponse fruitResponseFromJson(String str) => FruitResponse.fromJson(json.decode(str));
-
-String fruitResponseToJson(FruitResponse data) => json.encode(data.toJson());
-
-class FruitResponse {
-    List<Object> objects;
-    int from;
-    int to;
-    int total;
-
-    FruitResponse({
-        required this.objects,
-        required this.from,
-        required this.to,
-        required this.total,
-    });
-
-    factory FruitResponse.fromJson(Map<String, dynamic> json) => FruitResponse(
-        objects: List<Object>.from(json["objects"].map((x) => Object.fromJson(x))),
-        from: json["from"],
-        to: json["to"],
-        total: json["total"],
-    );
-
-    Map<String, dynamic> toJson() => {
-        "objects": List<dynamic>.from(objects.map((x) => x.toJson())),
-        "from": from,
-        "to": to,
-        "total": total,
-    };
-}
-
-class Object {
-    String id;
-    String name;
-    String city;
-
-    Object({
-        required this.id,
-        required this.name,
-        required this.city,
-    });
-
-    factory Object.fromJson(Map<String, dynamic> json) => Object(
-        id: json["id"],
-        name: json["autocompleteTerm"],
-        city: json["city"],
-    );
-
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "city": city,
-    };
 }
