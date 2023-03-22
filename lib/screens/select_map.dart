@@ -4,10 +4,12 @@ import 'dart:convert';
 
 import 'package:avandra/assets/org_parser.dart';
 import 'package:avandra/screens/edit_profile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../utils/fonts.dart';
 import '../utils/colors.dart';
 import '../utils/global.dart';
@@ -21,14 +23,18 @@ class SelectMapScreen extends StatefulWidget {
 
 class _SelectMapScreenState extends State<SelectMapScreen> {
 
-  // final List<String> items = [
-  //   'One',
-  //   'Two',
-  //   'Three',
-  // ];
+  var selectedOrg;
+  final TextEditingController _organizationController = TextEditingController();
+  late String orgAndRole = _organizationController.text;
 
-  // String? selectedValue;
-  // bool showDropdown = true;
+  @override
+  void dispose() {
+    super.dispose();
+    _organizationController.dispose();
+  }
+
+  String? selectedValue;
+  bool showDropdown = true;
 
   @override
   Widget build(BuildContext context) {    
@@ -50,55 +56,71 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
         ),
       ),
       body: Center (
-
-        
-      //   child: DropdownButtonHideUnderline(
-      //     child: ButtonTheme(
-      //       alignedDropdown: true,
-      //       child: DropdownButton(
-      //         isExpanded: true,
-      //         hint: Row(
-      //           children: const [
-      //             SizedBox(
-      //               width: 4,
-      //             ),
-      //             Expanded(
-      //               child: Text(
-      //               'Select Your Status',
-      //               style: TextStyle(
-      //                 fontSize: 15,
-      //                 fontWeight: FontWeight.bold,
-      //                 color: smallerTextColor,
-      //               ),
-      //               textAlign: TextAlign.left,
-      //               overflow: TextOverflow.ellipsis,
-      //               ),
-      //               ),
-      //           ],
-      //         ),
-      //         items: items.map((item) => DropdownMenuItem<String>(
-      //           value: item,
-      //           child: Text(
-      //             item,
-      //             style: const TextStyle(
-      //             fontSize: 15,
-      //             fontWeight: FontWeight.bold,
-      //             color: regularTextSizeColor,
-      //             ),
-      //             overflow: TextOverflow.ellipsis,
-      //           ),
-      //     ))
-      //       .toList(),
-      //       value: selectedValue,
-      //       onChanged: (value) {
-      //       setState(() {
-      //         selectedValue = value as String;
-      //       });
-      //     },
-      // )
-          
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          width: double.infinity,
+          child: Column (
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              StreamBuilder<QuerySnapshot> (
+                stream: FirebaseFirestore.instance
+                  .collection('organizations')
+                  .snapshots(),
+                builder: (context,snapshot) {
+                  if (!snapshot.hasData) {
+                    const Text("Loading...");
+                  }
+                  else {
+                    List<DropdownMenuItem> organizations = [];
+                    for (int i = 0; i < (snapshot.data! as dynamic).docs.length; i++) {
+                      DocumentSnapshot snap = snapshot.data!.docs[i];
+                      organizations.add(
+                        DropdownMenuItem(
+                          // ignore: sort_child_properties_last
+                          child: Text(snap['name'],
+                          style: GoogleFonts.montserrat(
+                            fontSize: regularTextSize, color: regularTextSizeColor,),
+                          ),
+                          value: "${snap['name']}",
+                        ),
+                      );
+                    }
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(width: 50.0),
+                        DropdownButton(
+                          iconDisabledColor: smallerTextColor,
+                          icon: Icon(Icons.arrow_drop_down, color: Colors.black54),
+                          dropdownColor: Colors.white,
+                          items: organizations,
+                          onChanged: (orgValue) {
+                            _organizationController.text = orgValue;
+                            setState(() {
+                              selectedOrg = orgValue;
+                            });
+                          },
+                          value: selectedOrg,
+                          isExpanded: false,
+                          hint: Text(
+                            "Choose Organization",
+                            style: GoogleFonts.montserrat(
+                              fontSize: regularTextSize, 
+                              color: regularTextSizeColor,
+                              ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return Container();
+                }
+              )
+            ],
+          )
         )
-      );
+      )
+    );
   
   }
 

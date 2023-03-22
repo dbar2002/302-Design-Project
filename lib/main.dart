@@ -38,7 +38,8 @@ class MyApp extends StatelessWidget {
 
       // home: SettingUI(),
       //home: SplashScreen(),
-      home: MenuScreen(), //
+      home: MenuScreen(), //MY MENU TEST
+      //home: SignUpScreen(),
 
       routes: {
         '/Login': (context) => const LoginScreen(title: ''),
