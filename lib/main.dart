@@ -1,6 +1,7 @@
 import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/screens/menu.dart';
 import 'package:avandra/screens/navigation_page.dart';
+import 'package:avandra/screens/select_map.dart';
 import 'package:avandra/screens/sign_in.dart';
 import 'package:avandra/screens/splash_page.dart';
 
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         '/Menu': (context) => const MenuScreen(),
         '/profile': (context) => const ProfilePage(),
         '/nav': (context) => const NavScreen(),
+        '/selectMap': (context) => const SelectMapScreen(),
       },
 
       //This is for persistent state, which we will need, but not quite yet

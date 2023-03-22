@@ -15,10 +15,38 @@ class ProfilePage extends StatefulWidget {
 
 enum MenuAction { logout }
 
-class _ProfilePageState extends State<ProfilePage> {
-  final double coverHeight = 100;
+// TickerProviderStateMixin is to allow the tabContoller to work
+class _ProfilePageState extends State<ProfilePage>
+    with TickerProviderStateMixin {
+  final double coverHeight = 150;
   final double profileHeight = 100;
   String username = "Jane Doe";
+
+  // TODO: connect the pins and organizations to user's stored ones
+  List<String> pins = [
+    "Physics Class",
+    "Global Christianity",
+    "Circuits",
+    "English class",
+    "FYE",
+    "Engineering Statistics"
+  ];
+  List<String> organizations = [
+    "California Baptist University",
+    "University of California Riverside",
+    "Riverside Public Library",
+    "University of California Irvine",
+  ];
+  TabController? _tabController;
+  ScrollController? _scrollController;
+
+  // initState() must be included to activate the controllers
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _scrollController = ScrollController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +74,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   final shouldLogout = await showLogoutDialog(context);
                   if (shouldLogout) {
                     await FirebaseAuth.instance.signOut();
-                    Navigator.of(context).pushNamedAndRemoveUntil('/Login', (route) => false);
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil('/Login', (route) => false);
                   }
               }
             },
@@ -60,12 +89,15 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
       body: ListView(
+        physics: NeverScrollableScrollPhysics(),
         padding: EdgeInsets.zero,
         children: <Widget>[
+          // FIXME: for some reason, the cover image is low down on the page
           buildTop(),
+          Divider(height: 15),
           buildContent(),
           // TODO: figure out the right height for this thing
-          Divider(height: screenHeight - coverHeight - (profileHeight / 2)),
+          Divider(height: coverHeight + 30),
           buildBottom(),
         ],
       ),
@@ -74,42 +106,55 @@ class _ProfilePageState extends State<ProfilePage> {
 
   /* this widget creates the top background of the profile page */
   Widget buildTop() {
-    // final top = coverHeight - profileHeight / 2;
-    final bottom = profileHeight / 4;
-
     return Center(
         // Stack lets you overlap things
         child: Stack(
       clipBehavior: Clip.none,
+      alignment: AlignmentDirectional.center,
 
       // all widgets in children will be overlapped because they're in the
       // Stack Widget
       children: [
         // this creates the backgroundImage
-        Container(
-          // margin: EdgeInsets.only(bottom: 0),
-          child: buildCoverImage(Alignment.center),
+        Positioned(
+          top: 0,
+          bottom: -20,
+          child: Container(
+            child: buildCoverImage(Alignment.center, coverHeight),
+          ),
         ),
 
         // this creates the profile image
+        // Positioned(
+        //   // top: 0,
+        //   child:
         Container(
-          alignment: Alignment.bottomCenter,
+          alignment: AlignmentDirectional.center,
           child: buildProfileImage(),
         ),
+        // ),
 
         // this text button creates a route to the edit profile page
-        Container(
-          alignment: Alignment.topRight,
-          child: TextButton(
-            style: TextButton.styleFrom(
-                textStyle: const TextStyle(
-                    fontSize: regularTextSize, color: Colors.black)),
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => EditProfilePage(),
-              ));
-            },
-            child: const Text("Edit Profile"),
+        Positioned(
+          // setting top and right to 0 positions the button to the top right
+          top: 0,
+          right: 0,
+          child: Container(
+            alignment: AlignmentDirectional.topEnd,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                  textStyle: const TextStyle(
+                      fontSize: regularTextSize, color: buttonColor)),
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => EditProfilePage(),
+                ));
+              },
+              child: const Text("Edit Profile",
+                  style: TextStyle(
+                    color: Colors.white,
+                  )),
+            ),
           ),
         ),
       ],
@@ -121,90 +166,115 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        // const SizedBox(height: 8),
         Divider(height: 10),
         Text(
           // this will need to be updated from the edit profile page
           username,
-          style:
-              TextStyle(fontSize: regularTextSize, color: regularTextSizeColor),
+          style: TextStyle(fontSize: titleSize, color: regularTextSizeColor),
         ),
         const SizedBox(height: 8),
         Text(
           'San Francisco',
-          style:
-              TextStyle(fontSize: regularTextSize, color: regularTextSizeColor),
+          style: TextStyle(fontSize: titleSize, color: regularTextSizeColor),
         ),
-        // const SizedBox(height: 16),
 
-        // This is my attempt to make the My Pins button open to the saved pins
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        //   children: [
-        //     DefaultTabController(
-        //         length: 2,
-        //         child: Scaffold(
-        //           resizeToAvoidBottomInset: true,
-        //           appBar: AppBar(
-        //             bottom: TabBar(
-        //               tabs: [
-        //                 Tab(icon: Icon(Icons.pin)),
-        //                 Tab(icon: Icon(Icons.house)),
-        //               ],
-        //             ),
-        //           ),
-        //           body: TabBarView(
-        //             children: [
-        //               Text("Pin 1 of many"),
-        //               Text("Organization 1 of many")
-        //               // creates the organizations
-        //               // DefaultTabController(
-        //               //     length: organizations.length,
-        //               //     child: Scaffold(
-        //               //         appBar: AppBar(
-        //               //             bottom: TabBar(isScrollable: true, tabs: [
-        //               //       Tab(text: organizations[0]),
-        //               //       Tab(text: organizations[1]),
-        //               //       Tab(text: organizations[2]),
-        //               //     ])))),
-        //             ],
-        //           ),
-        //         )),
-        //   ],
-        // ),
+        Align(
+            alignment: Alignment.centerLeft,
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: darkerNavigationColor,
+              tabs: [
+                Tab(
+                    child: Text("My Pins",
+                        style: TextStyle(
+                          fontSize: regularTextSize,
+                          color: regularTextSizeColor,
+                        ))),
+                Tab(
+                    child: Text("My Organizations",
+                        style: TextStyle(
+                          fontSize: regularTextSize,
+                          color: regularTextSizeColor,
+                        ))),
+              ],
+            )),
 
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SavedPin(),
-          ],
+// TODO: once pins and organizations are set up, sync them here
+        Container(
+          padding: const EdgeInsets.only(left: 20),
+          height: regularTextSize + 3,
+          child: TabBarView(
+            controller: _tabController,
+            clipBehavior: Clip.hardEdge,
+            children: [
+              // this will hold all the saved pins
+              Expanded(
+                  child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      controller: _scrollController,
+                      shrinkWrap: true,
+                      itemCount: pins.length,
+                      separatorBuilder: (BuildContext context, int index) {
+                        return VerticalDivider(
+                          width: 15.0,
+                          // color: darkerNavigationColor,
+                          // thickness: 2.0,
+                        );
+                      },
+                      // ignore: non_constant_identifier_names
+                      itemBuilder: (BuildContext context, int index) {
+                        return Text(pins[index],
+                            style: TextStyle(
+                              fontSize: regularTextSize,
+                              color: regularTextSizeColor,
+                            ));
+                      })),
+
+              // this holds all the organizations
+              Expanded(
+                  child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: false,
+                      controller: _scrollController,
+                      itemCount: organizations.length,
+                      separatorBuilder: (BuildContext context, int index) {
+                        return VerticalDivider(
+                          width: 15.0,
+                        );
+                      },
+                      // ignore: non_constant_identifier_names
+                      itemBuilder: (BuildContext context, int index) {
+                        return Text(organizations[index],
+                            overflow: TextOverflow.visible,
+                            style: TextStyle(
+                              fontSize: regularTextSize,
+                              color: regularTextSizeColor,
+                            ));
+                      })),
+            ],
+          ),
         ),
-        // const SizedBox(height: 16),
-        Divider(),
-        // const SizedBox(height: 16),
-        // TO DO: create buildPins function
-        // buildPins(),
-        // const SizedBox(height: 32),
       ],
     );
   }
 
   Widget buildBottom() {
     return Container(
-      child: buildCoverImage(Alignment.bottomCenter),
+      child: buildCoverImage(Alignment.center, coverHeight - 15.0),
     );
   }
 
   /* this widget build the cover image */
-  Widget buildCoverImage(Alignment pos) => Container(
+  Widget buildCoverImage(Alignment pos, double givenHeight) => Container(
         color: backgroundColor,
         alignment: pos,
         child: Container(
-          height: coverHeight,
+          height: givenHeight,
           width: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
-                image: AssetImage("lib/assets/images/natureBackground.jpg"),
+                image: AssetImage("lib/assets/images/cover_image2.jpg"),
+                // "lib/assets/images/cover_image.jpg"
                 fit: BoxFit.fitWidth),
           ),
         ),
@@ -219,70 +289,6 @@ class _ProfilePageState extends State<ProfilePage> {
       );
 }
 
-/* this class creates the user's saved pins */
-class SavedPin extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          _buildSavedPin(text: 'Physics class'),
-          _buildDivider(),
-          _buildSavedPin(text: 'Circuits'),
-          _buildDivider(),
-          _buildSavedPin(text: 'Global Christianity'),
-        ],
-      );
-
-  /* this widget creates the spaces between pins */
-  Widget _buildDivider() => SizedBox(
-        height: 24,
-        child: VerticalDivider(),
-      );
-
-  /* this widget creates the saved pins themselves */
-  Widget _buildSavedPin({
-    required String text,
-  }) =>
-      MaterialButton(
-          padding: EdgeInsets.symmetric(vertical: 4),
-          onPressed: () {},
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(height: 10),
-                Text(
-                  text,
-                  style: TextStyle(
-                      fontSize: regularTextSize, color: regularTextSizeColor),
-                ),
-              ]));
-}
-
-// class PinsAction extends StatefulWidget {
-//   @override
-//   State<StatefulWidget> createState() {
-//     return PinsActionApp();
-//   }
-// }
-
-// class PinsActionApp extends State<PinsAction> {
-//   int i = 0;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Row(
-//       children: [
-//         for(var i = 0; i < pins.length; i++) {
-//           Text(pins[i])
-//         }
-//       ]
-//       while (i < pins.length()) {
-//         data: pins[i];
-//       }
-//     );
-//   }
-// }
 Future<bool> showLogoutDialog(BuildContext context) {
   return showDialog<bool>(
     context: context,
