@@ -12,18 +12,20 @@ class User {
   final String? password;
   final String? fullname;
   Map<String, String>? organizationsAndRoles;
+  final String? CBUAccess;
   User({
     this.uid,
     this.email,
     this.password,
     this.fullname,
     this.organizationsAndRoles,
+    this.CBUAccess,
   });
 
   static User fromSnap(DocumentSnapshot snap) {
     var snapshot = snap.data() as Map<String, dynamic>;
     final user = FirebaseAuth.instance.currentUser;
-      // If refresh is set to true, a refresh of the id token is forced.
+    // If refresh is set to true, a refresh of the id token is forced.
 
     return User(
       uid: snapshot['id'] as String,
@@ -31,6 +33,7 @@ class User {
       password: snapshot['password'] as String,
       fullname: snapshot['fullname'] as String,
       organizationsAndRoles: snapshot['organizations'],
+      CBUAccess: 'Test'
     );
   }
 
@@ -38,7 +41,8 @@ class User {
         "username": fullname,
         "uid": uid,
         "email": email,
-        "organizations": organizationsAndRoles
+        "organizations": organizationsAndRoles,
+        "CBUAccess": CBUAccess
       };
 
   @override

@@ -32,55 +32,48 @@ exports.updateAccess = functions.firestore
 
 
     // On sign up.
-exports.processSignUp = functions.auth.user().onCreate(user => {
+exports.processSignUp = functions.auth.user().onCreate(async (user) =>{
+  const {email} = user.email;
+  const domain = email.split('@')[1]; //saves what comes after the @
+  const first = email.split(domain).join('');// saves what comes before the @
+  let customClaims;
+  if (
+    user.email &&
+    user.email.endsWith('@calbaptist.edu') &&
+    first.includes('.') &&
+    user.emailVerified
+  ) {
+    customClaims = {
+      CBUAccess: "student"
+    };
+  } else if (
+    user.email &&
+    user.email.endsWith('@calbaptist.edu') &&
+    !first.includes('.') &&
+    user.emailVerified
+  ) {
+    customClaims = {
+      CBUAccess: "employee"
+    };
+  } else {
+    customClaims = {
+      CBUAccess: "visitor"
+    };
+  } 
 
   try {
-    const {email} = user.email;
-    const domain = email.split('@')[1]; //saves what comes after the @
-    const first = email.split(domain).join('');// saves what comes before the @
-    const isPartofOrg = false;
-          
-    let role;
-  
-      switch (isPartofOrg) {
-        case 'calbaptist.edu':
-          isPartofOrg = true;
-          break;
-        default:
-          role = 'visitor';
-          break;
-      }
+    // Set custom user claims on this newly created user.
+    await getAuth().setCustomUserClaims(user.uid, customClaims);
 
-      if(isPartofOrg) {
-      switch (first) {
-       case first.includes('.'):
-          role = 'student';
-          break;
-        default:
-          role = 'employee';
-          break;
-        }
-      }
-      const uid = context.auth.uid;
-      const customClaims = {
-        CBUAccess: role,
-      };
-      
-      return admin.auth().setCustomUserClaims(user.uid, {
-        customClaims
-      })
-    .then(async () => {
-        await firestore.collection('users').doc(user.uid).set({
-            createdAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-     })
-     .catch(error => {
-        console.log(error);
-     });
-      } catch (err) {
-        console.error(err);
-        throw new functions.https.HttpsError('internal', 'Internal server error');
-        }
+    // Update real-time database to notify client to force refresh.
+    const metadataRef = getDatabase().ref('metadata/' + user.uid);
+
+    // Set the refresh time to the current UTC timestamp.
+    // This will be captured on the client to force a token refresh.
+    await  metadataRef.set({refreshTime: new Date().getTime()});
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 exports.assignUserRoleforCBU = functions.https
