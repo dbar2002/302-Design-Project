@@ -36,173 +36,66 @@ exports.processSignUp = functions.auth.user().onCreate(async (user) =>{
   const {email} = user.email;
   const domain = email.split('@')[1]; //saves what comes after the @
   const first = email.split(domain).join('');// saves what comes before the @
-  let customClaims;
+
   if (
     user.email &&
     user.email.endsWith('@calbaptist.edu') &&
-    first.includes('.') &&
-    user.emailVerified
+    first.includes('.')
   ) {
-    customClaims = {
+    const customClaims = {
       CBUAccess: "student"
     };
+    try {
+      // Set custom user claims on this newly created user.
+      await getAuth().setCustomUserClaims(user.uid, customClaims);
+  
+      // Update real-time database to notify client to force refresh.
+      const metadataRef = getDatabase().ref('metadata/' + user.uid);
+  
+      // Set the refresh time to the current UTC timestamp.
+      // This will be captured on the client to force a token refresh.
+      await  metadataRef.set({refreshTime: new Date().getTime()});
+    } catch (error) {
+      console.log(error);
+    }
   } else if (
     user.email &&
     user.email.endsWith('@calbaptist.edu') &&
-    !first.includes('.') &&
-    user.emailVerified
+    !first.includes('.')
   ) {
-    customClaims = {
+    const customClaims = {
       CBUAccess: "employee"
     };
-  } else {
-    customClaims = {
-      CBUAccess: "visitor"
-    };
-  } 
-
-  try {
-    // Set custom user claims on this newly created user.
-    await getAuth().setCustomUserClaims(user.uid, customClaims);
-
-    // Update real-time database to notify client to force refresh.
-    const metadataRef = getDatabase().ref('metadata/' + user.uid);
-
-    // Set the refresh time to the current UTC timestamp.
-    // This will be captured on the client to force a token refresh.
-    await  metadataRef.set({refreshTime: new Date().getTime()});
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-exports.assignUserRoleforCBU = functions.https
-.onCall(async (data, context) => {
-  try {
-    const {email} = data;
-    const domain = email.split('@')[1]; //saves what comes after the @
-    const first = email.split(domain).join('');// saves what comes before the @
-    const isPartofOrg = false;
-          
-    let role;
+    try {
+      // Set custom user claims on this newly created user.
+      await getAuth().setCustomUserClaims(user.uid, customClaims);
   
-      switch (isPartofOrg) {
-        case 'calbaptist.edu':
-          isPartofOrg = true;
-          break;
-        default:
-          role = 'visitor';
-          break;
-      }
-
-      if(isPartofOrg) {
-      switch (first) {
-       case first.includes('.'):
-          role = 'student';
-          break;
-        default:
-          role = 'employee';
-          break;
-        }
-      }
-      const uid = context.auth.uid;
-      const customClaims = {
-        CBUAccess: role,
-      };
-      
-
-      return admin.auth().setCustomUserClaims(user.uid, {
-        'https://hasura.io/jwt/claims': {
-        'x-hasura-default-role': 'user',
-        'x-hasura-allowed-roles': ['user'],
-        'x-hasura-user-id': user.uid
-    }
-      })
-    .then(async () => {
-        await firestore.collection('users').doc(user.uid).set({
-            createdAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-     })
-     .catch(error => {
-        console.log(error);
-     });
-      } catch (err) {
-        console.error(err);
-        throw new functions.https.HttpsError('internal', 'Internal server error');
-        }
-});
-
-exports.assignUserRole = functions.firestore.document("users/{uid}")
-.onUpdate(async (data, context) => {
-  try {
-    const {email} = data;
-    const domain = email.split('@')[1]; //saves what comes after the @
-    const first = email.split(domain).join('');// saves what comes before the @
-    const isPartofOrg = false;
-          
-    let role;
-  
-      switch (isPartofOrg) {
-        case 'calbaptist.edu':
-          isPartofOrg = true;
-          break;
-        default:
-          role = 'visitor';
-          break;
-      }
-
-      if(isPartofOrg) {
-      switch (first) {
-       case first.includes('.'):
-          role = 'student';
-          break;
-        default:
-          role = 'employee';
-          break;
-        }
-      }
-      const uid = context.auth.uid;
-      const customClaims = {
-        CBUAccess: role,
-      };
-      
-      await admin.auth().setCustomUserClaims(uid, customClaims);
-
       // Update real-time database to notify client to force refresh.
       const metadataRef = getDatabase().ref('metadata/' + user.uid);
-      
-      console.log(`${email} was granted the ${role} role`);
-      return `User ${email} was granted the ${role} role`;
-      } catch (err) {
-        console.error(err);
-        throw new functions.https.HttpsError('internal', 'Internal server error');
-        }
+  
+      // Set the refresh time to the current UTC timestamp.
+      // This will be captured on the client to force a token refresh.
+      await  metadataRef.set({refreshTime: new Date().getTime()});
+    } catch (error) {
+      console.log(error);
+    }
+  } else {
+    const customClaims = {
+      CBUAccess: "visitor"
+    };
+    try {
+      // Set custom user claims on this newly created user.
+      await getAuth().setCustomUserClaims(user.uid, customClaims);
+  
+      // Update real-time database to notify client to force refresh.
+      const metadataRef = getDatabase().ref('metadata/' + user.uid);
+  
+      // Set the refresh time to the current UTC timestamp.
+      // This will be captured on the client to force a token refresh.
+      await  metadataRef.set({refreshTime: new Date().getTime()});
+    } catch (error) {
+      console.log(error);
+    }
+  } 
 });
 
-/*
-// Verify the ID token first.
-getAuth()
-    .verifyIdToken(idToken)
-    .then((claims) => {
-      if (claims.admin === true) {
-      // Allow access to requested admin resource.
-      }
-    });
-
-
-// Lookup the user associated with the specified uid.
-getAuth()
-.getUser(uid)
-.then((userRecord) => {
-
-// The claims can be accessed on the user record.
-  console.log(userRecord.customClaims['admin']);
-});
-
-// Lookup the user associated with the specified uid.
-admin.auth().getUser(uid).then((userRecord) => {
-    // The claims can be accessed on the user record.
-    console.log(userRecord.customClaims);
-  });
-
-*/

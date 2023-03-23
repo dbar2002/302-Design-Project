@@ -90,16 +90,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _isLoading = false;
       });
-      FirebaseFunctions.instance
-          .httpsCallable('assignUserRoleforCBU')
-          .call({"data": _emailController.toString()});
-
       // navigate to the home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const VerifyEmailScreen(),
         ),
       );
+
     } else {
       setState(() {
         _isLoading = false;

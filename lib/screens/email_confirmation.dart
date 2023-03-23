@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:avandra/screens/menu.dart';
 import 'package:avandra/screens/navigation_page.dart';
 import 'package:avandra/widgets/maps.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:avandra/screens/add_new_org.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -57,6 +58,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       timer?.cancel();
     }
   }
+
 
   @override
   Widget build(BuildContext context) => isEmailVerified!
