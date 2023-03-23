@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:avandra/model/user.dart' as model;
 
@@ -22,10 +23,14 @@ class AuthMethods {
     required String email,
     required String password,
     required String username,
+    required Map<String, String> organization,
   }) async {
     String res = "Some error Occurred";
     try {
-      if (email.isNotEmpty || password.isNotEmpty || username.isNotEmpty) {
+      if (email.isNotEmpty ||
+          password.isNotEmpty ||
+          username.isNotEmpty ||
+          organization.isNotEmpty) {
         // registering user in auth with email and password
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email,
@@ -34,10 +39,15 @@ class AuthMethods {
 
         model.User _user = model.User(
           fullname: username,
-          //uid: cred.user!.uid, //IDK MAN
+          uid: cred.user!.uid,
           email: email,
+          organizationsAndRoles: organization,
         );
 
+        //
+        FirebaseFunctions.instance.httpsCallable('assignUserRoleforCBU').call({
+          "data": email,
+        });
         // adding user in our database
         await _firestore
             .collection("users")
