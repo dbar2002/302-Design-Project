@@ -107,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage>
                   })),
 
           // TODO: figure out the right height for this thing
-          Divider(height: coverHeight + 110),
+          Divider(height: coverHeight),
           buildBottom(),
         ],
       ),
