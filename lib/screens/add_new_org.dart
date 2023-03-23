@@ -8,6 +8,9 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../resources/validator.dart';
 import '../widgets/basic_button.dart';
@@ -25,6 +28,18 @@ class _AddNewOrgScreenState extends State<AddNewOrgScreen> {
   bool? visitor = false;
   bool? employee = false;
 
+  final email = FirebaseAuth.instance.currentUser?.email;
+  final uid = FirebaseAuth.instance.currentUser?.uid;
+  late final organization;
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _organizationController = TextEditingController();
+
+void dispose() {
+    super.dispose();
+    _emailController.dispose();
+    _organizationController.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,7 +144,13 @@ class _AddNewOrgScreenState extends State<AddNewOrgScreen> {
             ],
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+             FirebaseFunctions.instance.httpsCallable('assignUserRole')
+              .call({"data": _emailController.toString()});
+             FirebaseFirestore.instance.collection('users').doc(uid).collection('organizations').add(
+                 organization,
+             );
+
               if (student!) {
                 showSnackBar(
                     context, 'Organization added with student access!');
@@ -142,7 +163,7 @@ class _AddNewOrgScreenState extends State<AddNewOrgScreen> {
                 showSnackBar(
                     context, 'Organization added with employee access!');
               }
-            }, //have to write functionality that will save and add clearance elevel and org to profile once profile stuff is setup
+            }, 
             style: TextButton.styleFrom(
               backgroundColor: Colors.black,
             ),

@@ -2,6 +2,7 @@ import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/screens/menu.dart';
 import 'package:avandra/screens/sign_in.dart';
 import 'package:avandra/screens/splash_page.dart';
+import 'package:avandra/screens/add_new_org.dart';
 
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/SignUp': (context) => const SignUpScreen(),
         '/Menu': (context) => const MenuScreen(),
         '/profile': (context) => const ProfilePage(),
+        '/addOrg': (context) => const AddNewOrgScreen(),
       },
       
 
