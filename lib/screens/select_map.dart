@@ -1,10 +1,7 @@
-//select_map.dart
-
 import 'dart:convert';
 
 import 'package:avandra/assets/org_parser.dart';
 import 'package:avandra/screens/edit_profile.dart';
-import 'package:avandra/screens/navigation_page.dart';
 import 'package:avandra/widgets/basic_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,8 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/fonts.dart';
-import '../utils/colors.dart';
+// import 'package:avandra/utils/fonts.dart';
+import '../utils/colors.dart'; //system cannot find the path?
+// import 'package:avandra/utils/colors.dart';
 import '../utils/global.dart';
+// import 'package:avandra/utils/global.dart';
+import '../widgets//logo.dart';
 
 class SelectMapScreen extends StatefulWidget {
   const SelectMapScreen({Key? key}) : super(key: key);
@@ -42,8 +43,7 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
     return Scaffold(
         backgroundColor: backgroundColor,
         appBar: AppBar(
-          title: const Text("SELECT MAP",
-              style: TextStyle(color: regularTextSizeColor)),
+          //title: const Text("SELECT MAP SCREEN", style:TextStyle(color: regularTextSizeColor)),
           backgroundColor: backgroundColor,
           elevation: 0,
           leading: IconButton(
@@ -63,8 +63,19 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 width: double.infinity,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: LogoWidget(),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 150, bottom: 25),
+                      child: Text("Select Your Organization",
+                          style: TextStyle(
+                              color: Colors.black, fontSize: headingSize)),
+                    ),
+                    //child: <Widget> [logoWidget()],
                     StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection('organizations')
@@ -93,45 +104,46 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
                               );
                             }
                             return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  SizedBox(width: 50.0),
-                                  DropdownButton(
-                                    iconDisabledColor: smallerTextColor,
-                                    icon: Icon(Icons.arrow_drop_down,
-                                        color: Colors.black54),
-                                    dropdownColor: Colors.white,
-                                    items: organizations,
-                                    onChanged: (orgValue) {
-                                      _organizationController.text = orgValue;
-                                      setState(() {
-                                        selectedOrg = orgValue;
-                                      });
-                                    },
-                                    value: selectedOrg,
-                                    isExpanded: false,
-                                    hint: Text(
-                                      "Choose Organization",
-                                      style: GoogleFonts.montserrat(
-                                        fontSize: regularTextSize,
-                                        color: regularTextSizeColor,
-                                      ),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                SizedBox(width: 50.0),
+                                DropdownButton(
+                                  iconDisabledColor: smallerTextColor,
+                                  icon: Icon(Icons.arrow_drop_down,
+                                      color: Colors.black54),
+                                  dropdownColor: Colors.white,
+                                  items: organizations,
+                                  onChanged: (orgValue) {
+                                    _organizationController.text = orgValue;
+                                    setState(() {
+                                      selectedOrg = orgValue;
+                                    });
+                                  },
+                                  value: selectedOrg,
+                                  isExpanded: false,
+                                  hint: Text(
+                                    "Choose Organization",
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: regularTextSize,
+                                      color: regularTextSizeColor,
                                     ),
                                   ),
-                                  BasicButton(
-                                      text: "Select Map",
-                                      onPressed: () async {
-                                        Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const NavScreen(),
-                                          ),
-                                        );
-                                      }),
-                                ]);
+                                ),
+                              ],
+                            );
                           }
                           return Container();
-                        })
+                        }),
+                    Padding(
+                        padding: const EdgeInsets.only(top: 100, bottom: 25),
+                        child: BasicButton(
+                            text: "Continue",
+                            onPressed: () async {
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/nav', (route) => false);
+                            })
+
+                        ),
                   ],
                 ))));
   }

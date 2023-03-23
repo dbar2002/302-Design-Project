@@ -42,7 +42,7 @@ class _MenuScreenState extends State<MenuScreen> {
               title: Text('Home',
                   style: TextStyle(color: Colors.black, fontSize: 23)),
               onTap: () => Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/home', (route) => false),
+                  .pushNamedAndRemoveUntil('/nav', (route) => false),
             ),
             ListTile(
               leading:
@@ -58,13 +58,6 @@ class _MenuScreenState extends State<MenuScreen> {
                   style: TextStyle(color: Colors.black, fontSize: 23)),
               onTap: () => Navigator.of(context)
                   .pushNamedAndRemoveUntil('/pins', (route) => false),
-            ),
-            ListTile(
-              leading: Icon(Icons.map_outlined, color: Colors.black, size: 30),
-              title: Text('Current Map',
-                  style: TextStyle(color: Colors.black, fontSize: 23)),
-              onTap: () => Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/nav', (route) => false),
             ),
             ListTile(
               leading: Icon(Icons.map_outlined, color: Colors.black, size: 30),

@@ -1,3 +1,4 @@
+import 'package:avandra/screens/add_new_org.dart';
 import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/screens/menu.dart';
 import 'package:avandra/screens/navigation_page.dart';
@@ -44,27 +45,8 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfilePage(),
         '/nav': (context) => const NavScreen(),
         '/selectMap': (context) => const SelectMapScreen(),
+        '/addNewOrg': (context) => const AddNewOrgScreen(),
       },
-
-      //This is for persistent state, which we will need, but not quite yet
-      //It also needs to be adjusted to allow for the splash page
-
-      /*home: StreamBuilder(
-        stream: AuthMethods().authChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          if (snapshot.hasData) {
-            return const HomeScreen();
-          }
-
-          return const LoginScreen();
-        },
-      ),*/
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:avandra/screens/edit_profile.dart';
+import 'package:avandra/widgets/basic_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -96,8 +97,17 @@ class _ProfilePageState extends State<ProfilePage>
           buildTop(),
           Divider(height: 15),
           buildContent(),
+          Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: BasicButton(
+                  text: "Add New Organization",
+                  onPressed: () async {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/addNewOrg', (route) => false);
+                  })),
+
           // TODO: figure out the right height for this thing
-          Divider(height: coverHeight + 30),
+          Divider(height: coverHeight + 110),
           buildBottom(),
         ],
       ),
@@ -260,7 +270,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget buildBottom() {
     return Container(
-      child: buildCoverImage(Alignment.center, coverHeight - 15.0),
+      child: buildCoverImage(Alignment.bottomCenter, coverHeight),
     );
   }
 
@@ -273,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage>
           width: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
-                image: AssetImage("lib/assets/images/cover_image2.jpg"),
+                image: AssetImage("lib/assets/images/cover_image.png"),
                 // "lib/assets/images/cover_image.jpg"
                 fit: BoxFit.fitWidth),
           ),
