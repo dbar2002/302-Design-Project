@@ -79,7 +79,6 @@ void dispose() {
           Row(
             children: [
               Checkbox(
-                //need to change to store info once profile functionality is set up
                 value: this.student,
                 onChanged: (bool? value) {
                   setState(() {
@@ -100,7 +99,6 @@ void dispose() {
                 ),
               ),
               Checkbox(
-                //need to change to store info once profile functionality is set up
                 value: this.visitor,
                 onChanged: (bool? value) {
                   setState(() {
@@ -121,7 +119,6 @@ void dispose() {
                 ),
               ),
               Checkbox(
-                //need to change to store info once profile functionality is set up
                 value: this.employee,
                 onChanged: (bool? value) {
                   setState(() {
