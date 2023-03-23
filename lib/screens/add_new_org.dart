@@ -34,7 +34,7 @@ class _AddNewOrgScreenState extends State<AddNewOrgScreen> {
         backgroundColor: backgroundColor,
         leading: IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.of(context).pushNamed('/selectMap'); //hardcode return to menu
             },
             icon: Icon(
               Icons.arrow_back_ios,

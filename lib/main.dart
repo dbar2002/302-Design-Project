@@ -1,9 +1,11 @@
 
+import 'package:avandra/screens/add_new_org.dart';
 import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/screens/menu.dart';
 import 'package:avandra/screens/select_map.dart';
 import 'package:avandra/screens/sign_in.dart';
 import 'package:avandra/screens/splash_page.dart';
+import 'package:avandra/widgets/maps.dart';
 
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
@@ -47,6 +49,8 @@ class MyApp extends StatelessWidget {
         '/Menu': (context) => const MenuScreen(),
         '/profile': (context) => const ProfilePage(),
         '/selectMap': (context) => const SelectMapScreen(),
+        '/map': (context) => const MenuScreen(),
+        '/addNewOrg': (context) => const AddNewOrgScreen(),
       },
       
 

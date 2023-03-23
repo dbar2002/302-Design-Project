@@ -1,9 +1,8 @@
-//select_map.dart
-
 import 'dart:convert';
 
 import 'package:avandra/assets/org_parser.dart';
 import 'package:avandra/screens/edit_profile.dart';
+import 'package:avandra/widgets/basic_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -11,8 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/fonts.dart';
-import '../utils/colors.dart';
+// import 'package:avandra/utils/fonts.dart';
+import '../utils/colors.dart'; //system cannot find the path?
+// import 'package:avandra/utils/colors.dart';
 import '../utils/global.dart';
+// import 'package:avandra/utils/global.dart';
+import '../widgets//logo.dart';
 
 class SelectMapScreen extends StatefulWidget {
   const SelectMapScreen({Key? key}) : super(key: key);
@@ -38,11 +41,10 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
 
   @override
   Widget build(BuildContext context) {    
-
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text("SELECT MAP SCREEN", style:TextStyle(color: regularTextSizeColor)),
+        //title: const Text("SELECT MAP SCREEN", style:TextStyle(color: regularTextSizeColor)),
         backgroundColor: backgroundColor,
         elevation: 0,
         leading: IconButton( //makeshift functional back button
@@ -60,8 +62,15 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 32),
           width: double.infinity,
           child: Column (
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              Padding(padding: const EdgeInsets.all(8.0),
+                child: LogoWidget(),
+              ),
+              Padding(padding: const EdgeInsets.only(top: 150, bottom: 25),
+                child: Text("Select Your Organization", style: TextStyle(color: Colors.black, fontSize: headingSize)),
+              ),
+              //child: <Widget> [logoWidget()],
               StreamBuilder<QuerySnapshot> (
                 stream: FirebaseFirestore.instance
                   .collection('organizations')
@@ -115,13 +124,47 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
                   }
                   return Container();
                 }
-              )
+              ),
+              Padding(padding: const EdgeInsets.only(top: 20),
+                child: BasicButton(
+                  text: "Add New Organization", 
+                  
+                  onPressed: () async {Navigator.of(context).pushNamedAndRemoveUntil('/addNewOrg', (route) => false);} 
+                )
+                // child: ElevatedButton(
+                // onPressed: () {Navigator.of(context).pushNamedAndRemoveUntil('/addNewOrg', (route) => false);},                  
+                // child: Text("Add New Organization", style: GoogleFonts.montserrat(color: regularTextSizeColor,fontSize: regularTextSize)),
+                //   style: ElevatedButton.styleFrom(
+                    
+                //     backgroundColor: Colors.blueGrey[100],
+                //     minimumSize: const Size(double.infinity,50,),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(30),
+                //       side: const BorderSide(color: buttonColor),
+                //     ),
+                //   ),
+                ), 
+              Padding(padding: const EdgeInsets.only(top: 100, bottom: 25),
+                //child: BasicButton()
+                //child: BasicButton(text: "Continue", onPressed: {})
+                child: BasicButton(text: "Continue", onPressed: () async {Navigator.of(context).pushNamedAndRemoveUntil('/nav', (route) => false);} )
+              //   child: ElevatedButton(
+              //     onPressed: () {Navigator.of(context).pushNamedAndRemoveUntil('/Menu', (route) => false);},                  
+              //     child: Text("Continue", style: GoogleFonts.montserrat(color: regularTextSizeColor,fontSize: regularTextSize)),
+              //       style: ElevatedButton.styleFrom(
+              //         backgroundColor: Colors.blue[400],
+              //         minimumSize: const Size(double.infinity,50,),
+              //         shape: RoundedRectangleBorder(
+              //           borderRadius: BorderRadius.circular(30),
+              //           side: const BorderSide(color: buttonColor),
+              //         ),
+              //       ),
+              //   ),
+               ),
             ],
           )
         )
       )
     );
-  
   }
-
 }
