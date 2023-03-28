@@ -1,5 +1,3 @@
-
-
 import 'package:avandra/screens/email_confirmation.dart';
 import 'package:avandra/screens/home.dart';
 import 'package:avandra/screens/sign_in.dart';
@@ -47,7 +45,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _organizationController = TextEditingController();
 
-  String role = 'visitor';
+  late String role = AuthMethods().setUserRole(_emailController.text);
 
   bool _isLoading = false;
   String dropDownValue = "Select Organization";
@@ -96,7 +94,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           builder: (context) => const VerifyEmailScreen(),
         ),
       );
-
     } else {
       setState(() {
         _isLoading = false;

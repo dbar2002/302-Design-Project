@@ -1,4 +1,6 @@
 import 'package:avandra/widgets/maps.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:avandra/resources/secrets.dart'; // Stores the Google Maps API Key
@@ -11,6 +13,7 @@ import 'package:map_launcher/map_launcher.dart' as mapLauch;
 
 import 'dart:math' show cos, sqrt, asin;
 
+import '../model/markers.dart';
 import '../utils/fonts.dart';
 
 class NavScreen extends StatefulWidget {
@@ -21,6 +24,7 @@ class NavScreen extends StatefulWidget {
 }
 
 class _NavScreenState extends State<NavScreen> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   CameraPosition _initialLocation = CameraPosition(target: LatLng(0.0, 0.0));
   late GoogleMapController mapController;
 
@@ -318,6 +322,50 @@ class _NavScreenState extends State<NavScreen> {
     _getCurrentLocation();
   }
 
+  Future<void> addUserPin(MarkerData marker) {
+    CollectionReference pinsCollection = FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .collection('pins');
+    return pinsCollection.add({
+      'latitude': marker.latitude,
+      'longitude': marker.longitude,
+      'title': marker.title,
+    });
+  }
+
+  void _onMapTapped(LatLng position) async {
+    String title = await _getPinAddress(position);
+    MarkerData markerData =
+        MarkerData(position.latitude, position.longitude, title);
+    await addUserPin(markerData);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Pin Created!'),
+          content: Text('You have successfully created a pin'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    setState(() {});
+  }
+
+  Future<String> _getPinAddress(LatLng position) async {
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark placemark = placemarks.first;
+    return '${placemark.name}, ${placemark.locality}';
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -331,6 +379,9 @@ class _NavScreenState extends State<NavScreen> {
           children: <Widget>[
             // Map View
             GoogleMap(
+              onTap: (latlang) {
+                _onMapTapped(latlang);
+              },
               markers: Set<Marker>.from(markers),
               initialCameraPosition: _initialLocation,
               myLocationEnabled: true,

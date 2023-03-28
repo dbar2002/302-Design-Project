@@ -31,71 +31,25 @@ exports.updateAccess = functions.firestore
     });
 
 
-    // On sign up.
+// On sign up.
 exports.processSignUp = functions.auth.user().onCreate(async (user) =>{
-  const {email} = user.email;
-  const domain = email.split('@')[1]; //saves what comes after the @
-  const first = email.split(domain).join('');// saves what comes before the @
+  const customClaims = {
+    CBUAccess: user.CBUAccess,
+  };
+  
+  try {
+    // Set custom user claims on this newly created user.
+    await getAuth().setCustomUserClaims(user.uid, customClaims);
 
-  if (
-    user.email &&
-    user.email.endsWith('@calbaptist.edu') &&
-    first.includes('.')
-  ) {
-    const customClaims = {
-      CBUAccess: "student"
-    };
-    try {
-      // Set custom user claims on this newly created user.
-      await getAuth().setCustomUserClaims(user.uid, customClaims);
-  
-      // Update real-time database to notify client to force refresh.
-      const metadataRef = getDatabase().ref('metadata/' + user.uid);
-  
-      // Set the refresh time to the current UTC timestamp.
-      // This will be captured on the client to force a token refresh.
-      await  metadataRef.set({refreshTime: new Date().getTime()});
-    } catch (error) {
-      console.log(error);
-    }
-  } else if (
-    user.email &&
-    user.email.endsWith('@calbaptist.edu') &&
-    !first.includes('.')
-  ) {
-    const customClaims = {
-      CBUAccess: "employee"
-    };
-    try {
-      // Set custom user claims on this newly created user.
-      await getAuth().setCustomUserClaims(user.uid, customClaims);
-  
-      // Update real-time database to notify client to force refresh.
-      const metadataRef = getDatabase().ref('metadata/' + user.uid);
-  
-      // Set the refresh time to the current UTC timestamp.
-      // This will be captured on the client to force a token refresh.
-      await  metadataRef.set({refreshTime: new Date().getTime()});
-    } catch (error) {
-      console.log(error);
-    }
-  } else {
-    const customClaims = {
-      CBUAccess: "visitor"
-    };
-    try {
-      // Set custom user claims on this newly created user.
-      await getAuth().setCustomUserClaims(user.uid, customClaims);
-  
-      // Update real-time database to notify client to force refresh.
-      const metadataRef = getDatabase().ref('metadata/' + user.uid);
-  
-      // Set the refresh time to the current UTC timestamp.
-      // This will be captured on the client to force a token refresh.
-      await  metadataRef.set({refreshTime: new Date().getTime()});
-    } catch (error) {
-      console.log(error);
-    }
-  } 
+    // Update real-time database to notify client to force refresh.
+    const metadataRef = getDatabase().ref('metadata/' + user.uid);
+
+    // Set the refresh time to the current UTC timestamp.
+    // This will be captured on the client to force a token refresh.
+    await  metadataRef.set({refreshTime: new Date().getTime()});
+  } catch (error) {
+    console.log(error);
+  }
+
 });
 
