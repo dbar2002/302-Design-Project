@@ -108,7 +108,8 @@ class _ProfilePageState extends State<ProfilePage>
 
           // TODO: figure out the right height for this thing
           Divider(height: coverHeight + 110),
-          buildBottom(),
+
+          Divider(height: coverHeight + 30),
         ],
       ),
     );
@@ -270,6 +271,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget buildBottom() {
     return Container(
+
       child: buildCoverImage(Alignment.bottomCenter, coverHeight),
     );
   }
@@ -284,8 +286,6 @@ class _ProfilePageState extends State<ProfilePage>
           decoration: const BoxDecoration(
             image: DecorationImage(
                 image: AssetImage("lib/assets/images/cover_image.png"),
-                // "lib/assets/images/cover_image.jpg"
-                fit: BoxFit.fitWidth),
           ),
         ),
       );
