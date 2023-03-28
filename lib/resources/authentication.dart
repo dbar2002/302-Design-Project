@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:avandra/model/user.dart' as model;
 
@@ -22,10 +23,16 @@ class AuthMethods {
     required String email,
     required String password,
     required String username,
+    required Map<String, String> organization,
   }) async {
     String res = "Some error Occurred";
+    String role = setUserRole(email);
+
     try {
-      if (email.isNotEmpty || password.isNotEmpty || username.isNotEmpty) {
+      if (email.isNotEmpty ||
+          password.isNotEmpty ||
+          username.isNotEmpty ||
+          organization.isNotEmpty) {
         // registering user in auth with email and password
         UserCredential cred = await _auth.createUserWithEmailAndPassword(
           email: email,
@@ -34,10 +41,14 @@ class AuthMethods {
 
         model.User _user = model.User(
           fullname: username,
-          //uid: cred.user!.uid, //IDK MAN
+          uid: cred.user!.uid,
           email: email,
+          organizationsAndRoles: organization,
+          CBUAccess: role,
         );
 
+        //
+        await waitForCustomClaims();
         // adding user in our database
         await _firestore
             .collection("users")
@@ -52,6 +63,27 @@ class AuthMethods {
       return err.toString();
     }
     return res;
+  }
+
+  Future<String> getUserRole(String userId) async {
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(userId).get();
+    return userDoc["CBUAccess"];
+  }
+
+  Future waitForCustomClaims() async {
+    User currentUser = _auth.currentUser!;
+    DocumentReference userDocRef =
+        FirebaseFirestore.instance.collection('users').doc(currentUser!.uid);
+    Stream<DocumentSnapshot> docs =
+        userDocRef.snapshots(includeMetadataChanges: false);
+
+    DocumentSnapshot data = await docs
+        .firstWhere((DocumentSnapshot snapshot) => snapshot?.data != null);
+    print('data ${data.toString()}');
+
+    IdTokenResult idTokenResult = (await (currentUser.getIdTokenResult(true)));
+    print('claims : ${idTokenResult.claims}');
   }
 
   // logging in user
@@ -79,5 +111,19 @@ class AuthMethods {
 
   Future<void> signOut() async {
     await _auth.signOut();
+  }
+
+  String setUserRole(String email) {
+    String domain = email.split('@')[1]; // saves what comes after the @
+    String first = email.split('@')[0]; // saves what comes before the @
+    String role = "Visitor";
+    if (domain.toLowerCase().contains('calbaptist.edu') &&
+        first.contains(".")) {
+      role = "Student";
+    } else if (domain.toLowerCase().contains('calbaptist.edu') &&
+        !first.contains(".")) {
+      role = "Employee";
+    }
+    return role;
   }
 }

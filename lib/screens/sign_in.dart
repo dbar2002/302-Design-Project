@@ -1,4 +1,6 @@
 import 'package:avandra/screens/menu.dart';
+import 'package:avandra/screens/navigation_page.dart';
+import 'package:avandra/screens/select_map.dart';
 import 'package:avandra/screens/sign_up.dart';
 import 'package:avandra/widgets/input_box.dart';
 import 'package:avandra/widgets/sign_up_header.dart';
@@ -46,7 +48,7 @@ class _SignUpScreenState extends State<LoginScreen> {
       });
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const MenuScreen(),
+          builder: (context) => const SelectMapScreen(),
         ),
       );
     } else {
