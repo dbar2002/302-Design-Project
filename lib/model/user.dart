@@ -13,6 +13,7 @@ class User {
   final String? fullname;
   Map<String, String>? organizationsAndRoles;
   final String? CBUAccess;
+  List? pins;
   User({
     this.uid,
     this.email,
@@ -20,6 +21,7 @@ class User {
     this.fullname,
     this.organizationsAndRoles,
     this.CBUAccess,
+    
   });
 
   static User fromSnap(DocumentSnapshot snap) {
@@ -33,7 +35,8 @@ class User {
       password: snapshot['password'] as String,
       fullname: snapshot['fullname'] as String,
       organizationsAndRoles: snapshot['organizations'],
-      CBUAccess: 'Test'
+      CBUAccess: snapshot['CBUAccess'] as String,
+     
     );
   }
 
@@ -42,7 +45,7 @@ class User {
         "uid": uid,
         "email": email,
         "organizations": organizationsAndRoles,
-        "CBUAccess": CBUAccess
+        "CBUAccess": CBUAccess,
       };
 
   @override
