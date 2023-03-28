@@ -353,27 +353,62 @@ class _NavScreenState extends State<NavScreen> {
 
   void _onMapTapped(LatLng position) async {
     String title = await _getPinAddress(position);
-    MarkerData markerData =
-        MarkerData(position.latitude, position.longitude, title);
-    await addUserPin(markerData);
-    showDialog(
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Pin Created!'),
-          content: Text('You have successfully created a pin'),
-          actions: [
+          title: Text('Name Your Pin'),
+          content: Column(
+            children: [
+              Text("Current pin name: $title"),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    title = value;
+                  });
+                },
+                decoration: InputDecoration(hintText: 'Text'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: Text('CANCEL'),
               onPressed: () {
                 Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () async {
+                MarkerData markerData =
+                    MarkerData(position.latitude, position.longitude, title);
+                await addUserPin(markerData);
+                Navigator.of(context).pop();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Pin Created!'),
+                      content: Text('You have successfully created a pin'),
+                      actions: [
+                        TextButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+                setState(() {});
               },
             ),
           ],
         );
       },
     );
-    setState(() {});
   }
 
   Future<String> _getPinAddress(LatLng position) async {
