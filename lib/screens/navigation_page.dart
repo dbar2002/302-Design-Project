@@ -1,3 +1,4 @@
+import 'package:avandra/resources/authentication.dart';
 import 'package:avandra/widgets/maps.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -322,11 +323,27 @@ class _NavScreenState extends State<NavScreen> {
     _getCurrentLocation();
   }
 
-  Future<void> addUserPin(MarkerData marker) {
-    CollectionReference pinsCollection = FirebaseFirestore.instance
+  late String CBURole = "Test";
+  void access() async {
+    DocumentReference documentReference = FirebaseFirestore.instance
         .collection("users")
-        .doc(FirebaseAuth.instance.currentUser?.uid)
-        .collection('pins');
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+    await documentReference.get().then((snapshot) {
+      CBURole = snapshot.get("CBUAccess").toString();
+    });
+  }
+
+  Future<void> addUserPin(MarkerData marker) {
+    access();
+    CollectionReference pinsCollection;
+    if (CBURole == "Admin") {
+      pinsCollection = FirebaseFirestore.instance.collection("CBUClassRooms");
+    } else {
+      pinsCollection = FirebaseFirestore.instance
+          .collection("users")
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection('pins');
+    }
     return pinsCollection.add({
       'latitude': marker.latitude,
       'longitude': marker.longitude,
