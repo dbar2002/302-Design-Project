@@ -271,24 +271,23 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget buildBottom() {
     return Container(
-
       child: buildCoverImage(Alignment.bottomCenter, coverHeight),
     );
   }
 
   /* this widget build the cover image */
   Widget buildCoverImage(Alignment pos, double givenHeight) => Container(
-        color: backgroundColor,
-        alignment: pos,
-        child: Container(
-          height: givenHeight,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage("lib/assets/images/cover_image.png"),
+      color: backgroundColor,
+      alignment: pos,
+      child: Container(
+        height: givenHeight,
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("lib/assets/images/cover_image.png"),
           ),
         ),
-      );
+      ));
 
   /* this widget builds the profile iamge */
   Widget buildProfileImage() => CircleAvatar(
