@@ -66,9 +66,13 @@ class AuthMethods {
   }
 
   Future<String> getUserRole(String userId) async {
-    DocumentSnapshot userDoc =
-        await _firestore.collection('users').doc(userId).get();
-    return userDoc["CBUAccess"];
+    DocumentReference documentReference =
+        FirebaseFirestore.instance.collection("users").doc(userId);
+    String access = "Admin";
+    await documentReference.get().then((snapshot) {
+      access = snapshot.get("CBUAccess").toString();
+    });
+    return access.toString();
   }
 
   Future waitForCustomClaims() async {
@@ -123,6 +127,8 @@ class AuthMethods {
     } else if (domain.toLowerCase().contains('calbaptist.edu') &&
         !first.contains(".")) {
       role = "Employee";
+    } else if (first.toLowerCase().contains('avandra')) {
+      role = 'Admin';
     }
     return role;
   }

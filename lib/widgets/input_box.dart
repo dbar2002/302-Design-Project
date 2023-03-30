@@ -80,6 +80,7 @@ class _InputBox extends State<InputBox> {
             ),
             keyboardType: widget.title,
             obscureText: (widget.obscureText && !_obscureText)),
+            
       ],
     );
   }

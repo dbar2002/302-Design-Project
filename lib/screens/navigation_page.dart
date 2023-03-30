@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:avandra/resources/authentication.dart';
 import 'package:avandra/widgets/maps.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +17,9 @@ import 'package:map_launcher/map_launcher.dart' as mapLauch;
 import 'dart:math' show cos, sqrt, asin;
 
 import '../model/markers.dart';
+import '../resources/validator.dart';
 import '../utils/fonts.dart';
+import '../widgets/input_box.dart';
 
 class NavScreen extends StatefulWidget {
   const NavScreen({Key? key}) : super(key: key);
@@ -322,11 +327,27 @@ class _NavScreenState extends State<NavScreen> {
     _getCurrentLocation();
   }
 
-  Future<void> addUserPin(MarkerData marker) {
-    CollectionReference pinsCollection = FirebaseFirestore.instance
+  late String CBURole = "Test";
+  void access() async {
+    DocumentReference documentReference = FirebaseFirestore.instance
         .collection("users")
-        .doc(FirebaseAuth.instance.currentUser?.uid)
-        .collection('pins');
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+    await documentReference.get().then((snapshot) {
+      CBURole = snapshot.get("CBUAccess").toString();
+    });
+  }
+
+  Future<void> addUserPin(MarkerData marker) {
+    access();
+    CollectionReference pinsCollection;
+    if (CBURole == "Admin") {
+      pinsCollection = FirebaseFirestore.instance.collection("CBUClassRooms");
+    } else {
+      pinsCollection = FirebaseFirestore.instance
+          .collection("users")
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection('pins');
+    }
     return pinsCollection.add({
       'latitude': marker.latitude,
       'longitude': marker.longitude,
@@ -336,27 +357,62 @@ class _NavScreenState extends State<NavScreen> {
 
   void _onMapTapped(LatLng position) async {
     String title = await _getPinAddress(position);
-    MarkerData markerData =
-        MarkerData(position.latitude, position.longitude, title);
-    await addUserPin(markerData);
-    showDialog(
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Pin Created!'),
-          content: Text('You have successfully created a pin'),
-          actions: [
+          title: Text('Name Your Pin'),
+          content: Column(
+            children: [
+              Text("Current pin name: $title"),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    title = value;
+                  });
+                },
+                decoration: InputDecoration(hintText: 'Text'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: Text('CANCEL'),
               onPressed: () {
                 Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () async {
+                MarkerData markerData =
+                    MarkerData(position.latitude, position.longitude, title);
+                await addUserPin(markerData);
+                Navigator.of(context).pop();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Pin Created!'),
+                      content: Text('You have successfully created a pin'),
+                      actions: [
+                        TextButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+                setState(() {});
               },
             ),
           ],
         );
       },
     );
-    setState(() {});
   }
 
   Future<String> _getPinAddress(LatLng position) async {
@@ -364,6 +420,49 @@ class _NavScreenState extends State<NavScreen> {
         await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark placemark = placemarks.first;
     return '${placemark.name}, ${placemark.locality}';
+  }
+
+  final TextEditingController searchController = TextEditingController();
+  final StreamController<List<MarkerData>> mapMarkersStreamController =
+      StreamController<List<MarkerData>>.broadcast();
+
+  void searchMapMarkers(String searchQuery) async {
+    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('map_markers')
+        .where('title', isGreaterThanOrEqualTo: searchQuery)
+        .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
+        .get();
+    final List<QueryDocumentSnapshot> documentSnapshots = querySnapshot.docs;
+    final List<MarkerData> mapMarkers = documentSnapshots
+        .map((docSnapshot) => MarkerData(
+              docSnapshot.get('latitude'),
+              docSnapshot.get('longitude'),
+              docSnapshot.get('title'),
+            ))
+        .toList();
+    mapMarkersStreamController.add(mapMarkers);
+  }
+
+  Future<List<Marker>> getUserMarkers() async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+    QuerySnapshot snapshot = await userDoc.reference.collection('pins').get();
+    List<MarkerData> markerDataList = snapshot.docs
+        .map((doc) => MarkerData(
+              doc['latitude'],
+              doc['longitude'],
+              doc['title'],
+            ))
+        .toList();
+    return markerDataList
+        .map((markerData) => Marker(
+              markerId: MarkerId(markerData.title),
+              position: LatLng(markerData.latitude, markerData.longitude),
+              infoWindow: InfoWindow(title: markerData.title),
+            ))
+        .toList();
   }
 
   @override
@@ -515,7 +614,61 @@ class _NavScreenState extends State<NavScreen> {
                                 });
                               }),
                           SizedBox(height: 10),
-                          _textField(
+                          TextFormField(
+                            onChanged: (searchQuery) {
+                              searchMapMarkers(searchQuery);
+                            },
+                            style: GoogleFonts.montserrat(
+                              fontSize: regularTextSize,
+                              color: regularTextSizeColor,
+                            ),
+                            controller: searchController,
+                            decoration: InputDecoration(
+                              hintStyle: GoogleFonts.montserrat(
+                                fontSize: regularTextSize,
+                                color: smallerTextColor,
+                              ),
+                              hintText: 'Choose destination',
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              border: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.grey)),
+                              filled: true,
+                              contentPadding: const EdgeInsets.all(8),
+                            ),
+                          ),
+                          StreamBuilder<List<MarkerData>>(
+                            stream: mapMarkersStreamController.stream,
+                            builder: (BuildContext context,
+                                AsyncSnapshot<List<MarkerData>> snapshot) {
+                              if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              }
+                              if (!snapshot.hasData) {
+                                return Text('Loading...');
+                              }
+                              final List<MarkerData> mapMarkers =
+                                  snapshot.data!;
+                              return ListView.builder(
+                                itemCount: mapMarkers.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final MarkerData mapMarker =
+                                      mapMarkers[index];
+                                  return ListTile(
+                                    title: Text(mapMarker.title),
+                                    textColor: regularTextSizeColor,
+                                    onTap: () {
+                                      // Navigate to the map marker details screen
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          /*                          _textField(
                               label: 'Destination',
                               hint: 'Choose destination',
                               prefixIcon: Icon(Icons.looks_two),
@@ -526,7 +679,7 @@ class _NavScreenState extends State<NavScreen> {
                                 setState(() {
                                   _destinationAddress = value;
                                 });
-                              }),
+                              }), */
                           SizedBox(height: 10),
                           Visibility(
                             visible: _placeDistance == null ? false : true,
