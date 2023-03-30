@@ -428,7 +428,7 @@ class _NavScreenState extends State<NavScreen> {
 
   void searchMapMarkers(String searchQuery) async {
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('map_markers')
+        .collection('CBUClassRooms')
         .where('title', isGreaterThanOrEqualTo: searchQuery)
         .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
         .get();
@@ -614,61 +614,7 @@ class _NavScreenState extends State<NavScreen> {
                                 });
                               }),
                           SizedBox(height: 10),
-                          TextFormField(
-                            onChanged: (searchQuery) {
-                              searchMapMarkers(searchQuery);
-                            },
-                            style: GoogleFonts.montserrat(
-                              fontSize: regularTextSize,
-                              color: regularTextSizeColor,
-                            ),
-                            controller: searchController,
-                            decoration: InputDecoration(
-                              hintStyle: GoogleFonts.montserrat(
-                                fontSize: regularTextSize,
-                                color: smallerTextColor,
-                              ),
-                              hintText: 'Choose destination',
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.grey)),
-                              filled: true,
-                              contentPadding: const EdgeInsets.all(8),
-                            ),
-                          ),
-                          StreamBuilder<List<MarkerData>>(
-                            stream: mapMarkersStreamController.stream,
-                            builder: (BuildContext context,
-                                AsyncSnapshot<List<MarkerData>> snapshot) {
-                              if (snapshot.hasError) {
-                                return Text('Error: ${snapshot.error}');
-                              }
-                              if (!snapshot.hasData) {
-                                return Text('Loading...');
-                              }
-                              final List<MarkerData> mapMarkers =
-                                  snapshot.data!;
-                              return ListView.builder(
-                                itemCount: mapMarkers.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final MarkerData mapMarker =
-                                      mapMarkers[index];
-                                  return ListTile(
-                                    title: Text(mapMarker.title),
-                                    textColor: regularTextSizeColor,
-                                    onTap: () {
-                                      // Navigate to the map marker details screen
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          /*                          _textField(
+                          _textField(
                               label: 'Destination',
                               hint: 'Choose destination',
                               prefixIcon: Icon(Icons.looks_two),
@@ -677,9 +623,44 @@ class _NavScreenState extends State<NavScreen> {
                               width: width,
                               locationCallback: (String value) {
                                 setState(() {
+                                  searchMapMarkers(value);
                                   _destinationAddress = value;
                                 });
-                              }), */
+                              }),
+                          Column(
+                            children: [
+                              StreamBuilder<List<MarkerData>>(
+                                stream: mapMarkersStreamController.stream,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<MarkerData>> snapshot) {
+                                  if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  }
+                                  if (!snapshot.hasData) {
+                                    return Text('Loading...');
+                                  }
+                                  final List<MarkerData> mapMarkers =
+                                      snapshot.data!;
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: mapMarkers.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      final MarkerData mapMarker =
+                                          mapMarkers[index];
+                                      return ListTile(
+                                        title: Text(mapMarker.title),
+                                        textColor: regularTextSizeColor,
+                                        onTap: () {
+                                          // Navigate to the map marker details screen
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                           SizedBox(height: 10),
                           Visibility(
                             visible: _placeDistance == null ? false : true,
