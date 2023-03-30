@@ -51,7 +51,7 @@ class _AddNewOrgScreenState extends State<AddNewOrgScreen> {
         leading: IconButton(
             onPressed: () {
               Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/profile', (route) => false);
+                  .pushNamedAndRemoveUntil('/selectMap', (route) => false);
             },
             icon: Icon(
               Icons.arrow_back_ios,
@@ -141,16 +141,16 @@ class _AddNewOrgScreenState extends State<AddNewOrgScreen> {
           ),
           TextButton(
             onPressed: () async {
-              FirebaseFunctions.instance
-                  .httpsCallable('assignUserRole')
-                  .call({"data": _emailController.toString()});
-              FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(uid)
-                  .collection('organizations')
-                  .add(
-                    organization,
-                  );
+              // FirebaseFunctions.instance
+              //     .httpsCallable('assignUserRole')
+              //     .call({"data": _emailController.toString()});
+              // FirebaseFirestore.instance
+              //     .collection('users')
+              //     .doc(uid)
+              //     .collection('organizations')
+              //     .add(
+              //       organization,
+              //     );
 
               if (student!) {
                 showSnackBar(
