@@ -140,9 +140,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
 
             // this is for all text fields
-
+// FIXME: this currently changes all input to the little circles
             InputBox(
-              obscureText: true,
+              obscureText: false,
               hintText: 'Enter new username',
               title: TextInputType.text,
               textEditingController: userEmailController,

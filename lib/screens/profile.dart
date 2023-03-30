@@ -270,6 +270,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget buildBottom() {
     return Container(
+
       child: buildCoverImage(Alignment.bottomCenter, coverHeight),
     );
   }
@@ -284,8 +285,6 @@ class _ProfilePageState extends State<ProfilePage>
           decoration: const BoxDecoration(
             image: DecorationImage(
                 image: AssetImage("lib/assets/images/cover_image.png"),
-                // "lib/assets/images/cover_image.jpg"
-                fit: BoxFit.fitWidth),
           ),
         ),
       );
