@@ -624,7 +624,6 @@ class _NavScreenState extends State<NavScreen> {
                               locationCallback: (String value) {
                                 setState(() {
                                   searchMapMarkers(value);
-                                  _destinationAddress = value;
                                 });
                               }),
                           Column(
@@ -641,22 +640,33 @@ class _NavScreenState extends State<NavScreen> {
                                   }
                                   final List<MarkerData> mapMarkers =
                                       snapshot.data!;
-                                  return ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: mapMarkers.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      final MarkerData mapMarker =
-                                          mapMarkers[index];
-                                      return ListTile(
-                                        title: Text(mapMarker.title),
-                                        textColor: regularTextSizeColor,
-                                        onTap: () {
-                                          // Navigate to the map marker details screen
+
+                                  bool _isVisibile = true;
+                                  return Visibility(
+                                      visible: _isVisibile,
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: mapMarkers.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          final MarkerData mapMarker =
+                                              mapMarkers[index];
+                                          return ListTile(
+                                            title: Text(mapMarker.title),
+                                            textColor: regularTextSizeColor,
+                                            onTap: () {
+                                              // Navigate to the map marker details screen
+                                              setState(() {
+                                                _isVisibile = false;
+                                                destinationAddressController
+                                                    .text = mapMarker.title;
+                                                _destinationAddress =
+                                                    mapMarker.title;
+                                              });
+                                            },
+                                          );
                                         },
-                                      );
-                                    },
-                                  );
+                                      ));
                                 },
                               ),
                             ],
