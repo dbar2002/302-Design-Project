@@ -13,6 +13,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:map_launcher/map_launcher.dart' as mapLauch;
+import 'package:location/location.dart' as appLoc;
 
 import 'dart:math' show cos, sqrt, asin;
 
@@ -34,8 +35,10 @@ class _NavScreenState extends State<NavScreen> {
   late GoogleMapController mapController;
 
   // late LocationPermission permission;
-  final LocationSettings locationSetting =
-      LocationSettings(accuracy: LocationAccuracy.best);
+
+  // I'm not sure I even need this, but we'll see
+  // final AppLoc.LocationSettings locationSetting =
+  //     LocationSettings(accuracy: LocationAccuracy.best);
 
   late Position _currentPosition;
   String _currentAddress = '';
@@ -58,9 +61,20 @@ class _NavScreenState extends State<NavScreen> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  /*
+   * TODO: extract the long and lat from destination,
+   * then as you continually get the position, check to 
+   * see if the position's lat and long match the destination's
+   * lat and long. 
+   */
   StreamSubscription<Position> positionStream =
-      Geolocator.getPositionStream(locationSettings: locationSettings)
-          .listen((Position? position) {
+      Geolocator.getPositionStream().listen((Position? position) {
+    try {
+      List<Location> destinationMark =
+          locationFromAddress(_destinationAddress) as List<Location>;
+    } catch (e) {
+      print(e);
+    }
     // check if the user's location is near the destination location
   });
 
