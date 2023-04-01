@@ -33,6 +33,10 @@ class _NavScreenState extends State<NavScreen> {
   CameraPosition _initialLocation = CameraPosition(target: LatLng(0.0, 0.0));
   late GoogleMapController mapController;
 
+  // late LocationPermission permission;
+  final LocationSettings locationSetting =
+      LocationSettings(accuracy: LocationAccuracy.best);
+
   late Position _currentPosition;
   String _currentAddress = '';
 
@@ -53,6 +57,12 @@ class _NavScreenState extends State<NavScreen> {
   List<LatLng> polylineCoordinates = [];
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  StreamSubscription<Position> positionStream =
+      Geolocator.getPositionStream(locationSettings: locationSettings)
+          .listen((Position? position) {
+    // check if the user's location is near the destination location
+  });
 
   Widget _textField({
     required TextEditingController controller,
@@ -113,7 +123,8 @@ class _NavScreenState extends State<NavScreen> {
 
   // Method for retrieving the current location
   _getCurrentLocation() async {
-    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+    await Geolocator
+            .getCurrentPosition() //desiredAccuracy: LocationAccuracy.high)
         .then((Position position) async {
       setState(() {
         _currentPosition = position;

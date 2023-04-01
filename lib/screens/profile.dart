@@ -284,6 +284,7 @@ class _ProfilePageState extends State<ProfilePage>
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage("lib/assets/images/cover_image.png"),
+            fit: BoxFit.fitWidth,
           ),
         ),
       ));
