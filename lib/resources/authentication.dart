@@ -26,6 +26,8 @@ class AuthMethods {
     required Map<String, String> organization,
   }) async {
     String res = "Some error Occurred";
+    String role = setUserRole(email);
+
     try {
       if (email.isNotEmpty ||
           password.isNotEmpty ||
@@ -42,6 +44,7 @@ class AuthMethods {
           uid: cred.user!.uid,
           email: email,
           organizationsAndRoles: organization,
+          CBUAccess: role,
         );
 
         //
@@ -62,6 +65,16 @@ class AuthMethods {
     return res;
   }
 
+  Future<String> getUserRole(String userId) async {
+    DocumentReference documentReference =
+        FirebaseFirestore.instance.collection("users").doc(userId);
+    String access = "Admin";
+    await documentReference.get().then((snapshot) {
+      access = snapshot.get("CBUAccess").toString();
+    });
+    return access.toString();
+  }
+
   Future waitForCustomClaims() async {
     User currentUser = _auth.currentUser!;
     DocumentReference userDocRef =
@@ -73,7 +86,7 @@ class AuthMethods {
         .firstWhere((DocumentSnapshot snapshot) => snapshot?.data != null);
     print('data ${data.toString()}');
 
-    IdTokenResult idTokenResult = (await (currentUser.getIdTokenResult()));
+    IdTokenResult idTokenResult = (await (currentUser.getIdTokenResult(true)));
     print('claims : ${idTokenResult.claims}');
   }
 
@@ -102,5 +115,21 @@ class AuthMethods {
 
   Future<void> signOut() async {
     await _auth.signOut();
+  }
+
+  String setUserRole(String email) {
+    String domain = email.split('@')[1]; // saves what comes after the @
+    String first = email.split('@')[0]; // saves what comes before the @
+    String role = "Visitor";
+    if (domain.toLowerCase().contains('calbaptist.edu') &&
+        first.contains(".")) {
+      role = "Student";
+    } else if (domain.toLowerCase().contains('calbaptist.edu') &&
+        !first.contains(".")) {
+      role = "Employee";
+    } else if (first.toLowerCase().contains('avandra')) {
+      role = 'Admin';
+    }
+    return role;
   }
 }

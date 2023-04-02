@@ -1,4 +1,9 @@
+import 'dart:async';
+
+import 'package:avandra/resources/authentication.dart';
 import 'package:avandra/widgets/maps.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:avandra/resources/secrets.dart'; // Stores the Google Maps API Key
@@ -11,7 +16,10 @@ import 'package:map_launcher/map_launcher.dart' as mapLauch;
 
 import 'dart:math' show cos, sqrt, asin;
 
+import '../model/markers.dart';
+import '../resources/validator.dart';
 import '../utils/fonts.dart';
+import '../widgets/input_box.dart';
 
 class NavScreen extends StatefulWidget {
   const NavScreen({Key? key}) : super(key: key);
@@ -21,6 +29,7 @@ class NavScreen extends StatefulWidget {
 }
 
 class _NavScreenState extends State<NavScreen> {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   CameraPosition _initialLocation = CameraPosition(target: LatLng(0.0, 0.0));
   late GoogleMapController mapController;
 
@@ -318,6 +327,144 @@ class _NavScreenState extends State<NavScreen> {
     _getCurrentLocation();
   }
 
+  late String CBURole = "Test";
+  void access() async {
+    DocumentReference documentReference = FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid);
+    await documentReference.get().then((snapshot) {
+      CBURole = snapshot.get("CBUAccess").toString();
+    });
+  }
+
+  Future<void> addUserPin(MarkerData marker) {
+    access();
+    CollectionReference pinsCollection;
+    if (CBURole == "Admin") {
+      pinsCollection = FirebaseFirestore.instance.collection("CBUClassRooms");
+    } else {
+      pinsCollection = FirebaseFirestore.instance
+          .collection("users")
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection('pins');
+    }
+    return pinsCollection.add({
+      'latitude': marker.latitude,
+      'longitude': marker.longitude,
+      'title': marker.title,
+    });
+  }
+
+  void _onMapTapped(LatLng position) async {
+    String title = await _getPinAddress(position);
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Name Your Pin'),
+          content: Column(
+            children: [
+              Text("Current pin name: $title"),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    title = value;
+                  });
+                },
+                decoration: InputDecoration(hintText: 'Text'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('CANCEL'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () async {
+                MarkerData markerData =
+                    MarkerData(position.latitude, position.longitude, title);
+                await addUserPin(markerData);
+                Navigator.of(context).pop();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Pin Created!'),
+                      content: Text('You have successfully created a pin'),
+                      actions: [
+                        TextButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+                setState(() {});
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<String> _getPinAddress(LatLng position) async {
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark placemark = placemarks.first;
+    return '${placemark.name}, ${placemark.locality}';
+  }
+
+  final TextEditingController searchController = TextEditingController();
+  final StreamController<List<MarkerData>> mapMarkersStreamController =
+      StreamController<List<MarkerData>>.broadcast();
+
+  void searchMapMarkers(String searchQuery) async {
+    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('CBUClassRooms')
+        .where('title', isGreaterThanOrEqualTo: searchQuery)
+        .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
+        .get();
+    final List<QueryDocumentSnapshot> documentSnapshots = querySnapshot.docs;
+    final List<MarkerData> mapMarkers = documentSnapshots
+        .map((docSnapshot) => MarkerData(
+              docSnapshot.get('latitude'),
+              docSnapshot.get('longitude'),
+              docSnapshot.get('title'),
+            ))
+        .toList();
+    mapMarkersStreamController.add(mapMarkers);
+  }
+
+  Future<List<Marker>> getUserMarkers() async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+    QuerySnapshot snapshot = await userDoc.reference.collection('pins').get();
+    List<MarkerData> markerDataList = snapshot.docs
+        .map((doc) => MarkerData(
+              doc['latitude'],
+              doc['longitude'],
+              doc['title'],
+            ))
+        .toList();
+    return markerDataList
+        .map((markerData) => Marker(
+              markerId: MarkerId(markerData.title),
+              position: LatLng(markerData.latitude, markerData.longitude),
+              infoWindow: InfoWindow(title: markerData.title),
+            ))
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -331,6 +478,9 @@ class _NavScreenState extends State<NavScreen> {
           children: <Widget>[
             // Map View
             GoogleMap(
+              onTap: (latlang) {
+                _onMapTapped(latlang);
+              },
               markers: Set<Marker>.from(markers),
               initialCameraPosition: _initialLocation,
               myLocationEnabled: true,
@@ -473,9 +623,54 @@ class _NavScreenState extends State<NavScreen> {
                               width: width,
                               locationCallback: (String value) {
                                 setState(() {
-                                  _destinationAddress = value;
+                                  searchMapMarkers(value);
                                 });
                               }),
+                          Column(
+                            children: [
+                              StreamBuilder<List<MarkerData>>(
+                                stream: mapMarkersStreamController.stream,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<MarkerData>> snapshot) {
+                                  if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  }
+                                  if (!snapshot.hasData) {
+                                    return Text('Loading...');
+                                  }
+                                  final List<MarkerData> mapMarkers =
+                                      snapshot.data!;
+
+                                  bool _isVisibile = true;
+                                  return Visibility(
+                                      visible: _isVisibile,
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: mapMarkers.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          final MarkerData mapMarker =
+                                              mapMarkers[index];
+                                          return ListTile(
+                                            title: Text(mapMarker.title),
+                                            textColor: regularTextSizeColor,
+                                            onTap: () {
+                                              // Navigate to the map marker details screen
+                                              setState(() {
+                                                _isVisibile = false;
+                                                destinationAddressController
+                                                    .text = mapMarker.title;
+                                                _destinationAddress =
+                                                    mapMarker.title;
+                                              });
+                                            },
+                                          );
+                                        },
+                                      ));
+                                },
+                              ),
+                            ],
+                          ),
                           SizedBox(height: 10),
                           Visibility(
                             visible: _placeDistance == null ? false : true,
