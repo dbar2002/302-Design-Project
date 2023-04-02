@@ -67,16 +67,24 @@ class _NavScreenState extends State<NavScreen> {
    * see if the position's lat and long match the destination's
    * lat and long. 
    */
-  StreamSubscription<Position> positionStream =
-      Geolocator.getPositionStream().listen((Position? position) {
-    try {
-      List<Location> destinationMark =
-          locationFromAddress(_destinationAddress) as List<Location>;
-    } catch (e) {
-      print(e);
-    }
-    // check if the user's location is near the destination location
-  });
+  void startTracking() {
+    StreamSubscription<Position> positionStream =
+        Geolocator.getPositionStream().listen((Position position) async {
+      try {
+        List<Location> positionMark = position as List<Location>;
+        List<Location> destinationMark =
+            locationFromAddress(_destinationAddress) as List<Location>;
+
+        // check if the user's location is near the destination location
+        if ((positionMark[0].latitude == destinationMark[0].latitude) &&
+            (positionMark[0].longitude == destinationMark[0].longitude)) {
+          print('You have reached your destination');
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+  }
 
   Widget _textField({
     required TextEditingController controller,
@@ -724,6 +732,7 @@ class _NavScreenState extends State<NavScreen> {
                                 ? () async {
                                     startAddressFocusNode.unfocus();
                                     desrinationAddressFocusNode.unfocus();
+                                    startTracking();
                                     setState(() {
                                       if (markers.isNotEmpty) markers.clear();
                                       if (polylines.isNotEmpty)
