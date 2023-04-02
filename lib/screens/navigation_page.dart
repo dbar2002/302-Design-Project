@@ -1,5 +1,6 @@
 import 'dart:async';
 
+
 import 'package:avandra/resources/authentication.dart';
 import 'package:avandra/widgets/maps.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -325,6 +326,7 @@ class _NavScreenState extends State<NavScreen> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+    
   }
 
   late String CBURole = "Test";
@@ -425,6 +427,9 @@ class _NavScreenState extends State<NavScreen> {
   final TextEditingController searchController = TextEditingController();
   final StreamController<List<MarkerData>> mapMarkersStreamController =
       StreamController<List<MarkerData>>.broadcast();
+  
+  // final StreamController <List<MarkerData>> userMarkersStreamController =
+  //     StreamController<List<MarkerData>>.broadcast();
 
   void searchMapMarkers(String searchQuery) async {
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -442,29 +447,50 @@ class _NavScreenState extends State<NavScreen> {
         .toList();
     mapMarkersStreamController.add(mapMarkers);
   }
-
-  Future<List<Marker>> getUserMarkers() async {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection("users")
+  void searchUserMarkers(String searchQuery) async {
+    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
         .doc(FirebaseAuth.instance.currentUser?.uid)
+        .collection('pins')
+        .where('title', isGreaterThanOrEqualTo: searchQuery)
+        .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
         .get();
-    QuerySnapshot snapshot = await userDoc.reference.collection('pins').get();
-    List<MarkerData> markerDataList = snapshot.docs
-        .map((doc) => MarkerData(
-              doc['latitude'],
-              doc['longitude'],
-              doc['title'],
+    final List<QueryDocumentSnapshot> documentSnapshots = querySnapshot.docs;
+    final List<MarkerData> userMarkers = documentSnapshots
+        .map((docSnapshot) => MarkerData(
+              docSnapshot.get('latitude'),
+              docSnapshot.get('longitude'),
+              docSnapshot.get('title'),
             ))
         .toList();
-    return markerDataList
-        .map((markerData) => Marker(
-              markerId: MarkerId(markerData.title),
-              position: LatLng(markerData.latitude, markerData.longitude),
-              infoWindow: InfoWindow(title: markerData.title),
-            ))
-        .toList();
+    mapMarkersStreamController.add(userMarkers);
   }
+    //There were conflicts when i tried using this since it was a Future and for some
+    // reason it does not recognize futures as subtypes so I did another query instead
 
+  // Future<List<Marker>> getUserMarkers() async {
+  //   DocumentSnapshot userDoc = await FirebaseFirestore.instance
+  //       .collection("users")
+  //       .doc(FirebaseAuth.instance.currentUser?.uid)
+  //       .get();
+  //   QuerySnapshot snapshot = await userDoc.reference.collection('pins').get();
+  //   List<MarkerData> markerDataList = snapshot.docs
+  //       .map((doc) => MarkerData(
+  //             doc['latitude'],
+  //             doc['longitude'],
+  //             doc['title'],
+  //           ))
+  //       .toList();
+  //   return markerDataList
+  //       .map((markerData) => Marker(
+  //             markerId: MarkerId(markerData.title),
+  //             position: LatLng(markerData.latitude, markerData.longitude),
+  //             infoWindow: InfoWindow(title: markerData.title),
+  //           ))
+  //       .toList();
+  // }
+
+  
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -624,6 +650,7 @@ class _NavScreenState extends State<NavScreen> {
                               locationCallback: (String value) {
                                 setState(() {
                                   searchMapMarkers(value);
+                                  searchUserMarkers(value);
                                 });
                               }),
                           Column(
