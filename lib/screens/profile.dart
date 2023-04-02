@@ -1,6 +1,7 @@
 import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/widgets/basic_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../utils/fonts.dart';
@@ -21,7 +22,23 @@ class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   final double coverHeight = 150;
   final double profileHeight = 100;
-  String username = "Jane Doe";
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String? username = 'Jane Doe';
+
+  Future<void> _getUsername() async {
+    // get's current user's name
+    User? user = _auth.currentUser;
+
+    if (user != null) {
+      DocumentSnapshot snapshot =
+          await _firestore.collection('users').doc(user.uid).get();
+      username = snapshot.get('username');
+    }
+    ;
+  }
 
   // TODO: connect the pins and organizations to user's stored ones
   List<String> pins = [
@@ -47,6 +64,7 @@ class _ProfilePageState extends State<ProfilePage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _scrollController = ScrollController();
+    _getUsername();
   }
 
   @override
@@ -179,14 +197,14 @@ class _ProfilePageState extends State<ProfilePage>
         Divider(height: 10),
         Text(
           // this will need to be updated from the edit profile page
-          username,
+          username!,
           style: TextStyle(fontSize: titleSize, color: regularTextSizeColor),
         ),
         const SizedBox(height: 8),
-        Text(
-          'San Francisco',
-          style: TextStyle(fontSize: titleSize, color: regularTextSizeColor),
-        ),
+        // Text(
+        //   'San Francisco',
+        //   style: TextStyle(fontSize: titleSize, color: regularTextSizeColor),
+        // ),
 
         Align(
             alignment: Alignment.centerLeft,
@@ -217,7 +235,37 @@ class _ProfilePageState extends State<ProfilePage>
             controller: _tabController,
             clipBehavior: Clip.hardEdge,
             children: [
-              // this will hold all the saved pins
+              // I'm following the select map organizations drop down here
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                  .collection('organizations')
+                  .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    const Text("Loading...");
+                  } else {
+                    List<ListView> organizations = [];
+                    for (int i = 0; 
+                        i < (snapshot.data! as dynamic).docs.length;
+                        i++) {
+                          DocumentSnapshot snap = snapshot.dat!.docs[i];;
+                          organizations.add(
+                            ListView(
+                              child: Text(
+                                snap['name'],
+                                style: GoogleFonts.montserrat(
+                                  fontSize: regularTextSize,
+                                  color: regularTextSizeColor,
+                                ),
+                              ),
+                              value: "${snap['name']}",
+                            )
+                          );
+                        }
+                  }
+                }
+              )
+              /* this will hold all the saved pins
               Expanded(
                   child: ListView.separated(
                       scrollDirection: Axis.horizontal,
@@ -239,6 +287,7 @@ class _ProfilePageState extends State<ProfilePage>
                               color: regularTextSizeColor,
                             ));
                       })),
+                      */
 
               // this holds all the organizations
               Expanded(

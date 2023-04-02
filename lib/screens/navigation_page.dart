@@ -62,7 +62,7 @@ class _NavScreenState extends State<NavScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   /*
-   * TODO: extract the long and lat from destination,
+   * This extracts the long and lat from destination,
    * then as you continually get the position, check to 
    * see if the position's lat and long match the destination's
    * lat and long. 
