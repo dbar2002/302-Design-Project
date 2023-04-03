@@ -353,11 +353,13 @@ class _NavScreenState extends State<NavScreen> {
       'latitude': marker.latitude,
       'longitude': marker.longitude,
       'title': marker.title,
+      'address': marker.address,
     });
   }
 
   void _onMapTapped(LatLng position) async {
     String title = await _getPinAddress(position);
+    String address = await _getPinAddress(position);
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -386,8 +388,8 @@ class _NavScreenState extends State<NavScreen> {
             TextButton(
               child: Text('OK'),
               onPressed: () async {
-                MarkerData markerData =
-                    MarkerData(position.latitude, position.longitude, title);
+                MarkerData markerData = MarkerData(
+                    position.latitude, position.longitude, title, address);
                 await addUserPin(markerData);
                 Navigator.of(context).pop();
                 showDialog(
@@ -439,6 +441,7 @@ class _NavScreenState extends State<NavScreen> {
               docSnapshot.get('latitude'),
               docSnapshot.get('longitude'),
               docSnapshot.get('title'),
+              docSnapshot.get('address'),
             ))
         .toList();
     mapMarkersStreamController.add(mapMarkers);
@@ -456,6 +459,7 @@ class _NavScreenState extends State<NavScreen> {
               doc['latitude'],
               doc['longitude'],
               doc['title'],
+              doc['address'],
             ))
         .toList();
     return markerDataList
@@ -667,7 +671,7 @@ class _NavScreenState extends State<NavScreen> {
                                                 destinationAddressController
                                                     .text = mapMarker.title;
                                                 _destinationAddress =
-                                                    mapMarker.title;
+                                                    mapMarker.address;
                                               });
                                             },
                                           );

@@ -57,11 +57,14 @@ class _MenuScreenState extends State<MenuScreen> {
               endIndent: 90,
             ),
             ListTile(
-              leading: Icon(Icons.logout, color: Colors.black, size: 30),
-              title: Text('Log out',
-                  style: TextStyle(color: Colors.black, fontSize: 23)),
-              onTap: () => AuthMethods().signOut(),
-            ),
+                leading: Icon(Icons.logout, color: Colors.black, size: 30),
+                title: Text('Log out',
+                    style: TextStyle(color: Colors.black, fontSize: 23)),
+                onTap: () {
+                  AuthMethods().signOut();
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil('/Login', (route) => false);
+                }),
           ],
         ));
   }
