@@ -425,6 +425,8 @@ class _NavScreenState extends State<NavScreen> {
   final TextEditingController searchController = TextEditingController();
   final StreamController<List<MarkerData>> mapMarkersStreamController =
       StreamController<List<MarkerData>>.broadcast();
+//final StreamController<List<MarkerData>> userPinStreamController = 
+ // StreamController<List<MarkerData>>.broadcast();
 
   void searchMapMarkers(String searchQuery) async {
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -442,6 +444,24 @@ class _NavScreenState extends State<NavScreen> {
         .toList();
     mapMarkersStreamController.add(mapMarkers);
   }
+  void searchUserMarkers(String searchQuery) async {
+    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .collection('pins')
+        .where('title', isGreaterThanOrEqualTo: searchQuery)
+        .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
+        .get();
+    final List<QueryDocumentSnapshot> documentSnapshots = querySnapshot.docs;
+    final List<MarkerData> userMarkers = documentSnapshots
+        .map((docSnapshot) => MarkerData(
+              docSnapshot.get('latitude'),
+              docSnapshot.get('longitude'),
+              docSnapshot.get('title'),
+            ))
+        .toList();
+    mapMarkersStreamController.add(userMarkers);
+  }
 
   Future<List<Marker>> getUserMarkers() async {
     DocumentSnapshot userDoc = await FirebaseFirestore.instance
@@ -449,6 +469,7 @@ class _NavScreenState extends State<NavScreen> {
         .doc(FirebaseAuth.instance.currentUser?.uid)
         .get();
     QuerySnapshot snapshot = await userDoc.reference.collection('pins').get();
+    
     List<MarkerData> markerDataList = snapshot.docs
         .map((doc) => MarkerData(
               doc['latitude'],
@@ -456,6 +477,7 @@ class _NavScreenState extends State<NavScreen> {
               doc['title'],
             ))
         .toList();
+         //userPinStreamController.add(markerDataList);
     return markerDataList
         .map((markerData) => Marker(
               markerId: MarkerId(markerData.title),
@@ -463,6 +485,7 @@ class _NavScreenState extends State<NavScreen> {
               infoWindow: InfoWindow(title: markerData.title),
             ))
         .toList();
+      
   }
 
   @override
@@ -624,11 +647,13 @@ class _NavScreenState extends State<NavScreen> {
                               locationCallback: (String value) {
                                 setState(() {
                                   searchMapMarkers(value);
+                                   searchUserMarkers(value);
+                                  //getUserMarkers();
                                   _destinationAddress = value;
                                 });
                               }),
                           Column(
-                            children: [
+                             children: [
                               StreamBuilder<List<MarkerData>>(
                                 stream: mapMarkersStreamController.stream,
                                 builder: (BuildContext context,
@@ -641,22 +666,36 @@ class _NavScreenState extends State<NavScreen> {
                                   }
                                   final List<MarkerData> mapMarkers =
                                       snapshot.data!;
-                                  return ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: mapMarkers.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      final MarkerData mapMarker =
-                                          mapMarkers[index];
-                                      return ListTile(
-                                        title: Text(mapMarker.title),
-                                        textColor: regularTextSizeColor,
-                                        onTap: () {
-                                          // Navigate to the map marker details screen
+                                  String address = '';
+                                  bool _isVisibile = true;
+                                  return Visibility(
+                                      visible: _isVisibile,
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: mapMarkers.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          final MarkerData mapMarker =
+                                              mapMarkers[index];
+                                          return ListTile(
+                                            title: Text(mapMarker.title),
+                                            textColor: regularTextSizeColor,
+                                            onTap: () {
+                                              // Navigate to the map marker details screen
+                                              setState(() {
+                                                _isVisibile = false;
+                                                destinationAddressController
+                                                    .text = mapMarker.title;
+                                                String lat = mapMarker.latitude.toString();
+                                                String long = mapMarker.longitude.toString();
+                                                address = lat + ", " + long;
+                                                _destinationAddress = address;
+                                                    
+                                              });
+                                            },
+                                          );
                                         },
-                                      );
-                                    },
-                                  );
+                                      ));
                                 },
                               ),
                             ],
