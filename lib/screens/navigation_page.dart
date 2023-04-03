@@ -326,6 +326,7 @@ class _NavScreenState extends State<NavScreen> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _getAddress();
   }
 
   late String CBURole = "Test";
@@ -472,6 +473,13 @@ class _NavScreenState extends State<NavScreen> {
   }
 
   @override
+  void dispose() {
+    destinationAddressController.dispose();
+    startAddressController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
@@ -607,6 +615,8 @@ class _NavScreenState extends State<NavScreen> {
                               suffixIcon: IconButton(
                                 icon: Icon(Icons.my_location),
                                 onPressed: () {
+                                  _getCurrentLocation();
+                                  _getAddress();
                                   startAddressController.text = _currentAddress;
                                   _startAddress = _currentAddress;
                                 },
