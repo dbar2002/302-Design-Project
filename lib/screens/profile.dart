@@ -108,12 +108,71 @@ class _ProfilePageState extends State<ProfilePage>
           )
         ],
       ),
-      body: Stack(
+
+      /*
+       * Currently getting an excpetion for renderBox (don't know where)
+       * output: navbar, then username (from Firebase!) and Edit Profile
+       * button, but they are on opposite ends of the screen
+       */
+
+      // before: it was in a Stack widget
+      body: Column(
+        // for Column widget:
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        // this was for ListView, but it doesn't even render w/ ListView
         // physics: NeverScrollableScrollPhysics(),
-        // padding: EdgeInsets.zero,
+        // padding: EdgeInsets.all(10),
         children: <Widget>[
           // FIXME: for some reason, the cover image is low down on the page
-          buildTop(),
+
+// container is supposed to vertically align the username & edit profile button
+          Container(
+            width: double.infinity,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              // alignment: AlignmentDirectional.topCenter,
+              children: [
+                Text(
+                  username,
+                  style: GoogleFonts.montserrat(
+                    fontSize: titleSize,
+                    color: titleSizeColor,
+                  ),
+                ),
+
+                // Positioned(
+                // setting top and right to 0 positions the button to the top right
+                // child:
+                Flexible(
+                  child: Container(
+                    // alignment used for Container
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                          textStyle: const TextStyle(
+                              fontSize: regularTextSize, color: buttonColor)),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => EditProfilePage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Edit Profile",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // ),
+              ],
+            ),
+          ),
+          // buildTop(),
           _editProfile(),
           Divider(height: 15),
           buildContent(),
