@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../utils/fonts.dart';
 import '../utils/colors.dart';
 import '../utils/global.dart';
@@ -26,7 +27,7 @@ class _ProfilePageState extends State<ProfilePage>
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  String? username = 'Jane Doe';
+  String username = '';
 
   Future<void> _getUsername() async {
     // get's current user's name
@@ -107,12 +108,13 @@ class _ProfilePageState extends State<ProfilePage>
           )
         ],
       ),
-      body: ListView(
-        physics: NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
+      body: Stack(
+        // physics: NeverScrollableScrollPhysics(),
+        // padding: EdgeInsets.zero,
         children: <Widget>[
           // FIXME: for some reason, the cover image is low down on the page
           buildTop(),
+          _editProfile(),
           Divider(height: 15),
           buildContent(),
           Padding(
@@ -126,7 +128,7 @@ class _ProfilePageState extends State<ProfilePage>
 
           // TODO: figure out the right height for this thing
           Divider(height: coverHeight),
-          buildBottom(),
+          // buildBottom(),
         ],
       ),
     );
@@ -189,6 +191,52 @@ class _ProfilePageState extends State<ProfilePage>
     ));
   }
 
+// this widget creates the edit profile page button
+// TODO: make this button smaller (what the heck)
+  Widget _editProfile() {
+    return Positioned(
+      top: 0,
+      right: 0,
+      width: 25,
+      child: Container(
+        padding: const EdgeInsets.all(5.0),
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => EditProfilePage(),
+            ));
+          },
+          style: ElevatedButton.styleFrom(
+            primary: buttonColor,
+            minimumSize: const Size(
+              25,
+              35,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+              side: const BorderSide(color: buttonColor),
+            ),
+          ),
+          child: Text(
+            'Edit Profile',
+            style: GoogleFonts.montserrat(
+              color: regularTextSizeColor,
+              fontSize: regularTextSize,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // return BasicButton(
+    //     text: 'Edit Profile',
+    //     onPressed: () {
+    //       Navigator.of(context).push(MaterialPageRoute(
+    //         builder: (context) => EditProfilePage(),
+    //       ));
+    //     });
+  }
+
   /* this widget creates the profile name, city, and saved pins */
   Widget buildContent() {
     return Column(
@@ -197,7 +245,7 @@ class _ProfilePageState extends State<ProfilePage>
         Divider(height: 10),
         Text(
           // this will need to be updated from the edit profile page
-          username!,
+          username,
           style: TextStyle(fontSize: titleSize, color: regularTextSizeColor),
         ),
         const SizedBox(height: 8),
@@ -227,94 +275,159 @@ class _ProfilePageState extends State<ProfilePage>
               ],
             )),
 
-// TODO: once pins and organizations are set up, sync them here
-        Container(
-          padding: const EdgeInsets.only(left: 20),
-          height: regularTextSize + 3,
-          child: TabBarView(
-            controller: _tabController,
-            clipBehavior: Clip.hardEdge,
-            children: [
-              // I'm following the select map organizations drop down here
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                  .collection('organizations')
-                  .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    const Text("Loading...");
-                  } else {
-                    List<ListView> organizations = [];
-                    for (int i = 0; 
-                        i < (snapshot.data! as dynamic).docs.length;
-                        i++) {
-                          DocumentSnapshot snap = snapshot.dat!.docs[i];;
-                          organizations.add(
-                            ListView(
-                              child: Text(
-                                snap['name'],
-                                style: GoogleFonts.montserrat(
-                                  fontSize: regularTextSize,
-                                  color: regularTextSizeColor,
-                                ),
-                              ),
-                              value: "${snap['name']}",
-                            )
-                          );
-                        }
-                  }
-                }
-              )
-              /* this will hold all the saved pins
-              Expanded(
-                  child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      controller: _scrollController,
-                      shrinkWrap: true,
-                      itemCount: pins.length,
-                      separatorBuilder: (BuildContext context, int index) {
-                        return VerticalDivider(
-                          width: 15.0,
-                          // color: darkerNavigationColor,
-                          // thickness: 2.0,
-                        );
-                      },
-                      // ignore: non_constant_identifier_names
-                      itemBuilder: (BuildContext context, int index) {
-                        return Text(pins[index],
-                            style: TextStyle(
-                              fontSize: regularTextSize,
-                              color: regularTextSizeColor,
-                            ));
-                      })),
-                      */
+        // Container(
+        //     child: TabBarView(
+        //   controller: _tabController,
+        //   clipBehavior: Clip.hardEdge,
+        //   children: [_buildTab('collection1'), _buildTab('collection2')],
+        // )),
 
-              // this holds all the organizations
-              Expanded(
-                  child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: false,
-                      controller: _scrollController,
-                      itemCount: organizations.length,
-                      separatorBuilder: (BuildContext context, int index) {
-                        return VerticalDivider(
-                          width: 15.0,
-                        );
-                      },
-                      // ignore: non_constant_identifier_names
-                      itemBuilder: (BuildContext context, int index) {
-                        return Text(organizations[index],
-                            overflow: TextOverflow.visible,
-                            style: TextStyle(
-                              fontSize: regularTextSize,
-                              color: regularTextSizeColor,
-                            ));
-                      })),
-            ],
-          ),
-        ),
+// TODO: once pins and organizations are set up, sync them here
+        // Container(
+        //   padding: const EdgeInsets.only(left: 20),
+        //   height: regularTextSize + 3,
+        //   child: TabBarView(
+        //     controller: _tabController,
+        //     clipBehavior: Clip.hardEdge,
+        //     children: [
+        //       Expanded(
+        //           child: ListView.separated(
+        //               scrollDirection: Axis.horizontal,
+        //               controller: _scrollController,
+        //               shrinkWrap: true,
+        //               itemCount: pins.length,
+        //               separatorBuilder: (BuildContext context, int index) {
+        //                 return VerticalDivider(
+        //                   width: 15.0,
+        //                   // color: darkerNavigationColor,
+        //                   // thickness: 2.0,
+        //                 );
+        //               },
+        //               // ignore: non_constant_identifier_names
+        //               itemBuilder: (BuildContext context, int index) {
+        //                 return StreamBuilder<QuerySnapshot>(
+        //                     stream: FirebaseFirestore.instance
+        //                         .collection('organizations')
+        //                         .snapshots(),
+        //                     builder: (context, snapshot) {
+        //                       if (!snapshot.hasData) {
+        //                         return const Text("Loading...");
+        //                       } else {
+        //                         List<ListView> organizations = [];
+        //                         for (int i = 0;
+        //                             i < (snapshot.data! as dynamic).docs.length;
+        //                             i++) {
+        //                           DocumentSnapshot snap =
+        //                               snapshot.data!.docs[i];
+        //                           return Text("${snap['name']}",
+        //                               style: GoogleFonts.montserrat(
+        //                                 fontSize: regularTextSize,
+        //                                 color: regularTextSizeColor,
+        //                               ));
+        //                         }
+        //                       }
+        //                     });
+        //               })),
+        // FAILED: I'm following the select map organizations drop down here
+        // StreamBuilder<QuerySnapshot>(
+        //   stream: FirebaseFirestore.instance
+        //     .collection('organizations')
+        //     .snapshots(),
+        //   builder: (context, snapshot) {
+        //     if (!snapshot.hasData) {
+        //       const Text("Loading...");
+        //     } else {
+        //       List<ListView> organizations = [];
+        //       for (int i = 0;
+        //           i < (snapshot.data! as dynamic).docs.length;
+        //           i++) {
+        //             DocumentSnapshot snap = snapshot.data!.docs[i];;
+        //             organizations.add(
+        //                 ListView.builder()
+        //                 child: Text(
+        //                   snap['name'],
+        //                   style: GoogleFonts.montserrat(
+        //                     fontSize: regularTextSize,
+        //                     color: regularTextSizeColor,
+        //                   ),
+        //                 ),
+        //                 value: "${snap['name']}",
+
+        //             );
+        //           }
+        //     }
+        //   }
+        // )
+        // this will hold all the saved pins
+        Expanded(
+            child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                controller: _scrollController,
+                shrinkWrap: true,
+                itemCount: pins.length,
+                separatorBuilder: (BuildContext context, int index) {
+                  return VerticalDivider(
+                    width: 15.0,
+                    // color: darkerNavigationColor,
+                    // thickness: 2.0,
+                  );
+                },
+                // ignore: non_constant_identifier_names
+                itemBuilder: (BuildContext context, int index) {
+                  return Text(pins[index],
+                      style: TextStyle(
+                        fontSize: regularTextSize,
+                        color: regularTextSizeColor,
+                      ));
+                })),
+
+        // this holds all the organizations
+        Expanded(
+            child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: false,
+                controller: _scrollController,
+                itemCount: organizations.length,
+                separatorBuilder: (BuildContext context, int index) {
+                  return VerticalDivider(
+                    width: 15.0,
+                  );
+                },
+                // ignore: non_constant_identifier_names
+                itemBuilder: (BuildContext context, int index) {
+                  return Text(organizations[index],
+                      overflow: TextOverflow.visible,
+                      style: TextStyle(
+                        fontSize: regularTextSize,
+                        color: regularTextSizeColor,
+                      ));
+                })),
       ],
+
+      //   ),
+      // ),
+      // ],
     );
+  }
+
+  Widget _buildTab(String collectionName) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: _firestore.collection(collectionName).snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Text('Loading...');
+          }
+
+          final names = snapshot.data?.docs.map((doc) => doc['name']).toList();
+          return ListView.builder(
+            itemCount: names?.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(names?[index]),
+              );
+            },
+          );
+        });
   }
 
   Widget buildBottom() {
