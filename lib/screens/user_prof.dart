@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../utils/colors.dart';
 import '../utils/fonts.dart';
+import '../widgets/basic_button.dart';
 
 class UserProfPage extends StatefulWidget {
   @override
@@ -35,7 +36,6 @@ class _UserProfPageState extends State<UserProfPage>
     final User? user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: buttonColor,
@@ -80,7 +80,6 @@ class _UserProfPageState extends State<UserProfPage>
         ],
       ),
       body: SafeArea(
-        
         child: Column(
           children: [
             // Username
@@ -111,12 +110,44 @@ class _UserProfPageState extends State<UserProfPage>
               ),
             ),
 
+            TabBar(
+              controller: _tabController,
+              indicatorColor: buttonColor,
+              tabs: [
+                Tab(
+                  child: Text(
+                    'Your Organizations',
+                    style: GoogleFonts.montserrat(
+                      fontSize: smallerTextSize,
+                      color: regularTextSizeColor,
+                    ),
+                  ),
+                  icon: Icon(
+                    Icons.group,
+                    color: Colors.black,
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    'Your Pins',
+                    style: GoogleFonts.montserrat(
+                      fontSize: smallerTextSize,
+                      color: regularTextSizeColor,
+                    ),
+                  ),
+                  icon: Icon(
+                    Icons.location_pin,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
             // Organizations
             Expanded(
-              child: StreamBuilder<QuerySnapshot>(
+              child: StreamBuilder<DocumentSnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('organizations')
-                    .where('members', arrayContains: user!.uid)
+                    .collection('users')
+                    .doc(user!.uid)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
@@ -127,31 +158,47 @@ class _UserProfPageState extends State<UserProfPage>
                       child: CircularProgressIndicator(),
                     );
                   }
-                  final organizations = snapshot.data!.docs;
+                  final organizations =
+                      snapshot.data!['organizations'] as Map<dynamic, dynamic>;
+                  final organizationNames = organizations.keys.toList();
                   return TabBarView(
                     controller: _tabController,
-                    children: [
+                    children: <Widget>[
                       // Organization List
                       ListView.builder(
-                        itemCount: organizations.length,
+                        itemCount: organizationNames.length,
                         itemBuilder: (context, index) {
-                          final org = organizations[index];
+                          final orgName = organizationNames[index];
                           return ListTile(
-                            title: Text(org['name']),
-                            subtitle: Text(org['description']),
+                            title: Text(
+                              orgName,
+                              style: GoogleFonts.montserrat(
+                                fontSize: regularTextSize,
+                                color: regularTextSizeColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'You are a: ${organizations[orgName]}',
+                              style: GoogleFonts.montserrat(
+                                fontSize: smallerTextSize,
+                                color: regularTextSizeColor,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
                           );
                         },
                       ),
-
-                      // Add Organization Button
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // TODO: Implement add organization functionality
-                          },
-                          child: Text('Add Organization'),
-                        ),
-                      ),
+                      Text("Stock tab")
+                      /* Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: BasicButton(
+                            text: "Add New Organization",
+                            onPressed: () async {
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/addNewOrg', (route) => false);
+                            }),
+                      ),*/
                     ],
                   );
                 },
@@ -159,20 +206,6 @@ class _UserProfPageState extends State<UserProfPage>
             ),
           ],
         ),
-      ),
-      
-      bottomNavigationBar: TabBar(
-        controller: _tabController,
-        tabs: [
-          Tab(
-            text: 'Organizations',
-            icon: Icon(Icons.group),
-          ),
-          Tab(
-            text: 'Add Organization',
-            icon: Icon(Icons.add),
-          ),
-        ],
       ),
     );
   }

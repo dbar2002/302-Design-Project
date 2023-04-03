@@ -45,6 +45,7 @@ class _NavScreenState extends State<NavScreen> {
   String _startAddress = '';
   String _destinationAddress = '';
   String? _placeDistance;
+  String? _selectedMarkerName = null;
 
   Set<Marker> markers = {};
 
@@ -441,6 +442,7 @@ class _NavScreenState extends State<NavScreen> {
             ))
         .toList();
     mapMarkersStreamController.add(mapMarkers);
+    _selectedMarkerName = null;
   }
 
   Future<List<Marker>> getUserMarkers() async {
@@ -641,9 +643,12 @@ class _NavScreenState extends State<NavScreen> {
                                   final List<MarkerData> mapMarkers =
                                       snapshot.data!;
 
-                                  bool _isVisibile = true;
                                   return Visibility(
-                                      visible: _isVisibile,
+                                      visible: _selectedMarkerName == null &&
+                                              desrinationAddressFocusNode
+                                                  .hasPrimaryFocus
+                                          ? true
+                                          : false,
                                       child: ListView.builder(
                                         shrinkWrap: true,
                                         itemCount: mapMarkers.length,
@@ -657,7 +662,8 @@ class _NavScreenState extends State<NavScreen> {
                                             onTap: () {
                                               // Navigate to the map marker details screen
                                               setState(() {
-                                                _isVisibile = false;
+                                                _selectedMarkerName =
+                                                    mapMarker.title;
                                                 destinationAddressController
                                                     .text = mapMarker.title;
                                                 _destinationAddress =

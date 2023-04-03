@@ -15,20 +15,6 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: backgroundColor,
-        appBar: AppBar(
-          backgroundColor: backgroundColor,
-          elevation: 0,
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
-          leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.arrow_back_ios,
-                size: 25,
-                color: Colors.black,
-              )),
-        ),
         body: ListView(
           shrinkWrap: true,
           padding: EdgeInsets.only(left: 90.0, top: 170.0),
