@@ -1,12 +1,13 @@
 import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/widgets/basic_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../utils/fonts.dart';
 import '../utils/colors.dart';
 import '../utils/global.dart';
-
+/*
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -19,9 +20,22 @@ enum MenuAction { logout }
 // TickerProviderStateMixin is to allow the tabContoller to work
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
-  final double coverHeight = 150;
-  final double profileHeight = 100;
-  String username = "Jane Doe";
+
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  late String username;
+  late List<String> organizations;
+
+  Future<void> _getUsername() async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+
+    username = userDoc.get('username');
+  }
 
   // TODO: connect the pins and organizations to user's stored ones
   List<String> pins = [
@@ -32,12 +46,26 @@ class _ProfilePageState extends State<ProfilePage>
     "FYE",
     "Engineering Statistics"
   ];
-  List<String> organizations = [
-    "California Baptist University",
-    "University of California Riverside",
-    "Riverside Public Library",
-    "University of California Irvine",
-  ];
+
+  Future<void> getFieldNames() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userSnapshot =
+          await _firestore.collection('users').doc(user.uid).get();
+      Map<String, dynamic>? userMap = userSnapshot.get('organizations');
+      if (userMap != null) {
+        organizations = userMap.keys.toList();
+      }
+    }
+  }
+
+  Future<void> getUserOrgs() async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+  }
+
   TabController? _tabController;
   ScrollController? _scrollController;
 
@@ -108,7 +136,6 @@ class _ProfilePageState extends State<ProfilePage>
 
           // TODO: figure out the right height for this thing
           Divider(height: coverHeight + 110),
-          buildBottom(),
         ],
       ),
     );
@@ -126,13 +153,6 @@ class _ProfilePageState extends State<ProfilePage>
       // Stack Widget
       children: [
         // this creates the backgroundImage
-        Positioned(
-          top: 0,
-          bottom: -20,
-          child: Container(
-            child: buildCoverImage(Alignment.center, coverHeight),
-          ),
-        ),
 
         // this creates the profile image
         // Positioned(
@@ -268,28 +288,6 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget buildBottom() {
-    return Container(
-      child: buildCoverImage(Alignment.bottomCenter, coverHeight),
-    );
-  }
-
-  /* this widget build the cover image */
-  Widget buildCoverImage(Alignment pos, double givenHeight) => Container(
-        color: backgroundColor,
-        alignment: pos,
-        child: Container(
-          height: givenHeight,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage("lib/assets/images/cover_image.png"),
-                // "lib/assets/images/cover_image.jpg"
-                fit: BoxFit.fitWidth),
-          ),
-        ),
-      );
-
   /* this widget builds the profile iamge */
   Widget buildProfileImage() => CircleAvatar(
         radius: profileHeight / 2,
@@ -324,3 +322,4 @@ Future<bool> showLogoutDialog(BuildContext context) {
     },
   ).then((value) => value ?? false);
 }
+*/

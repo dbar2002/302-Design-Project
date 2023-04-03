@@ -50,7 +50,7 @@ class _MenuScreenState extends State<MenuScreen> {
               title: Text('Profile',
                   style: TextStyle(color: Colors.black, fontSize: 23)),
               onTap: () => Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/profile', (route) => false),
+                  .pushNamedAndRemoveUntil('/userProf', (route) => false),
             ),
             ListTile(
               leading: Icon(Icons.push_pin, color: Colors.black, size: 30),

@@ -5,6 +5,7 @@ import 'package:avandra/screens/navigation_page.dart';
 import 'package:avandra/screens/select_map.dart';
 import 'package:avandra/screens/sign_in.dart';
 import 'package:avandra/screens/splash_page.dart';
+import 'package:avandra/screens/user_prof.dart';
 
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
@@ -42,10 +43,12 @@ class MyApp extends StatelessWidget {
         '/Login': (context) => const LoginScreen(title: ''),
         '/SignUp': (context) => const SignUpScreen(),
         '/Menu': (context) => const MenuScreen(),
-        '/profile': (context) => const ProfilePage(),
+      //  '/profile': (context) => const ProfilePage(),
+        '/userProf': (context) => UserProfPage(),
         '/nav': (context) => const NavScreen(),
         '/selectMap': (context) => const SelectMapScreen(),
         '/addNewOrg': (context) => const AddNewOrgScreen(),
+        '/editProf': (context) => EditProfilePage(),
       },
     );
   }

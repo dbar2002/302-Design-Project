@@ -1,4 +1,5 @@
 import 'package:avandra/screens/profile.dart';
+import 'package:avandra/screens/user_prof.dart';
 import 'package:avandra/utils/global.dart';
 import 'package:flutter/material.dart';
 import 'package:avandra/utils/colors.dart';
@@ -192,7 +193,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       // when update is pushed, it sends the user back to the profile page
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => ProfilePage(),
+                          builder: (context) => UserProfPage(),
                         ),
                       );
                     }
