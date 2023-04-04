@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:avandra/resources/authentication.dart';
 import 'package:avandra/widgets/maps.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -54,6 +53,31 @@ class _NavScreenState extends State<NavScreen> {
   List<LatLng> polylineCoordinates = [];
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /*
+   * This extracts the long and lat from destination,
+   * then as you continually get the position, check to 
+   * see if the position's lat and long match the destination's
+   * lat and long. 
+   */
+  void startTracking() {
+    StreamSubscription<Position> positionStream =
+        Geolocator.getPositionStream().listen((Position position) async {
+      try {
+        List<Location> positionMark = position as List<Location>;
+        List<Location> destinationMark =
+            locationFromAddress(_destinationAddress) as List<Location>;
+
+        // check if the user's location is near the destination location
+        if ((positionMark[0].latitude == destinationMark[0].latitude) &&
+            (positionMark[0].longitude == destinationMark[0].longitude)) {
+          print('You have reached your destination');
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+  }
 
   Widget _textField({
     required TextEditingController controller,
@@ -710,6 +734,7 @@ class _NavScreenState extends State<NavScreen> {
                                 ? () async {
                                     startAddressFocusNode.unfocus();
                                     desrinationAddressFocusNode.unfocus();
+                                    startTracking();
                                     setState(() {
                                       if (markers.isNotEmpty) markers.clear();
                                       if (polylines.isNotEmpty)

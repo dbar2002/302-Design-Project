@@ -1,6 +1,5 @@
 import 'package:avandra/screens/profile.dart';
 import 'package:avandra/screens/user_prof.dart';
-import 'package:avandra/utils/global.dart';
 import 'package:flutter/material.dart';
 import 'package:avandra/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
