@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:avandra/assets/org_parser.dart';
-import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/widgets/basic_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

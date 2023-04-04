@@ -1,4 +1,3 @@
-import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/screens/home.dart';
 import 'package:avandra/screens/pin_details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,7 +16,7 @@ class UserProfPage extends StatefulWidget {
   _UserProfPageState createState() => _UserProfPageState();
 }
 
-enum MenuAction { logout, editProf }
+enum MenuAction { logout}
 
 class _UserProfPageState extends State<UserProfPage>
     with TickerProviderStateMixin {
@@ -65,9 +64,6 @@ class _UserProfPageState extends State<UserProfPage>
                         .pushNamedAndRemoveUntil('/Login', (route) => false);
                   }
                   break;
-                case MenuAction.editProf:
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/editProf', (route) => false);
               }
             },
             itemBuilder: (context) {
@@ -76,8 +72,7 @@ class _UserProfPageState extends State<UserProfPage>
                   value: MenuAction.logout,
                   child: Text('Logout'),
                 ),
-                PopupMenuItem<MenuAction>(
-                    value: MenuAction.editProf, child: Text('Edit Profile')),
+          
               ];
             },
           )
@@ -187,13 +182,26 @@ class _UserProfPageState extends State<UserProfPage>
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                subtitle: Text(
-                                  'You are a: ${organizations[orgName]}',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: smallerTextSize,
-                                    color: regularTextSizeColor,
-                                    fontWeight: FontWeight.normal,
-                                  ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'You are a: ${organizations[orgName]}',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: smallerTextSize,
+                                        color: regularTextSizeColor,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                    BasicButton(
+                                        text: 'Add New Organization',
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pushNamedAndRemoveUntil(
+                                                  '/addNewOrg',
+                                                  (route) => false);
+                                        }),
+                                  ],
                                 ),
                               ));
                         },
@@ -253,11 +261,11 @@ class _UserProfPageState extends State<UserProfPage>
                                     );
                                   },
                                   child: ListTile(
-                                    title: Text(marker.title),
-                                    titleTextStyle: GoogleFonts.montserrat(
-                                      fontSize: titleSize,
-                                      color: regularTextSizeColor,
-                                    ),
+                                    title: Text(marker.title,
+                                        style: GoogleFonts.montserrat(
+                                          fontSize: titleSize,
+                                          color: regularTextSizeColor,
+                                        )),
                                     subtitle: Text(marker.address,
                                         style: GoogleFonts.montserrat(
                                           fontSize: regularTextSize,
