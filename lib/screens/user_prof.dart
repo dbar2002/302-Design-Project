@@ -1,4 +1,5 @@
 import 'package:avandra/screens/edit_profile.dart';
+import 'package:avandra/screens/home.dart';
 import 'package:avandra/screens/pin_details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -172,24 +173,29 @@ class _UserProfPageState extends State<UserProfPage>
                         itemCount: organizationNames.length,
                         itemBuilder: (context, index) {
                           final orgName = organizationNames[index];
-                          return ListTile(
-                            title: Text(
-                              orgName,
-                              style: GoogleFonts.montserrat(
-                                fontSize: regularTextSize,
-                                color: regularTextSizeColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text(
-                              'You are a: ${organizations[orgName]}',
-                              style: GoogleFonts.montserrat(
-                                fontSize: smallerTextSize,
-                                color: regularTextSizeColor,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          );
+                          return GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => HomeScreen()));
+                              },
+                              child: ListTile(
+                                title: Text(
+                                  orgName,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: regularTextSize,
+                                    color: regularTextSizeColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'You are a: ${organizations[orgName]}',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: smallerTextSize,
+                                    color: regularTextSizeColor,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ));
                         },
                       ),
                       Expanded(
@@ -268,15 +274,6 @@ class _UserProfPageState extends State<UserProfPage>
                           },
                         ),
                       ),
-                      /* Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: BasicButton(
-                            text: "Add New Organization",
-                            onPressed: () async {
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                  '/addNewOrg', (route) => false);
-                            }),
-                      ),*/
                     ],
                   );
                 },

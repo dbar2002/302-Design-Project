@@ -436,7 +436,20 @@ class _NavScreenState extends State<NavScreen> {
         .where('title', isGreaterThanOrEqualTo: searchQuery)
         .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
         .get();
-    final List<QueryDocumentSnapshot> documentSnapshots = querySnapshot.docs;
+
+    final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+
+    final QuerySnapshot snapshot = await userDoc.reference
+        .collection('pins')
+        .where('title', isGreaterThanOrEqualTo: searchQuery)
+        .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
+        .get();
+
+    final List<QueryDocumentSnapshot> documentSnapshots =
+        querySnapshot.docs + snapshot.docs;
     final List<MarkerData> mapMarkers = documentSnapshots
         .map((docSnapshot) => MarkerData(
               docSnapshot.get('latitude'),
