@@ -266,6 +266,7 @@ class _NavScreenState extends State<NavScreen> {
 
   @override
   void initState() {
+    access();
     super.initState();
     _getCurrentLocation();
     _getAddress();
@@ -292,6 +293,7 @@ class _NavScreenState extends State<NavScreen> {
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .collection('pins');
     }
+    print(CBURole);
     return pinsCollection.add({
       'latitude': marker.latitude,
       'longitude': marker.longitude,
