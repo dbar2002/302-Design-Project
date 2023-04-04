@@ -14,7 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:map_launcher/map_launcher.dart' as mapLauch;
 
-import 'dart:math' show cos, sqrt, asin;
+import 'dart:math' show asin, cos, qrt, sqrt;
 
 import '../model/markers.dart';
 import '../resources/validator.dart';
@@ -34,6 +34,9 @@ class _NavScreenState extends State<NavScreen> {
   late GoogleMapController mapController;
 
   late Position _currentPosition;
+  late double _destinationLatitude;
+  late double _destinationLongitude;
+
   String _currentAddress = '';
 
   final startAddressController = TextEditingController();
@@ -271,8 +274,9 @@ class _NavScreenState extends State<NavScreen> {
 
       await availableMaps.first.showDirections(
           destination:
-              mapLauch.Coords(destinationLatitude, destinationLongitude),
-          origin: mapLauch.Coords(startLatitude, startLongitude));
+              mapLauch.Coords(_destinationLatitude, _destinationLongitude),
+          origin: mapLauch.Coords(
+              _currentPosition.latitude, _currentPosition.longitude));
       return true;
     } catch (e) {
       print(e);
@@ -689,6 +693,10 @@ class _NavScreenState extends State<NavScreen> {
                                             onTap: () {
                                               // Navigate to the map marker details screen
                                               setState(() {
+                                                _destinationLatitude =
+                                                    mapMarker.latitude;
+                                                _destinationLongitude =
+                                                    mapMarker.longitude;
                                                 _selectedMarkerName =
                                                     mapMarker.title;
                                                 destinationAddressController
