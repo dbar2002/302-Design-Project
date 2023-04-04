@@ -2,10 +2,12 @@ import 'package:avandra/screens/pin_details.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../model/markers.dart';
 import '../utils/colors.dart';
+import '../utils/fonts.dart';
 
 class UserMarkersScreen extends StatelessWidget {
   UserMarkersScreen();
@@ -73,8 +75,19 @@ class UserMarkersScreen extends StatelessWidget {
                 },
                 child: ListTile(
                   title: Text(marker.title),
-                  subtitle: Text(marker.address),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                  titleTextStyle: GoogleFonts.montserrat(
+                    fontSize: titleSize,
+                    color: regularTextSizeColor,
+                  ),
+                  subtitle: Text(marker.address,
+                      style: GoogleFonts.montserrat(
+                        fontSize: regularTextSize,
+                        color: regularTextSizeColor,
+                      )),
+                  trailing: Icon(
+                    Icons.location_pin,
+                    color: Colors.black,
+                  ),
                 ),
               );
             },
