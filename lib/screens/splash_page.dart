@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigatetohome() async {
-    await Future.delayed(Duration(milliseconds: 2000), (){});
+    await Future.delayed(Duration(milliseconds: 2500), (){});
     Navigator.pushReplacement(
       context, 
       MaterialPageRoute(
@@ -37,10 +37,10 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: splashpageColor,
       body: Center(
         child: Container(
-          height: height / 2,
-          width: width,
+          height: height / 10,
+          width: width - (width * 0.2),
           child: const Image(
-            image: AssetImage('lib/assets/images/logo1.jpg'),
+            image: AssetImage('lib/assets/images/full_logo.jpg'),
             fit: BoxFit.fill,
           ),
         ),

@@ -21,7 +21,7 @@ class _MenuScreenState extends State<MenuScreen> {
           systemOverlayStyle: SystemUiOverlayStyle.dark,
           leading: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.of(context).pushNamed('/nav');
               },
               icon: Icon(
                 Icons.arrow_back_ios,
