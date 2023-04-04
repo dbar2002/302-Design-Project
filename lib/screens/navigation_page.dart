@@ -13,7 +13,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:map_launcher/map_launcher.dart' as mapLauch;
-import 'package:location/location.dart' as appLoc;
 
 import 'dart:math' show cos, sqrt, asin;
 
@@ -34,12 +33,6 @@ class _NavScreenState extends State<NavScreen> {
   CameraPosition _initialLocation = CameraPosition(target: LatLng(0.0, 0.0));
   late GoogleMapController mapController;
 
-  // late LocationPermission permission;
-
-  // I'm not sure I even need this, but we'll see
-  // final AppLoc.LocationSettings locationSetting =
-  //     LocationSettings(accuracy: LocationAccuracy.best);
-
   late Position _currentPosition;
   String _currentAddress = '';
 
@@ -52,6 +45,7 @@ class _NavScreenState extends State<NavScreen> {
   String _startAddress = '';
   String _destinationAddress = '';
   String? _placeDistance;
+  String? _selectedMarkerName = null;
 
   Set<Marker> markers = {};
 
@@ -60,31 +54,6 @@ class _NavScreenState extends State<NavScreen> {
   List<LatLng> polylineCoordinates = [];
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  /*
-   * This extracts the long and lat from destination,
-   * then as you continually get the position, check to 
-   * see if the position's lat and long match the destination's
-   * lat and long. 
-   */
-  void startTracking() {
-    StreamSubscription<Position> positionStream =
-        Geolocator.getPositionStream().listen((Position position) async {
-      try {
-        List<Location> positionMark = position as List<Location>;
-        List<Location> destinationMark =
-            locationFromAddress(_destinationAddress) as List<Location>;
-
-        // check if the user's location is near the destination location
-        if ((positionMark[0].latitude == destinationMark[0].latitude) &&
-            (positionMark[0].longitude == destinationMark[0].longitude)) {
-          print('You have reached your destination');
-        }
-      } catch (e) {
-        print(e);
-      }
-    });
-  }
 
   Widget _textField({
     required TextEditingController controller,
@@ -145,8 +114,7 @@ class _NavScreenState extends State<NavScreen> {
 
   // Method for retrieving the current location
   _getCurrentLocation() async {
-    await Geolocator
-            .getCurrentPosition() //desiredAccuracy: LocationAccuracy.high)
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((Position position) async {
       setState(() {
         _currentPosition = position;
@@ -358,6 +326,7 @@ class _NavScreenState extends State<NavScreen> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _getAddress();
   }
 
   late String CBURole = "Test";
@@ -385,11 +354,13 @@ class _NavScreenState extends State<NavScreen> {
       'latitude': marker.latitude,
       'longitude': marker.longitude,
       'title': marker.title,
+      'address': marker.address,
     });
   }
 
   void _onMapTapped(LatLng position) async {
     String title = await _getPinAddress(position);
+    String address = await _getPinAddress(position);
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -418,8 +389,8 @@ class _NavScreenState extends State<NavScreen> {
             TextButton(
               child: Text('OK'),
               onPressed: () async {
-                MarkerData markerData =
-                    MarkerData(position.latitude, position.longitude, title);
+                MarkerData markerData = MarkerData(
+                    position.latitude, position.longitude, title, address);
                 await addUserPin(markerData);
                 Navigator.of(context).pop();
                 showDialog(
@@ -461,7 +432,7 @@ class _NavScreenState extends State<NavScreen> {
 
   void searchMapMarkers(String searchQuery) async {
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('map_markers')
+        .collection('CBUClassRooms')
         .where('title', isGreaterThanOrEqualTo: searchQuery)
         .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
         .get();
@@ -471,9 +442,11 @@ class _NavScreenState extends State<NavScreen> {
               docSnapshot.get('latitude'),
               docSnapshot.get('longitude'),
               docSnapshot.get('title'),
+              docSnapshot.get('address'),
             ))
         .toList();
     mapMarkersStreamController.add(mapMarkers);
+    _selectedMarkerName = null;
   }
 
   Future<List<Marker>> getUserMarkers() async {
@@ -487,6 +460,7 @@ class _NavScreenState extends State<NavScreen> {
               doc['latitude'],
               doc['longitude'],
               doc['title'],
+              doc['address'],
             ))
         .toList();
     return markerDataList
@@ -496,6 +470,13 @@ class _NavScreenState extends State<NavScreen> {
               infoWindow: InfoWindow(title: markerData.title),
             ))
         .toList();
+  }
+
+  @override
+  void dispose() {
+    destinationAddressController.dispose();
+    startAddressController.dispose();
+    super.dispose();
   }
 
   @override
@@ -634,6 +615,8 @@ class _NavScreenState extends State<NavScreen> {
                               suffixIcon: IconButton(
                                 icon: Icon(Icons.my_location),
                                 onPressed: () {
+                                  _getCurrentLocation();
+                                  _getAddress();
                                   startAddressController.text = _currentAddress;
                                   _startAddress = _currentAddress;
                                 },
@@ -647,61 +630,7 @@ class _NavScreenState extends State<NavScreen> {
                                 });
                               }),
                           SizedBox(height: 10),
-                          TextFormField(
-                            onChanged: (searchQuery) {
-                              searchMapMarkers(searchQuery);
-                            },
-                            style: GoogleFonts.montserrat(
-                              fontSize: regularTextSize,
-                              color: regularTextSizeColor,
-                            ),
-                            controller: searchController,
-                            decoration: InputDecoration(
-                              hintStyle: GoogleFonts.montserrat(
-                                fontSize: regularTextSize,
-                                color: smallerTextColor,
-                              ),
-                              hintText: 'Choose destination',
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.grey)),
-                              filled: true,
-                              contentPadding: const EdgeInsets.all(8),
-                            ),
-                          ),
-                          StreamBuilder<List<MarkerData>>(
-                            stream: mapMarkersStreamController.stream,
-                            builder: (BuildContext context,
-                                AsyncSnapshot<List<MarkerData>> snapshot) {
-                              if (snapshot.hasError) {
-                                return Text('Error: ${snapshot.error}');
-                              }
-                              if (!snapshot.hasData) {
-                                return Text('Loading...');
-                              }
-                              final List<MarkerData> mapMarkers =
-                                  snapshot.data!;
-                              return ListView.builder(
-                                itemCount: mapMarkers.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final MarkerData mapMarker =
-                                      mapMarkers[index];
-                                  return ListTile(
-                                    title: Text(mapMarker.title),
-                                    textColor: regularTextSizeColor,
-                                    onTap: () {
-                                      // Navigate to the map marker details screen
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          /*                          _textField(
+                          _textField(
                               label: 'Destination',
                               hint: 'Choose destination',
                               prefixIcon: Icon(Icons.looks_two),
@@ -710,9 +639,58 @@ class _NavScreenState extends State<NavScreen> {
                               width: width,
                               locationCallback: (String value) {
                                 setState(() {
-                                  _destinationAddress = value;
+                                  searchMapMarkers(value);
                                 });
-                              }), */
+                              }),
+                          Column(
+                            children: [
+                              StreamBuilder<List<MarkerData>>(
+                                stream: mapMarkersStreamController.stream,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<MarkerData>> snapshot) {
+                                  if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  }
+                                  if (!snapshot.hasData) {
+                                    return Text('Loading...');
+                                  }
+                                  final List<MarkerData> mapMarkers =
+                                      snapshot.data!;
+
+                                  return Visibility(
+                                      visible: _selectedMarkerName == null &&
+                                              desrinationAddressFocusNode
+                                                  .hasPrimaryFocus
+                                          ? true
+                                          : false,
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: mapMarkers.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          final MarkerData mapMarker =
+                                              mapMarkers[index];
+                                          return ListTile(
+                                            title: Text(mapMarker.title),
+                                            textColor: regularTextSizeColor,
+                                            onTap: () {
+                                              // Navigate to the map marker details screen
+                                              setState(() {
+                                                _selectedMarkerName =
+                                                    mapMarker.title;
+                                                destinationAddressController
+                                                    .text = mapMarker.title;
+                                                _destinationAddress =
+                                                    mapMarker.address;
+                                              });
+                                            },
+                                          );
+                                        },
+                                      ));
+                                },
+                              ),
+                            ],
+                          ),
                           SizedBox(height: 10),
                           Visibility(
                             visible: _placeDistance == null ? false : true,
@@ -732,7 +710,6 @@ class _NavScreenState extends State<NavScreen> {
                                 ? () async {
                                     startAddressFocusNode.unfocus();
                                     desrinationAddressFocusNode.unfocus();
-                                    startTracking();
                                     setState(() {
                                       if (markers.isNotEmpty) markers.clear();
                                       if (polylines.isNotEmpty)

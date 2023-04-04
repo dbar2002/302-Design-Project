@@ -1,4 +1,5 @@
 import 'package:avandra/screens/profile.dart';
+import 'package:avandra/screens/user_prof.dart';
 import 'package:avandra/utils/global.dart';
 import 'package:flutter/material.dart';
 import 'package:avandra/utils/colors.dart';
@@ -11,6 +12,10 @@ import '../widgets/input_box.dart';
 
 //FIXME
 var username;
+
+var email;
+
+var phoneNumber;
 
 var password;
 
@@ -33,6 +38,8 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final usernameController = TextEditingController(text: username);
+  final userEmailController = TextEditingController(text: email);
+  final userPhoneNumberController = TextEditingController(text: phoneNumber);
   final userPasswordController = TextEditingController(text: password);
   bool showPassword = false;
 
@@ -40,6 +47,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void dispose() {
     // cleans up the controller when the widget is disposed
     usernameController.dispose();
+    userEmailController.dispose();
+    userPhoneNumberController.dispose();
     userPasswordController.dispose();
     super.dispose;
   }
@@ -132,11 +141,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
 
             // this is for all text fields
+
             InputBox(
-              obscureText: false,
+              obscureText: true,
               hintText: 'Enter new username',
               title: TextInputType.text,
-              textEditingController: usernameController,
+              textEditingController: userEmailController,
               validator: (value) => Validator.validateName(
                 name: value,
               ),
@@ -176,12 +186,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     if (updated) {
                       // this updates each global variable to the current text
                       username = usernameController.text;
+                      email = userEmailController.text;
+                      phoneNumber = userPhoneNumberController.text;
                       password = userPasswordController.text;
 
                       // when update is pushed, it sends the user back to the profile page
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => ProfilePage(),
+                          builder: (context) => UserProfPage(),
                         ),
                       );
                     }

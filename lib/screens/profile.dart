@@ -1,14 +1,13 @@
 import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/widgets/basic_button.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../utils/fonts.dart';
 import '../utils/colors.dart';
 import '../utils/global.dart';
-
+/*
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
@@ -21,24 +20,21 @@ enum MenuAction { logout }
 // TickerProviderStateMixin is to allow the tabContoller to work
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
-  final double coverHeight = 150;
-  final double profileHeight = 100;
+
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  String username = '';
+  late String username;
+  late List<String> organizations;
 
   Future<void> _getUsername() async {
-    // get's current user's name
-    User? user = _auth.currentUser;
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
 
-    if (user != null) {
-      DocumentSnapshot snapshot =
-          await _firestore.collection('users').doc(user.uid).get();
-      username = snapshot.get('username');
-    }
-    ;
+    username = userDoc.get('username');
   }
 
   // TODO: connect the pins and organizations to user's stored ones
@@ -50,12 +46,26 @@ class _ProfilePageState extends State<ProfilePage>
     "FYE",
     "Engineering Statistics"
   ];
-  List<String> organizations = [
-    "California Baptist University",
-    "University of California Riverside",
-    "Riverside Public Library",
-    "University of California Irvine",
-  ];
+
+  Future<void> getFieldNames() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userSnapshot =
+          await _firestore.collection('users').doc(user.uid).get();
+      Map<String, dynamic>? userMap = userSnapshot.get('organizations');
+      if (userMap != null) {
+        organizations = userMap.keys.toList();
+      }
+    }
+  }
+
+  Future<void> getUserOrgs() async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+  }
+
   TabController? _tabController;
   ScrollController? _scrollController;
 
@@ -65,7 +75,6 @@ class _ProfilePageState extends State<ProfilePage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _scrollController = ScrollController();
-    _getUsername();
   }
 
   @override
@@ -108,72 +117,12 @@ class _ProfilePageState extends State<ProfilePage>
           )
         ],
       ),
-
-      /*
-       * Currently getting an excpetion for renderBox (don't know where)
-       * output: navbar, then username (from Firebase!) and Edit Profile
-       * button, but they are on opposite ends of the screen
-       */
-
-      // before: it was in a Stack widget
-      body: Column(
-        // for Column widget:
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        // this was for ListView, but it doesn't even render w/ ListView
-        // physics: NeverScrollableScrollPhysics(),
-        // padding: EdgeInsets.all(10),
+      body: ListView(
+        physics: NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
         children: <Widget>[
           // FIXME: for some reason, the cover image is low down on the page
-
-// container is supposed to vertically align the username & edit profile button
-          Container(
-            width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              // alignment: AlignmentDirectional.topCenter,
-              children: [
-                Text(
-                  username,
-                  style: GoogleFonts.montserrat(
-                    fontSize: titleSize,
-                    color: titleSizeColor,
-                  ),
-                ),
-
-                // Positioned(
-                // setting top and right to 0 positions the button to the top right
-                // child:
-                Flexible(
-                  child: Container(
-                    // alignment used for Container
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                          textStyle: const TextStyle(
-                              fontSize: regularTextSize, color: buttonColor)),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => EditProfilePage(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Edit Profile",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                // ),
-              ],
-            ),
-          ),
-          // buildTop(),
-          _editProfile(),
+          buildTop(),
           Divider(height: 15),
           buildContent(),
           Padding(
@@ -186,8 +135,7 @@ class _ProfilePageState extends State<ProfilePage>
                   })),
 
           // TODO: figure out the right height for this thing
-          Divider(height: coverHeight),
-          // buildBottom(),
+          Divider(height: coverHeight + 110),
         ],
       ),
     );
@@ -205,13 +153,6 @@ class _ProfilePageState extends State<ProfilePage>
       // Stack Widget
       children: [
         // this creates the backgroundImage
-        Positioned(
-          top: 0,
-          bottom: -20,
-          child: Container(
-            child: buildCoverImage(Alignment.center, coverHeight),
-          ),
-        ),
 
         // this creates the profile image
         // Positioned(
@@ -250,52 +191,6 @@ class _ProfilePageState extends State<ProfilePage>
     ));
   }
 
-// this widget creates the edit profile page button
-// TODO: make this button smaller (what the heck)
-  Widget _editProfile() {
-    return Positioned(
-      top: 0,
-      right: 0,
-      width: 25,
-      child: Container(
-        padding: const EdgeInsets.all(5.0),
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => EditProfilePage(),
-            ));
-          },
-          style: ElevatedButton.styleFrom(
-            primary: buttonColor,
-            minimumSize: const Size(
-              25,
-              35,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-              side: const BorderSide(color: buttonColor),
-            ),
-          ),
-          child: Text(
-            'Edit Profile',
-            style: GoogleFonts.montserrat(
-              color: regularTextSizeColor,
-              fontSize: regularTextSize,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // return BasicButton(
-    //     text: 'Edit Profile',
-    //     onPressed: () {
-    //       Navigator.of(context).push(MaterialPageRoute(
-    //         builder: (context) => EditProfilePage(),
-    //       ));
-    //     });
-  }
-
   /* this widget creates the profile name, city, and saved pins */
   Widget buildContent() {
     return Column(
@@ -308,10 +203,10 @@ class _ProfilePageState extends State<ProfilePage>
           style: TextStyle(fontSize: titleSize, color: regularTextSizeColor),
         ),
         const SizedBox(height: 8),
-        // Text(
-        //   'San Francisco',
-        //   style: TextStyle(fontSize: titleSize, color: regularTextSizeColor),
-        // ),
+        Text(
+          'San Francisco',
+          style: TextStyle(fontSize: titleSize, color: regularTextSizeColor),
+        ),
 
         Align(
             alignment: Alignment.centerLeft,
@@ -334,181 +229,64 @@ class _ProfilePageState extends State<ProfilePage>
               ],
             )),
 
-        // Container(
-        //     child: TabBarView(
-        //   controller: _tabController,
-        //   clipBehavior: Clip.hardEdge,
-        //   children: [_buildTab('collection1'), _buildTab('collection2')],
-        // )),
-
 // TODO: once pins and organizations are set up, sync them here
-        // Container(
-        //   padding: const EdgeInsets.only(left: 20),
-        //   height: regularTextSize + 3,
-        //   child: TabBarView(
-        //     controller: _tabController,
-        //     clipBehavior: Clip.hardEdge,
-        //     children: [
-        //       Expanded(
-        //           child: ListView.separated(
-        //               scrollDirection: Axis.horizontal,
-        //               controller: _scrollController,
-        //               shrinkWrap: true,
-        //               itemCount: pins.length,
-        //               separatorBuilder: (BuildContext context, int index) {
-        //                 return VerticalDivider(
-        //                   width: 15.0,
-        //                   // color: darkerNavigationColor,
-        //                   // thickness: 2.0,
-        //                 );
-        //               },
-        //               // ignore: non_constant_identifier_names
-        //               itemBuilder: (BuildContext context, int index) {
-        //                 return StreamBuilder<QuerySnapshot>(
-        //                     stream: FirebaseFirestore.instance
-        //                         .collection('organizations')
-        //                         .snapshots(),
-        //                     builder: (context, snapshot) {
-        //                       if (!snapshot.hasData) {
-        //                         return const Text("Loading...");
-        //                       } else {
-        //                         List<ListView> organizations = [];
-        //                         for (int i = 0;
-        //                             i < (snapshot.data! as dynamic).docs.length;
-        //                             i++) {
-        //                           DocumentSnapshot snap =
-        //                               snapshot.data!.docs[i];
-        //                           return Text("${snap['name']}",
-        //                               style: GoogleFonts.montserrat(
-        //                                 fontSize: regularTextSize,
-        //                                 color: regularTextSizeColor,
-        //                               ));
-        //                         }
-        //                       }
-        //                     });
-        //               })),
-        // FAILED: I'm following the select map organizations drop down here
-        // StreamBuilder<QuerySnapshot>(
-        //   stream: FirebaseFirestore.instance
-        //     .collection('organizations')
-        //     .snapshots(),
-        //   builder: (context, snapshot) {
-        //     if (!snapshot.hasData) {
-        //       const Text("Loading...");
-        //     } else {
-        //       List<ListView> organizations = [];
-        //       for (int i = 0;
-        //           i < (snapshot.data! as dynamic).docs.length;
-        //           i++) {
-        //             DocumentSnapshot snap = snapshot.data!.docs[i];;
-        //             organizations.add(
-        //                 ListView.builder()
-        //                 child: Text(
-        //                   snap['name'],
-        //                   style: GoogleFonts.montserrat(
-        //                     fontSize: regularTextSize,
-        //                     color: regularTextSizeColor,
-        //                   ),
-        //                 ),
-        //                 value: "${snap['name']}",
+        Container(
+          padding: const EdgeInsets.only(left: 20),
+          height: regularTextSize + 3,
+          child: TabBarView(
+            controller: _tabController,
+            clipBehavior: Clip.hardEdge,
+            children: [
+              // this will hold all the saved pins
+              Expanded(
+                  child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      controller: _scrollController,
+                      shrinkWrap: true,
+                      itemCount: pins.length,
+                      separatorBuilder: (BuildContext context, int index) {
+                        return VerticalDivider(
+                          width: 15.0,
+                          // color: darkerNavigationColor,
+                          // thickness: 2.0,
+                        );
+                      },
+                      // ignore: non_constant_identifier_names
+                      itemBuilder: (BuildContext context, int index) {
+                        return Text(pins[index],
+                            style: TextStyle(
+                              fontSize: regularTextSize,
+                              color: regularTextSizeColor,
+                            ));
+                      })),
 
-        //             );
-        //           }
-        //     }
-        //   }
-        // )
-        // this will hold all the saved pins
-        Expanded(
-            child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                controller: _scrollController,
-                shrinkWrap: true,
-                itemCount: pins.length,
-                separatorBuilder: (BuildContext context, int index) {
-                  return VerticalDivider(
-                    width: 15.0,
-                    // color: darkerNavigationColor,
-                    // thickness: 2.0,
-                  );
-                },
-                // ignore: non_constant_identifier_names
-                itemBuilder: (BuildContext context, int index) {
-                  return Text(pins[index],
-                      style: TextStyle(
-                        fontSize: regularTextSize,
-                        color: regularTextSizeColor,
-                      ));
-                })),
-
-        // this holds all the organizations
-        Expanded(
-            child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: false,
-                controller: _scrollController,
-                itemCount: organizations.length,
-                separatorBuilder: (BuildContext context, int index) {
-                  return VerticalDivider(
-                    width: 15.0,
-                  );
-                },
-                // ignore: non_constant_identifier_names
-                itemBuilder: (BuildContext context, int index) {
-                  return Text(organizations[index],
-                      overflow: TextOverflow.visible,
-                      style: TextStyle(
-                        fontSize: regularTextSize,
-                        color: regularTextSizeColor,
-                      ));
-                })),
-      ],
-
-      //   ),
-      // ),
-      // ],
-    );
-  }
-
-  Widget _buildTab(String collectionName) {
-    return StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection(collectionName).snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Text('Loading...');
-          }
-
-          final names = snapshot.data?.docs.map((doc) => doc['name']).toList();
-          return ListView.builder(
-            itemCount: names?.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(names?[index]),
-              );
-            },
-          );
-        });
-  }
-
-  Widget buildBottom() {
-    return Container(
-      child: buildCoverImage(Alignment.bottomCenter, coverHeight),
-    );
-  }
-
-  /* this widget build the cover image */
-  Widget buildCoverImage(Alignment pos, double givenHeight) => Container(
-      color: backgroundColor,
-      alignment: pos,
-      child: Container(
-        height: givenHeight,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("lib/assets/images/cover_image.png"),
-            fit: BoxFit.fitWidth,
+              // this holds all the organizations
+              Expanded(
+                  child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: false,
+                      controller: _scrollController,
+                      itemCount: organizations.length,
+                      separatorBuilder: (BuildContext context, int index) {
+                        return VerticalDivider(
+                          width: 15.0,
+                        );
+                      },
+                      // ignore: non_constant_identifier_names
+                      itemBuilder: (BuildContext context, int index) {
+                        return Text(organizations[index],
+                            overflow: TextOverflow.visible,
+                            style: TextStyle(
+                              fontSize: regularTextSize,
+                              color: regularTextSizeColor,
+                            ));
+                      })),
+            ],
           ),
         ),
-      ));
+      ],
+    );
+  }
 
   /* this widget builds the profile iamge */
   Widget buildProfileImage() => CircleAvatar(
@@ -544,3 +322,4 @@ Future<bool> showLogoutDialog(BuildContext context) {
     },
   ).then((value) => value ?? false);
 }
+*/
