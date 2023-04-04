@@ -17,7 +17,7 @@ class UserProfPage extends StatefulWidget {
   _UserProfPageState createState() => _UserProfPageState();
 }
 
-enum MenuAction { logout, editProf }
+enum MenuAction { logout, editProf, addNewOrg }
 
 class _UserProfPageState extends State<UserProfPage>
     with TickerProviderStateMixin {
@@ -68,6 +68,11 @@ class _UserProfPageState extends State<UserProfPage>
                 case MenuAction.editProf:
                   Navigator.of(context)
                       .pushNamedAndRemoveUntil('/editProf', (route) => false);
+                  break;
+                case MenuAction.addNewOrg:
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil('/addNewOrg', (route) => false);
+                  break;
               }
             },
             itemBuilder: (context) {
@@ -78,6 +83,10 @@ class _UserProfPageState extends State<UserProfPage>
                 ),
                 PopupMenuItem<MenuAction>(
                     value: MenuAction.editProf, child: Text('Edit Profile')),
+                PopupMenuItem<MenuAction>(
+                  value: MenuAction.addNewOrg,
+                  child: Text('Add New Organiztion'),
+                ),
               ];
             },
           )
