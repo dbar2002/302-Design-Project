@@ -17,7 +17,7 @@ class UserProfPage extends StatefulWidget {
   _UserProfPageState createState() => _UserProfPageState();
 }
 
-enum MenuAction { logout, editProf, addNewOrg }
+enum MenuAction { logout, editProf }
 
 class _UserProfPageState extends State<UserProfPage>
     with TickerProviderStateMixin {
@@ -69,10 +69,6 @@ class _UserProfPageState extends State<UserProfPage>
                   Navigator.of(context)
                       .pushNamedAndRemoveUntil('/editProf', (route) => false);
                   break;
-                case MenuAction.addNewOrg:
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/addNewOrg', (route) => false);
-                  break;
               }
             },
             itemBuilder: (context) {
@@ -83,10 +79,6 @@ class _UserProfPageState extends State<UserProfPage>
                 ),
                 PopupMenuItem<MenuAction>(
                     value: MenuAction.editProf, child: Text('Edit Profile')),
-                PopupMenuItem<MenuAction>(
-                  value: MenuAction.addNewOrg,
-                  child: Text('Add New Organiztion'),
-                ),
               ];
             },
           )
@@ -196,13 +188,26 @@ class _UserProfPageState extends State<UserProfPage>
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                subtitle: Text(
-                                  'You are a: ${organizations[orgName]}',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: smallerTextSize,
-                                    color: regularTextSizeColor,
-                                    fontWeight: FontWeight.normal,
-                                  ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'You are a: ${organizations[orgName]}',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: smallerTextSize,
+                                        color: regularTextSizeColor,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                    BasicButton(
+                                        text: 'Add New Organization',
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pushNamedAndRemoveUntil(
+                                                  '/addNewOrg',
+                                                  (route) => false);
+                                        }),
+                                  ],
                                 ),
                               ));
                         },

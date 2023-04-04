@@ -13,9 +13,9 @@ import '../widgets/input_box.dart';
 //FIXME
 var username;
 
-var email;
+// var email;
 
-var phoneNumber;
+// var phoneNumber;
 
 var password;
 
@@ -38,8 +38,8 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final usernameController = TextEditingController(text: username);
-  final userEmailController = TextEditingController(text: email);
-  final userPhoneNumberController = TextEditingController(text: phoneNumber);
+  // final userEmailController = TextEditingController(text: email);
+  // final userPhoneNumberController = TextEditingController(text: phoneNumber);
   final userPasswordController = TextEditingController(text: password);
   bool showPassword = false;
 
@@ -47,8 +47,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void dispose() {
     // cleans up the controller when the widget is disposed
     usernameController.dispose();
-    userEmailController.dispose();
-    userPhoneNumberController.dispose();
+    // userEmailController.dispose();
+    // userPhoneNumberController.dispose();
     userPasswordController.dispose();
     super.dispose;
   }
@@ -85,57 +85,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
               height: 15,
             ),
 
-            Center(
-              child: Stack(children: [
-                Container(
-                    width: 130,
-                    height: 130,
-
-                    // this creates the white circle behind the profile pic
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 4,
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                              spreadRadius: 2,
-                              blurRadius: 10,
-                              color: Colors.black.withOpacity(0.1),
-                              offset: Offset(0, 10))
-                        ],
-
-                        // this creates the profile pic
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: AssetImage(
-                              "lib/assets/images/influencer_profile_pic.jpeg"),
-                        ))),
-                Positioned(
-                    bottom: 0,
-                    right: 0,
-
-                    // this Container creates the edit pencil icon
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          width: 4,
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                        ),
-                        color: buttonColor,
-                      ),
-                      child: Icon(
-                        Icons.edit,
-                        color: Colors.black,
-                      ),
-                    ))
-              ]),
-            ),
-
             SizedBox(
               height: 35,
             ),
@@ -143,10 +92,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             // this is for all text fields
 
             InputBox(
-              obscureText: true,
+              obscureText: false,
               hintText: 'Enter new username',
               title: TextInputType.text,
-              textEditingController: userEmailController,
+              textEditingController: usernameController,
               validator: (value) => Validator.validateName(
                 name: value,
               ),
@@ -186,8 +135,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     if (updated) {
                       // this updates each global variable to the current text
                       username = usernameController.text;
-                      email = userEmailController.text;
-                      phoneNumber = userPhoneNumberController.text;
+                      // email = userEmailController.text;
+                      // phoneNumber = userPhoneNumberController.text;
                       password = userPasswordController.text;
 
                       // when update is pushed, it sends the user back to the profile page
