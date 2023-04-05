@@ -269,7 +269,7 @@ class _NavScreenState extends State<NavScreen> {
           originTitle: "My Location",
           origin: /* mapLauch.Coords(
               _currentPosition.latitude, _currentPosition.longitude)*/
-              mapLauch.Coords(startLatitude, startLongitude),
+              mapLauch.Coords(startLatitude, startLongitude), 
           directionsMode: mapLauch.DirectionsMode.walking);
       return true;
     } catch (e) {
