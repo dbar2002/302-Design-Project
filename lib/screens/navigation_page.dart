@@ -162,10 +162,23 @@ class _NavScreenState extends State<NavScreen> {
       // Use the retrieved coordinates of the current position,
       // instead of the address if the start position is user's
       // current position, as it results in better accuracy.
-      _getCurrentLocation();
-      double startLatitude = _currentPosition.latitude;
+      // _getCurrentLocation();
+      List<Location> startPlacemark = await locationFromAddress(_startAddress);
+
+      // Use the retrieved coordinates of the current position,
+      // instead of the address if the start position is user's
+      // current position, as it results in better accuracy.
+      double startLatitude = _startAddress == _currentAddress
+          ? _currentPosition.latitude
+          : startPlacemark[0].latitude;
+
+      double startLongitude = _startAddress == _currentAddress
+          ? _currentPosition.longitude
+          : startPlacemark[0].longitude;
+      /*double startLatitude = _currentPosition.latitude;
 
       double startLongitude = _currentPosition.longitude;
+      */
 
       double destinationLatitude = _destinationLatitude;
       double destinationLongitude = _destinationLongitude;
@@ -254,8 +267,9 @@ class _NavScreenState extends State<NavScreen> {
           destination:
               mapLauch.Coords(_destinationLatitude, _destinationLongitude),
           originTitle: "My Location",
-          origin: mapLauch.Coords(
-              _currentPosition.latitude, _currentPosition.longitude),
+          origin: /* mapLauch.Coords(
+              _currentPosition.latitude, _currentPosition.longitude)*/
+              mapLauch.Coords(startLatitude, startLongitude),
           directionsMode: mapLauch.DirectionsMode.walking);
       return true;
     } catch (e) {
