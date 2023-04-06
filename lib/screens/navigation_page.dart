@@ -14,7 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:map_launcher/map_launcher.dart' as mapLauch;
 
-import 'dart:math' show cos, sqrt, asin;
+import 'dart:math' show asin, cos, qrt, sqrt;
 
 import '../model/markers.dart';
 import '../resources/validator.dart';
@@ -34,6 +34,9 @@ class _NavScreenState extends State<NavScreen> {
   late GoogleMapController mapController;
 
   late Position _currentPosition;
+  late double _destinationLatitude;
+  late double _destinationLongitude;
+
   String _currentAddress = '';
 
   final startAddressController = TextEditingController();
@@ -45,6 +48,7 @@ class _NavScreenState extends State<NavScreen> {
   String _startAddress = '';
   String _destinationAddress = '';
   String? _placeDistance;
+  String? _selectedMarkerName = null;
 
   Set<Marker> markers = {};
 
@@ -155,10 +159,11 @@ class _NavScreenState extends State<NavScreen> {
   // Method for calculating the distance between two places
   Future<bool> _calculateDistance() async {
     try {
-      // Retrieving placemarks from addresses
+      // Use the retrieved coordinates of the current position,
+      // instead of the address if the start position is user's
+      // current position, as it results in better accuracy.
+      // _getCurrentLocation();
       List<Location> startPlacemark = await locationFromAddress(_startAddress);
-      List<Location> destinationPlacemark =
-          await locationFromAddress(_destinationAddress);
 
       // Use the retrieved coordinates of the current position,
       // instead of the address if the start position is user's
@@ -170,9 +175,13 @@ class _NavScreenState extends State<NavScreen> {
       double startLongitude = _startAddress == _currentAddress
           ? _currentPosition.longitude
           : startPlacemark[0].longitude;
+      /*double startLatitude = _currentPosition.latitude;
 
-      double destinationLatitude = destinationPlacemark[0].latitude;
-      double destinationLongitude = destinationPlacemark[0].longitude;
+      double startLongitude = _currentPosition.longitude;
+      */
+
+      double destinationLatitude = _destinationLatitude;
+      double destinationLongitude = _destinationLongitude;
 
       String startCoordinatesString = '($startLatitude, $startLongitude)';
       String destinationCoordinatesString =
@@ -244,21 +253,7 @@ class _NavScreenState extends State<NavScreen> {
         ),
       );
 
-      await _createPolylines(startLatitude, startLongitude, destinationLatitude,
-          destinationLongitude);
-
       double totalDistance = 0.0;
-
-      // Calculating the total distance by adding the distance
-      // between small segments
-      for (int i = 0; i < polylineCoordinates.length - 1; i++) {
-        totalDistance += _coordinateDistance(
-          polylineCoordinates[i].latitude,
-          polylineCoordinates[i].longitude,
-          polylineCoordinates[i + 1].latitude,
-          polylineCoordinates[i + 1].longitude,
-        );
-      }
 
       setState(() {
         _placeDistance = totalDistance.toStringAsFixed(2);
@@ -270,8 +265,12 @@ class _NavScreenState extends State<NavScreen> {
 
       await availableMaps.first.showDirections(
           destination:
-              mapLauch.Coords(destinationLatitude, destinationLongitude),
-          origin: mapLauch.Coords(startLatitude, startLongitude));
+              mapLauch.Coords(_destinationLatitude, _destinationLongitude),
+          originTitle: "My Location",
+          origin: /* mapLauch.Coords(
+              _currentPosition.latitude, _currentPosition.longitude)*/
+              mapLauch.Coords(startLatitude, startLongitude), 
+          directionsMode: mapLauch.DirectionsMode.walking);
       return true;
     } catch (e) {
       print(e);
@@ -279,52 +278,12 @@ class _NavScreenState extends State<NavScreen> {
     return false;
   }
 
-  // Formula for calculating distance between two coordinates
-  // https://stackoverflow.com/a/54138876/11910277
-  double _coordinateDistance(lat1, lon1, lat2, lon2) {
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-    return 12742 * asin(sqrt(a));
-  }
-
-  // Create the polylines for showing the route between two places
-  _createPolylines(
-    double startLatitude,
-    double startLongitude,
-    double destinationLatitude,
-    double destinationLongitude,
-  ) async {
-    polylinePoints = PolylinePoints();
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      Secrets.API_KEY, // Google Maps API Key
-      PointLatLng(startLatitude, startLongitude),
-      PointLatLng(destinationLatitude, destinationLongitude),
-      travelMode: TravelMode.transit,
-    );
-
-    if (result.points.isNotEmpty) {
-      result.points.forEach((PointLatLng point) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      });
-    }
-
-    PolylineId id = PolylineId('poly');
-    Polyline polyline = Polyline(
-      polylineId: id,
-      color: Colors.red,
-      points: polylineCoordinates,
-      width: 3,
-    );
-    polylines[id] = polyline;
-  }
-
   @override
   void initState() {
+    access();
     super.initState();
     _getCurrentLocation();
+    _getAddress();
   }
 
   late String CBURole = "Test";
@@ -348,15 +307,80 @@ class _NavScreenState extends State<NavScreen> {
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .collection('pins');
     }
+    print(CBURole);
     return pinsCollection.add({
       'latitude': marker.latitude,
       'longitude': marker.longitude,
       'title': marker.title,
+      'address': marker.address,
     });
   }
 
   void _onMapTapped(LatLng position) async {
     String title = await _getPinAddress(position);
+    String address = await _getPinAddress(position);
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Name Your Pin'),
+          content: Column(
+            children: [
+              Text("Current pin name: $title"),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    title = value;
+                  });
+                },
+                decoration: InputDecoration(hintText: 'Text'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('CANCEL'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () async {
+                MarkerData markerData = MarkerData(
+                    position.latitude, position.longitude, title, address);
+                await addUserPin(markerData);
+                Navigator.of(context).pop();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Pin Created!'),
+                      content: Text('You have successfully created a pin'),
+                      actions: [
+                        TextButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+                setState(() {});
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addPinAtLocation(double latitude, double longitude) async {
+    LatLng position = LatLng(latitude, longitude);
+    String title = await _getPinAddress(position);
+    String address = await _getPinAddress(position);
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -386,7 +410,7 @@ class _NavScreenState extends State<NavScreen> {
               child: Text('OK'),
               onPressed: () async {
                 MarkerData markerData =
-                    MarkerData(position.latitude, position.longitude, title);
+                    MarkerData(latitude, longitude, title, address);
                 await addUserPin(markerData);
                 Navigator.of(context).pop();
                 showDialog(
@@ -434,33 +458,30 @@ class _NavScreenState extends State<NavScreen> {
         .where('title', isGreaterThanOrEqualTo: searchQuery)
         .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
         .get();
-    final List<QueryDocumentSnapshot> documentSnapshots = querySnapshot.docs;
+
+    final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+
+    final QuerySnapshot snapshot = await userDoc.reference
+        .collection('pins')
+        .where('title', isGreaterThanOrEqualTo: searchQuery)
+        .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
+        .get();
+
+    final List<QueryDocumentSnapshot> documentSnapshots =
+        querySnapshot.docs + snapshot.docs;
     final List<MarkerData> mapMarkers = documentSnapshots
         .map((docSnapshot) => MarkerData(
               docSnapshot.get('latitude'),
               docSnapshot.get('longitude'),
               docSnapshot.get('title'),
+              docSnapshot.get('address'),
             ))
         .toList();
     mapMarkersStreamController.add(mapMarkers);
-  }
-  void searchUserMarkers(String searchQuery) async {
-    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser?.uid)
-        .collection('pins')
-        .where('title', isGreaterThanOrEqualTo: searchQuery)
-        .where('title', isLessThanOrEqualTo: searchQuery + '\uf8ff')
-        .get();
-    final List<QueryDocumentSnapshot> documentSnapshots = querySnapshot.docs;
-    final List<MarkerData> userMarkers = documentSnapshots
-        .map((docSnapshot) => MarkerData(
-              docSnapshot.get('latitude'),
-              docSnapshot.get('longitude'),
-              docSnapshot.get('title'),
-            ))
-        .toList();
-    mapMarkersStreamController.add(userMarkers);
+    _selectedMarkerName = null;
   }
 
   Future<List<Marker>> getUserMarkers() async {
@@ -475,6 +496,7 @@ class _NavScreenState extends State<NavScreen> {
               doc['latitude'],
               doc['longitude'],
               doc['title'],
+              doc['address'],
             ))
         .toList();
          //userPinStreamController.add(markerDataList);
@@ -485,7 +507,13 @@ class _NavScreenState extends State<NavScreen> {
               infoWindow: InfoWindow(title: markerData.title),
             ))
         .toList();
-      
+  }
+
+  @override
+  void dispose() {
+    destinationAddressController.dispose();
+    startAddressController.dispose();
+    super.dispose();
   }
 
   @override
@@ -501,8 +529,8 @@ class _NavScreenState extends State<NavScreen> {
           children: <Widget>[
             // Map View
             GoogleMap(
-              onTap: (latlang) {
-                _onMapTapped(latlang);
+              onTap: (latLng) {
+                _onMapTapped(latLng);
               },
               markers: Set<Marker>.from(markers),
               initialCameraPosition: _initialLocation,
@@ -518,9 +546,10 @@ class _NavScreenState extends State<NavScreen> {
             ),
             //Menu Button
             SafeArea(
-              child: Align(
-                alignment: Alignment.topRight,
-                child: Padding(
+                child: Align(
+              alignment: Alignment.centerRight,
+              child: Column(children: [
+                Padding(
                   padding: const EdgeInsets.only(right: 10.0, bottom: 10.0),
                   child: ClipOval(
                     child: Material(
@@ -538,8 +567,61 @@ class _NavScreenState extends State<NavScreen> {
                     ),
                   ),
                 ),
-              ),
-            ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.orange.shade100, // button color
+                      child: InkWell(
+                        splashColor: Colors.orange, // inkwell color
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: Icon(Icons.my_location),
+                        ),
+                        onTap: () {
+                          mapController.animateCamera(
+                            CameraUpdate.newCameraPosition(
+                              CameraPosition(
+                                target: LatLng(
+                                  _currentPosition.latitude,
+                                  _currentPosition.longitude,
+                                ),
+                                zoom: 18.0,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.orange.shade100, // button color
+                      child: InkWell(
+                        splashColor: Colors.orange, // inkwell color
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: Icon(Icons.pin_drop),
+                        ),
+                        onTap: () {
+                          _getCurrentLocation();
+                          _addPinAtLocation(
+                            _currentPosition.latitude,
+                            _currentPosition.longitude,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+            )),
+
             // Show zoom buttons
             SafeArea(
               child: Padding(
@@ -624,6 +706,8 @@ class _NavScreenState extends State<NavScreen> {
                               suffixIcon: IconButton(
                                 icon: Icon(Icons.my_location),
                                 onPressed: () {
+                                  _getCurrentLocation();
+                                  _getAddress();
                                   startAddressController.text = _currentAddress;
                                   _startAddress = _currentAddress;
                                 },
@@ -647,9 +731,6 @@ class _NavScreenState extends State<NavScreen> {
                               locationCallback: (String value) {
                                 setState(() {
                                   searchMapMarkers(value);
-                                   searchUserMarkers(value);
-                                  //getUserMarkers();
-                                  _destinationAddress = value;
                                 });
                               }),
                           Column(
@@ -666,10 +747,13 @@ class _NavScreenState extends State<NavScreen> {
                                   }
                                   final List<MarkerData> mapMarkers =
                                       snapshot.data!;
-                                  String address = '';
-                                  bool _isVisibile = true;
+
                                   return Visibility(
-                                      visible: _isVisibile,
+                                      visible: _selectedMarkerName == null &&
+                                              desrinationAddressFocusNode
+                                                  .hasPrimaryFocus
+                                          ? true
+                                          : false,
                                       child: ListView.builder(
                                         shrinkWrap: true,
                                         itemCount: mapMarkers.length,
@@ -683,14 +767,16 @@ class _NavScreenState extends State<NavScreen> {
                                             onTap: () {
                                               // Navigate to the map marker details screen
                                               setState(() {
-                                                _isVisibile = false;
+                                                _destinationLatitude =
+                                                    mapMarker.latitude;
+                                                _destinationLongitude =
+                                                    mapMarker.longitude;
+                                                _selectedMarkerName =
+                                                    mapMarker.title;
                                                 destinationAddressController
                                                     .text = mapMarker.title;
-                                                String lat = mapMarker.latitude.toString();
-                                                String long = mapMarker.longitude.toString();
-                                                address = lat + ", " + long;
-                                                _destinationAddress = address;
-                                                    
+                                                _destinationAddress =
+                                                    mapMarker.address;
                                               });
                                             },
                                           );
@@ -701,32 +787,12 @@ class _NavScreenState extends State<NavScreen> {
                             ],
                           ),
                           SizedBox(height: 10),
-                          Visibility(
-                            visible: _placeDistance == null ? false : true,
-                            child: Text(
-                              'DISTANCE: $_placeDistance km',
-                              style: GoogleFonts.montserrat(
-                                fontSize: regularTextSize,
-                                color: regularTextSizeColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 5),
                           ElevatedButton(
                             onPressed: (_startAddress != '' &&
                                     _destinationAddress != '')
                                 ? () async {
                                     startAddressFocusNode.unfocus();
                                     desrinationAddressFocusNode.unfocus();
-                                    setState(() {
-                                      if (markers.isNotEmpty) markers.clear();
-                                      if (polylines.isNotEmpty)
-                                        polylines.clear();
-                                      if (polylineCoordinates.isNotEmpty)
-                                        polylineCoordinates.clear();
-                                      _placeDistance = null;
-                                    });
 
                                     _calculateDistance().then((isCalculated) {
                                       if (isCalculated) {
@@ -767,41 +833,6 @@ class _NavScreenState extends State<NavScreen> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Show current location button
-            SafeArea(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                  child: ClipOval(
-                    child: Material(
-                      color: Colors.orange.shade100, // button color
-                      child: InkWell(
-                        splashColor: Colors.orange, // inkwell color
-                        child: SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: Icon(Icons.my_location),
-                        ),
-                        onTap: () {
-                          mapController.animateCamera(
-                            CameraUpdate.newCameraPosition(
-                              CameraPosition(
-                                target: LatLng(
-                                  _currentPosition.latitude,
-                                  _currentPosition.longitude,
-                                ),
-                                zoom: 18.0,
-                              ),
-                            ),
-                          );
-                        },
                       ),
                     ),
                   ),

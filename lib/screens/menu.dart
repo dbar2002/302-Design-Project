@@ -15,20 +15,6 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: backgroundColor,
-        appBar: AppBar(
-          backgroundColor: backgroundColor,
-          elevation: 0,
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
-          leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.arrow_back_ios,
-                size: 25,
-                color: Colors.black,
-              )),
-        ),
         body: ListView(
           shrinkWrap: true,
           padding: EdgeInsets.only(left: 90.0, top: 170.0),
@@ -50,7 +36,7 @@ class _MenuScreenState extends State<MenuScreen> {
               title: Text('Profile',
                   style: TextStyle(color: Colors.black, fontSize: 23)),
               onTap: () => Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/profile', (route) => false),
+                  .pushNamedAndRemoveUntil('/userProf', (route) => false),
             ),
             ListTile(
               leading: Icon(Icons.push_pin, color: Colors.black, size: 30),
@@ -71,11 +57,14 @@ class _MenuScreenState extends State<MenuScreen> {
               endIndent: 90,
             ),
             ListTile(
-              leading: Icon(Icons.logout, color: Colors.black, size: 30),
-              title: Text('Log out',
-                  style: TextStyle(color: Colors.black, fontSize: 23)),
-              onTap: () => AuthMethods().signOut(),
-            ),
+                leading: Icon(Icons.logout, color: Colors.black, size: 30),
+                title: Text('Log out',
+                    style: TextStyle(color: Colors.black, fontSize: 23)),
+                onTap: () {
+                  AuthMethods().signOut();
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil('/Login', (route) => false);
+                }),
           ],
         ));
   }
