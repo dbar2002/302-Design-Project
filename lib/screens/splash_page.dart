@@ -64,7 +64,6 @@ late final AnimationController _controller = AnimationController(
 // found in the LICENSE file.
 
 ///////////////////////////////////////////////////////////////////////////////////
-
 class AvandraFullLogo extends StatelessWidget {
   /// Creates a widget that paints the Flutter logo.
   ///

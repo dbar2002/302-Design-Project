@@ -1,4 +1,4 @@
-import 'package:avandra/screens/edit_profile.dart';
+//import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/widgets/basic_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -144,29 +144,30 @@ class _ProfilePageState extends State<ProfilePage>
         ),
         // ),
 
-        // this text button creates a route to the edit profile page
-        Positioned(
-          // setting top and right to 0 positions the button to the top right
-          top: 0,
-          right: 0,
-          child: Container(
-            alignment: AlignmentDirectional.topEnd,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                  textStyle: const TextStyle(
-                      fontSize: regularTextSize, color: buttonColor)),
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => EditProfilePage(),
-                ));
-              },
-              child: const Text("Edit Profile",
-                  style: TextStyle(
-                    color: Colors.white,
-                  )),
-            ),
-          ),
-        ),
+        //commented out, no more edit profile pg
+        // // this text button creates a route to the edit profile page
+        // Positioned(
+        //   // setting top and right to 0 positions the button to the top right
+        //   top: 0,
+        //   right: 0,
+        //   child: Container(
+        //     alignment: AlignmentDirectional.topEnd,
+        //     child: TextButton(
+        //       style: TextButton.styleFrom(
+        //           textStyle: const TextStyle(
+        //               fontSize: regularTextSize, color: buttonColor)),
+        //       onPressed: () {
+        //         Navigator.of(context).push(MaterialPageRoute(
+        //           builder: (context) => EditProfilePage(),
+        //         ));
+        //       },
+        //       child: const Text("Edit Profile",
+        //           style: TextStyle(
+        //             color: Colors.white,
+        //           )),
+        //     ),
+        //   ),
+        // ),
       ],
     ));
   }

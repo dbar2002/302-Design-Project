@@ -51,7 +51,7 @@ class _AddNewOrgScreenState extends State<AddNewOrgScreen> {
         leading: IconButton(
             onPressed: () {
               Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/selectMap', (route) => false);
+                  .pushNamedAndRemoveUntil('/userProf', (route) => false);
             },
             icon: Icon(
               Icons.arrow_back_ios,

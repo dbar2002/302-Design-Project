@@ -1,14 +1,14 @@
 import 'package:avandra/screens/add_new_org.dart';
-import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/screens/menu.dart';
 import 'package:avandra/screens/navigation_page.dart';
 import 'package:avandra/screens/select_map.dart';
 import 'package:avandra/screens/sign_in.dart';
 import 'package:avandra/screens/splash_page.dart';
+import 'package:avandra/screens/user_pins.dart';
+import 'package:avandra/screens/user_prof.dart';
 
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
-import '../screens/profile.dart';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -42,10 +42,11 @@ class MyApp extends StatelessWidget {
         '/Login': (context) => const LoginScreen(title: ''),
         '/SignUp': (context) => const SignUpScreen(),
         '/Menu': (context) => const MenuScreen(),
-        '/profile': (context) => const ProfilePage(),
+        '/userProf': (context) => UserProfPage(),
         '/nav': (context) => const NavScreen(),
         '/selectMap': (context) => const SelectMapScreen(),
         '/addNewOrg': (context) => const AddNewOrgScreen(),
+        '/pins': (context) => UserMarkersScreen(),
       },
     );
   }
