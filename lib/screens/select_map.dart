@@ -134,11 +134,7 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
                           return Container();
                         }),
                         Padding(padding: const EdgeInsets.only(top: 20),
-                child: BasicButton(
-                  text: "Add New Organization", 
-                  
-                  onPressed: () async {Navigator.of(context).pushNamedAndRemoveUntil('/addNewOrg', (route) => false);} 
-                )),
+                      ),
                     Padding(
                         padding: const EdgeInsets.only(top: 100, bottom: 25),
                         child: BasicButton(
