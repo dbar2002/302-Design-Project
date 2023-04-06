@@ -39,32 +39,24 @@ class _SavedPinsScreenState extends State<SavedPinsScreen> {
                 color: Colors.black,
                 size: 30,
               ),
-              title: Text('Home',
+              title: Text('',
                   style: TextStyle(color: Colors.black, fontSize: 23)),
-              onTap: () => Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/nav', (route) => false),
             ),
             ListTile(
               leading:
                   Icon(Icons.account_circle, color: Colors.black, size: 30),
-              title: Text('Profile',
+              title: Text('',
                   style: TextStyle(color: Colors.black, fontSize: 23)),
-              onTap: () => Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/profile', (route) => false),
             ),
             ListTile(
               leading: Icon(Icons.push_pin, color: Colors.black, size: 30),
-              title: Text('Pins',
+              title: Text('',
                   style: TextStyle(color: Colors.black, fontSize: 23)),
-              onTap: () => Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/pins', (route) => false),
             ),
             ListTile(
               leading: Icon(Icons.map_outlined, color: Colors.black, size: 30),
-              title: Text('Select Map',
+              title: Text('',
                   style: TextStyle(color: Colors.black, fontSize: 23)),
-              onTap: () => Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/selectMap', (route) => false),
             ),
             Divider(
               color: Colors.black,
@@ -72,7 +64,7 @@ class _SavedPinsScreenState extends State<SavedPinsScreen> {
             ),
             ListTile(
               leading: Icon(Icons.logout, color: Colors.black, size: 30),
-              title: Text('Log out',
+              title: Text('',
                   style: TextStyle(color: Colors.black, fontSize: 23)),
               onTap: () => AuthMethods().signOut(),
             ),
