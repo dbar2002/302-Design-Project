@@ -1,4 +1,5 @@
 import 'package:avandra/screens/add_new_org.dart';
+import 'package:avandra/screens/allNav.dart';
 import 'package:avandra/screens/menu.dart';
 import 'package:avandra/screens/navigation_page.dart';
 import 'package:avandra/screens/select_map.dart';
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
         '/SignUp': (context) => const SignUpScreen(),
         '/Menu': (context) => const MenuScreen(),
         '/userProf': (context) => UserProfPage(),
-        '/nav': (context) => const NavScreen(),
+        '/nav': (context) => const allNavScreen(), //FOR TEST PURPOSES
         '/selectMap': (context) => const SelectMapScreen(),
         '/addNewOrg': (context) => const AddNewOrgScreen(),
         '/pins': (context) => UserMarkersScreen(),
