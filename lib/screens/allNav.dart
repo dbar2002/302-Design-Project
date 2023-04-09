@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:avandra/screens/pin_details.dart';
 import 'package:avandra/utils/colors.dart';
 import 'package:avandra/widgets/search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -273,6 +275,61 @@ class _allNavScreenState extends State<allNavScreen>
               fontSize: regularTextSize,
               color: regularTextSizeColor,
               fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 16.0),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(FirebaseAuth.instance.currentUser?.uid)
+                  .collection('pins')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                final markers = snapshot.data!.docs.map((doc) {
+                  final data = doc.data();
+                  return MarkerData(data['latitude'], data['longitude'],
+                      data['title'], data['address']);
+                }).toList();
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  controller: scrollController,
+                  itemCount: markers.length,
+                  itemBuilder: (context, index) {
+                    final marker = markers[index];
+                    final markerId = MarkerId(marker.title);
+                    final googleMarker = Marker(
+                      markerId: markerId,
+                      position: LatLng(marker.latitude, marker.longitude),
+                      infoWindow: InfoWindow(
+                          title: marker.title, snippet: marker.address),
+                    );
+                    return GestureDetector(
+                      onTap: () {
+                        // Navigate to the map marker details screen
+                        setState(() {
+                          _destinationLatitude = marker.latitude;
+                          _destinationLongitude = marker.longitude;
+                          _selectedMarkerName = marker.title;
+                          destinationAddressController.text = marker.title;
+                          _destinationAddress = marker.address;
+                        });
+                      },
+                      child: Text(marker.title,
+                          style: GoogleFonts.montserrat(
+                            fontSize: titleSize,
+                            color: regularTextSizeColor,
+                          )),
+                    );
+                  },
+                );
+              },
             ),
           ),
           SizedBox(height: 16.0),
@@ -609,6 +666,29 @@ class _allNavScreenState extends State<allNavScreen>
         .toList();
     mapMarkersStreamController.add(mapMarkers);
     _selectedMarkerName = null;
+  }
+
+  Future<List<Marker>> getUserMarkers() async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get();
+    QuerySnapshot snapshot = await userDoc.reference.collection('pins').get();
+    List<MarkerData> markerDataList = snapshot.docs
+        .map((doc) => MarkerData(
+              doc['latitude'],
+              doc['longitude'],
+              doc['title'],
+              doc['address'],
+            ))
+        .toList();
+    return markerDataList
+        .map((markerData) => Marker(
+              markerId: MarkerId(markerData.title),
+              position: LatLng(markerData.latitude, markerData.longitude),
+              infoWindow: InfoWindow(title: markerData.title),
+            ))
+        .toList();
   }
 
   //For navigation
