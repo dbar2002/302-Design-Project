@@ -214,6 +214,67 @@ class _allNavScreenState extends State<allNavScreen>
     );
   }
 
+  void _onMapTapped(LatLng position) async {
+    String title = await _getPinAddress(position);
+    String address = await _getPinAddress(position);
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Name Your Pin'),
+          content: Column(
+            children: [
+              Text("Current pin name: $title"),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    title = value;
+                  });
+                },
+                decoration: InputDecoration(hintText: 'Text'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('CANCEL'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () async {
+                MarkerData markerData = MarkerData(
+                    position.latitude, position.longitude, title, address);
+                await addUserPin(markerData);
+                Navigator.of(context).pop();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Pin Created!'),
+                      content: Text('You have successfully created a pin'),
+                      actions: [
+                        TextButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+                setState(() {});
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   //Everything regarding USER DATA
   late String CBURole = "Test";
   void access() async {
@@ -481,7 +542,7 @@ class _allNavScreenState extends State<allNavScreen>
             children: <Widget>[
               GoogleMap(
                 onTap: (latLng) {
-                  //_onMapTapped(latLng);
+                  _onMapTapped(latLng);
                 },
                 markers: Set<Marker>.from(markers),
                 initialCameraPosition: _initialLocation,
@@ -716,8 +777,13 @@ class _allNavScreenState extends State<allNavScreen>
       double startLongitude = _currentPosition.longitude;
       */
 
+      print(startLatitude);
+      print(startLongitude);
+
       double destinationLatitude = _destinationLatitude;
       double destinationLongitude = _destinationLongitude;
+      print(_destinationLatitude);
+      print(_destinationLongitude);
 
       String startCoordinatesString = '($startLatitude, $startLongitude)';
       String destinationCoordinatesString =
