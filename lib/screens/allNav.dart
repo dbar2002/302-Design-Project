@@ -358,37 +358,53 @@ class _allNavScreenState extends State<allNavScreen>
                   return MarkerData(data['latitude'], data['longitude'],
                       data['title'], data['address']);
                 }).toList();
-                return ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  controller: scrollController,
-                  itemCount: markers.length,
-                  itemBuilder: (context, index) {
-                    final marker = markers[index];
-                    final markerId = MarkerId(marker.title);
-                    final googleMarker = Marker(
-                      markerId: markerId,
-                      position: LatLng(marker.latitude, marker.longitude),
-                      infoWindow: InfoWindow(
-                          title: marker.title, snippet: marker.address),
-                    );
-                    return GestureDetector(
-                      onTap: () {
-                        // Navigate to the map marker details screen
-                        setState(() {
-                          _destinationLatitude = marker.latitude;
-                          _destinationLongitude = marker.longitude;
-                          _selectedMarkerName = marker.title;
-                          destinationAddressController.text = marker.title;
-                          _destinationAddress = marker.address;
-                        });
-                      },
-                      child: Text(marker.title,
-                          style: GoogleFonts.montserrat(
-                            fontSize: titleSize,
-                            color: regularTextSizeColor,
-                          )),
-                    );
-                  },
+                return Container(
+                  height: 50.0,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    controller: scrollController,
+                    itemCount: markers.length,
+                    itemBuilder: (context, index) {
+                      final marker = markers[index];
+                      final markerId = MarkerId(marker.title);
+                      final googleMarker = Marker(
+                        markerId: markerId,
+                        position: LatLng(marker.latitude, marker.longitude),
+                        infoWindow: InfoWindow(
+                            title: marker.title, snippet: marker.address),
+                      );
+                      return GestureDetector(
+                        onTap: () {
+                          // Navigate to the map marker details screen
+                          setState(() {
+                            _destinationLatitude = marker.latitude;
+                            _destinationLongitude = marker.longitude;
+                            _selectedMarkerName = marker.title;
+                            destinationAddressController.text = marker.title;
+                            _destinationAddress = marker.address;
+                          });
+                        },
+                        child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.pin_drop,
+                                  color: Colors.black,
+                                ),
+                                Text(
+                                  marker.title,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: titleSize,
+                                    color: regularTextSizeColor,
+                                  ),
+                                ),
+                              ],
+                            )),
+                      );
+                    },
+                  ),
                 );
               },
             ),
