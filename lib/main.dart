@@ -10,7 +10,6 @@ import 'package:avandra/screens/user_prof.dart';
 
 import '../utils/colors.dart';
 import '../screens/sign_up.dart';
-import '../screens/profile.dart';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
