@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:avandra/screens/pin_details.dart';
 import 'package:avandra/utils/colors.dart';
@@ -7,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,6 +17,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:map_launcher/map_launcher.dart' as mapLauch;
 
 import '../model/markers.dart';
+import '../resources/secrets.dart';
 import '../utils/fonts.dart';
 
 class allNavScreen extends StatefulWidget {
@@ -63,6 +66,13 @@ class _allNavScreenState extends State<allNavScreen>
   final StreamController<List<MarkerData>> mapMarkersStreamController =
       StreamController<List<MarkerData>>.broadcast();
   final TextEditingController _searchController = TextEditingController();
+
+  //Polylines
+  String? _placeDistance;
+  late PolylinePoints polylinePoints;
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
+  bool distanceCalced = false;
 
   //init state for the whole app
   @override
@@ -446,14 +456,35 @@ class _allNavScreenState extends State<allNavScreen>
                 });
               }),
           SizedBox(height: 10),
+          Visibility(
+            visible: _placeDistance == null ? false : true,
+            child: Text(
+              'DISTANCE: $_placeDistance km',
+              style: GoogleFonts.montserrat(
+                fontSize: regularTextSize,
+                color: regularTextSizeColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(height: 5),
           ElevatedButton(
             onPressed: (_startAddress != '' && _destinationAddress != '')
                 ? () async {
                     startAddressFocusNode.unfocus();
                     desrinationAddressFocusNode.unfocus();
 
-                    _navToRoute().then((isCalculated) {
+                    setState(() {
+                      if (markers.isNotEmpty) markers.clear();
+                      if (polylines.isNotEmpty) polylines.clear();
+                      if (polylineCoordinates.isNotEmpty)
+                        polylineCoordinates.clear();
+                      _placeDistance = null;
+                    });
+
+                    _calculateDistance().then((isCalculated) {
                       if (isCalculated) {
+                        distanceCalced = true;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Distance Calculated Sucessfully'),
@@ -463,6 +494,55 @@ class _allNavScreenState extends State<allNavScreen>
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Error Calculating Distance'),
+                          ),
+                        );
+                      }
+                    });
+                  }
+                : null,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Calculate Distance'.toUpperCase(),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                ),
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              primary: buttonColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+            ),
+          ),
+          SizedBox(height: 5),
+          ElevatedButton(
+            onPressed: (_startAddress != '' &&
+                    _destinationAddress != '' &&
+                    distanceCalced != false)
+                ? () async {
+                    startAddressFocusNode.unfocus();
+                    desrinationAddressFocusNode.unfocus();
+
+                    setState(() {
+                      distanceCalced = false;
+                      _placeDistance = null;
+                    });
+
+                    launch().then((isCalculated) {
+                      if (isCalculated) {
+                        distanceCalced = true;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Launched Sucessfully'),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error Launching'),
                           ),
                         );
                       }
@@ -565,6 +645,7 @@ class _allNavScreenState extends State<allNavScreen>
                 myLocationEnabled: true,
                 mapType: MapType.normal,
                 zoomGesturesEnabled: true,
+                polylines: Set<Polyline>.of(polylines.values),
                 zoomControlsEnabled: false,
                 onMapCreated: (GoogleMapController controller) {
                   mapController = controller;
@@ -770,28 +851,28 @@ class _allNavScreenState extends State<allNavScreen>
 
   //For navigation
   // Method for calculating the distance between two places
-  Future<bool> _navToRoute() async {
+  Future<bool> _calculateDistance() async {
     try {
       // Use the retrieved coordinates of the current position,
       // instead of the address if the start position is user's
       // current position, as it results in better accuracy.
       // _getCurrentLocation();
-      List<Location> startPlacemark = await locationFromAddress(_startAddress);
+      //List<Location> startPlacemark = await locationFromAddress(_startAddress);
 
       // Use the retrieved coordinates of the current position,
       // instead of the address if the start position is user's
       // current position, as it results in better accuracy.
-      double startLatitude = _startAddress == _currentAddress
+      /*double startLatitude = _startAddress == _currentAddress
           ? _currentPosition.latitude
           : startPlacemark[0].latitude;
 
       double startLongitude = _startAddress == _currentAddress
           ? _currentPosition.longitude
           : startPlacemark[0].longitude;
-      /*double startLatitude = _currentPosition.latitude;
+          */
+      double startLatitude = _currentPosition.latitude;
 
       double startLongitude = _currentPosition.longitude;
-      */
 
       print(startLatitude);
       print(startLongitude);
@@ -871,23 +952,98 @@ class _allNavScreenState extends State<allNavScreen>
         ),
       );
 
+      await _createPolylines(startLatitude, startLongitude, destinationLatitude,
+          destinationLongitude);
+
       double totalDistance = 0.0;
 
-      final availableMaps = await mapLauch.MapLauncher.installedMaps;
-      print(availableMaps);
+      // Calculating the total distance by adding the distance
+      // between small segments
+      for (int i = 0; i < polylineCoordinates.length - 1; i++) {
+        totalDistance += _coordinateDistance(
+          polylineCoordinates[i].latitude,
+          polylineCoordinates[i].longitude,
+          polylineCoordinates[i + 1].latitude,
+          polylineCoordinates[i + 1].longitude,
+        );
+      }
 
-      await availableMaps.first.showDirections(
-          destination:
-              mapLauch.Coords(_destinationLatitude, _destinationLongitude),
-          originTitle: "My Location",
-          origin: /* mapLauch.Coords(
-              _currentPosition.latitude, _currentPosition.longitude)*/
-              mapLauch.Coords(startLatitude, startLongitude),
-          directionsMode: mapLauch.DirectionsMode.walking);
+      setState(() {
+        _placeDistance = totalDistance.toStringAsFixed(2);
+        print('DISTANCE: $_placeDistance km');
+      });
+/*
+       */
       return true;
     } catch (e) {
       print(e);
     }
     return false;
+  }
+
+  Future<bool> launch() async {
+    final availableMaps = await mapLauch.MapLauncher.installedMaps;
+    double startLatitude = _currentPosition.latitude;
+
+    double startLongitude = _currentPosition.longitude;
+
+    print(startLatitude);
+    print(startLongitude);
+
+    double destinationLatitude = _destinationLatitude;
+    double destinationLongitude = _destinationLongitude;
+    print(availableMaps);
+
+    await availableMaps.first.showDirections(
+        destination:
+            mapLauch.Coords(_destinationLatitude, _destinationLongitude),
+        originTitle: "My Location",
+        origin: /* mapLauch.Coords(
+              _currentPosition.latitude, _currentPosition.longitude)*/
+            mapLauch.Coords(startLatitude, startLongitude),
+        directionsMode: mapLauch.DirectionsMode.walking);
+    return true;
+  }
+
+  // Formula for calculating distance between two coordinates
+  // https://stackoverflow.com/a/54138876/11910277
+  double _coordinateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
+
+  // Create the polylines for showing the route between two places
+  _createPolylines(
+    double startLatitude,
+    double startLongitude,
+    double destinationLatitude,
+    double destinationLongitude,
+  ) async {
+    polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      Secrets.API_KEY, // Google Maps API Key
+      PointLatLng(startLatitude, startLongitude),
+      PointLatLng(destinationLatitude, destinationLongitude),
+      travelMode: TravelMode.transit,
+    );
+
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+
+    PolylineId id = PolylineId('poly');
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.red,
+      points: polylineCoordinates,
+      width: 3,
+    );
+    polylines[id] = polyline;
   }
 }
