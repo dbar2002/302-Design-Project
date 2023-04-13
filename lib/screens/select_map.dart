@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:avandra/assets/org_parser.dart';
-import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/widgets/basic_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -135,15 +134,7 @@ class _SelectMapScreenState extends State<SelectMapScreen> {
                           return Container();
                         }),
                     Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: BasicButton(
-                            text: "Add New Organization",
-                            onPressed: () async {
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                  '/addNewOrg', (route) => false);
-                            })),
-                    Padding(
-                        padding: const EdgeInsets.only(top: 50, bottom: 25),
+                        padding: const EdgeInsets.only(top: 100, bottom: 25),
                         child: BasicButton(
                             text: "Continue",
                             onPressed: () async {

@@ -1,4 +1,3 @@
-import 'package:avandra/screens/edit_profile.dart';
 import 'package:avandra/screens/home.dart';
 import 'package:avandra/screens/pin_details.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,7 +16,7 @@ class UserProfPage extends StatefulWidget {
   _UserProfPageState createState() => _UserProfPageState();
 }
 
-enum MenuAction { logout, editProf }
+enum MenuAction { logout }
 
 class _UserProfPageState extends State<UserProfPage>
     with TickerProviderStateMixin {
@@ -37,6 +36,98 @@ class _UserProfPageState extends State<UserProfPage>
 
   @override
   Widget build(BuildContext context) {
+    void _onMarkerLongPress(MarkerData marker) async {
+      final value = await showMenu(
+        context: context,
+        position: RelativeRect.fromLTRB(0, 0, 0, 0),
+        items: [
+          PopupMenuItem(
+            value: 'edit',
+            child: Text('Edit Pin'),
+          ),
+          PopupMenuItem(
+            value: 'delete',
+            child: Text('Delete Pin'),
+          ),
+        ],
+      );
+
+      if (value == 'edit') {
+        showDialog(
+            context: context,
+            builder: (context) {
+              String newTitle = marker.title;
+              return AlertDialog(
+                title: Text('Edit Pin'),
+                content: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                  ),
+                  onChanged: (value) => newTitle = value,
+                  controller: TextEditingController(text: marker.title),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final collectionRef = FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(FirebaseAuth.instance.currentUser?.uid)
+                          .collection('pins');
+                      final query = collectionRef
+                          .where('latitude', isEqualTo: marker.latitude)
+                          .where('longitude', isEqualTo: marker.longitude);
+                      final snapshot = await query.get();
+                      if (snapshot.docs.isNotEmpty) {
+                        // Update the document in Firestore
+                        final docId = snapshot.docs[0].id;
+                        await collectionRef.doc(docId).update({
+                          'title': newTitle,
+                        });
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: Text('Save'),
+                  )
+                ],
+              );
+            });
+      } else if (value == 'delete') {
+        // Find the document with the matching latitude and longitude values
+        final collectionRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .collection('pins');
+        final query = collectionRef
+            .where('latitude', isEqualTo: marker.latitude)
+            .where('longitude', isEqualTo: marker.longitude);
+        final snapshot = await query.get();
+
+        if (snapshot.docs.isNotEmpty) {
+          // Delete the document from Firestore
+          final docId = snapshot.docs[0].id;
+          await collectionRef.doc(docId).delete();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('Pin deleted.'),
+              action: SnackBarAction(
+                  label: 'UNDO',
+                  onPressed: () async {
+                    collectionRef.add({
+                      'latitude': marker.latitude,
+                      'longitude': marker.longitude,
+                      'title': marker.title,
+                      'address': marker.address,
+                    });
+                  })));
+        }
+      }
+    }
+
     final User? user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
@@ -65,10 +156,6 @@ class _UserProfPageState extends State<UserProfPage>
                         .pushNamedAndRemoveUntil('/Login', (route) => false);
                   }
                   break;
-                case MenuAction.editProf:
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/editProf', (route) => false);
-                  break;
               }
             },
             itemBuilder: (context) {
@@ -77,8 +164,6 @@ class _UserProfPageState extends State<UserProfPage>
                   value: MenuAction.logout,
                   child: Text('Logout'),
                 ),
-                PopupMenuItem<MenuAction>(
-                    value: MenuAction.editProf, child: Text('Edit Profile')),
               ];
             },
           )
@@ -251,6 +336,9 @@ class _UserProfPageState extends State<UserProfPage>
                                       snippet: marker.address),
                                 );
                                 return GestureDetector(
+                                  onLongPress: () {
+                                    _onMarkerLongPress(marker);
+                                  },
                                   onTap: () {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
