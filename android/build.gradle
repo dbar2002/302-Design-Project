@@ -6,6 +6,10 @@ buildscript {
     }
 
     dependencies {
+        //adds WindowManager library to fix app crashing
+        // implementation 'androidx.window:window:1.0.0'
+        // implementation 'androidx.window:window-java:1.0.0'
+        classpath 'com.android.tools.build:gradle:4.2.2'
         classpath 'com.android.tools.build:gradle:7.2.0'
         // START: FlutterFire Configuration
         classpath 'com.google.gms:google-services:4.3.10'

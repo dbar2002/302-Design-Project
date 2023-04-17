@@ -7,8 +7,10 @@ import 'package:avandra/widgets/search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geofence_service/geofence_service.dart' as fence;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -16,6 +18,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:map_launcher/map_launcher.dart' as mapLauch;
 
 import '../model/markers.dart';
+import '../resources/notifcation_service.dart';
 import '../resources/secrets.dart';
 import '../utils/fonts.dart';
 
@@ -72,13 +75,145 @@ class _allNavScreenState extends State<allNavScreen>
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   bool distanceCalced = false;
+  final notificationService = NotificationService();
+
+  //Geofencing
+  final _activityStreamController = StreamController<fence.Activity>();
+  final _geofenceStreamController = StreamController<fence.Geofence>();
+  // Create a [Geofence] list.
+  final _geofenceList = <fence.Geofence>[];
+
+  // Create a [GeofenceService] instance and set options.
+  final _geofenceService = fence.GeofenceService.instance.setup(
+      interval: 5000,
+      accuracy: 100,
+      loiteringDelayMs: 60000,
+      statusChangeDelayMs: 10000,
+      useActivityRecognition: true,
+      allowMockLocations: false,
+      printDevLog: false,
+      geofenceRadiusSortType: fence.GeofenceRadiusSortType.DESC);
+
+  // This function is to be called when the geofence status is changed.
+  Future<void> _onGeofenceStatusChanged(
+      fence.Geofence geofence,
+      fence.GeofenceRadius geofenceRadius,
+      fence.GeofenceStatus geofenceStatus,
+      fence.Location location) async {
+    _geofenceStreamController.sink.add(geofence);
+    double distanceInMeters = _coordinateDistance(
+      location.latitude,
+      location.longitude,
+      geofence.latitude,
+      geofence.longitude,
+    );
+    print(distanceInMeters);
+    int floor = getRoomNumber();
+    if (distanceInMeters <= 1.524) {
+      // send a notification
+      await notificationService.showNotification(
+        title: 'You have arrived!',
+        body: 'Welcome!',
+      );
+      _geofenceList.clear();
+    } else if (distanceInMeters <= 3.048) {
+      // 10 feet = 3.048 meters
+      await notificationService.showNotification(
+        title: 'Nearly There',
+        body: 'Floor: $floor',
+      );
+    }
+  }
+
+  int getRoomNumber() {
+    String roomName = destinationAddressController.text;
+    RegExp regExp = RegExp(r'\d+');
+    int floor = int.parse(regExp.stringMatch(roomName)!);
+    return floor; // Output: 1
+  }
+
+  // This function is to be called when the activity has changed.
+  void _onActivityChanged(
+      fence.Activity prevActivity, fence.Activity currActivity) {
+    print('prevActivity: ${prevActivity.toJson()}');
+    print('currActivity: ${currActivity.toJson()}');
+    _activityStreamController.sink.add(currActivity);
+  }
+
+  // This function is to be called when the location has changed.
+  void _onLocationChanged(fence.Location location) {
+    print('location: ${location.toJson()}');
+  }
+
+  // This function is to be called when a location services status change occurs
+  // since the service was started.
+  void _onLocationServicesStatusChanged(bool status) {
+    print('isLocationServicesEnabled: $status');
+  }
+
+  // This function is used to handle errors that occur in the service.
+  void _onError(error) {
+    final errorCode = fence.getErrorCodesFromError(error);
+    if (errorCode == null) {
+      print('Undefined error: $error');
+      return;
+    }
+
+    print('ErrorCode: $errorCode');
+  }
+
+  Future _addGeofence() async {
+    // get the user's current location
+    final currentPosition = await _getCurrentLocation();
+
+    // create the geofence
+    final geofence = fence.Geofence(
+      id: 'place_2',
+      latitude: _destinationLatitude,
+      longitude: _destinationLongitude,
+      radius: [
+        fence.GeofenceRadius(id: 'radius_2m', length: 2),
+      ],
+    );
+
+    // add the geofence to the list and to the service
+    _geofenceList.add(geofence);
+    _geofenceService.addGeofence(geofence);
+
+    // show a success message
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Geofence added.'),
+      duration: Duration(seconds: 2),
+    ));
+  }
+
+  void _removeGeofenceById(String geofenceId) {
+    int index =
+        _geofenceList.indexWhere((geofence) => geofence.id == geofenceId);
+    if (index != -1) {
+      _geofenceList.removeAt(index);
+      _geofenceService.start(_geofenceList).catchError(_onError);
+    }
+  }
 
   //init state for the whole app
   @override
   void initState() {
     access();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _geofenceService
+          .addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
+      _geofenceService.addLocationChangeListener(_onLocationChanged);
+      _geofenceService.addLocationServicesStatusChangeListener(
+          _onLocationServicesStatusChanged);
+      _geofenceService.addActivityChangeListener(_onActivityChanged);
+      _geofenceService.addStreamErrorListener(_onError);
+      _geofenceService.start(_geofenceList).catchError(_onError);
+    });
     _getCurrentLocation();
     _getAddress();
+    _getMarkersFromFirestore();
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     _animation =
@@ -90,6 +225,8 @@ class _allNavScreenState extends State<allNavScreen>
   void dispose() {
     destinationAddressController.dispose();
     startAddressController.dispose();
+    _activityStreamController.close();
+    _geofenceStreamController.close();
     super.dispose();
   }
 
@@ -98,7 +235,7 @@ class _allNavScreenState extends State<allNavScreen>
     return Scaffold(
       body: SlidingUpPanel(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
-        minHeight: 80.0,
+        minHeight: 200.0,
         parallaxEnabled: true,
         parallaxOffset: 0.5,
         borderRadius: BorderRadius.only(
@@ -315,6 +452,236 @@ class _allNavScreenState extends State<allNavScreen>
     });
   }
 
+//FIX ME FIX ME FIX ME
+
+  Future<void> addReportPin(MarkerData marker) {
+    CollectionReference pinsCollection =
+        FirebaseFirestore.instance.collection("Reports");
+
+    String markerId =
+        '($_currentPosition.latitude, $_currentPosition.longitude)';
+    Marker reportMarker = Marker(
+      markerId: MarkerId(markerId),
+      position: LatLng(_currentPosition.latitude, _currentPosition.longitude),
+      onTap: () => _onMarkerTapped(MarkerId(markerId)),
+      infoWindow: InfoWindow(
+        title: 'Start $markerId',
+        snippet: _startAddress,
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+    );
+    markers.add(reportMarker);
+    return pinsCollection.add({
+      'latitude': marker.latitude,
+      'longitude': marker.longitude,
+      'title': marker.title,
+      'address': marker.address,
+    });
+  }
+
+  void _onMarkerTapped(MarkerId markerId) {
+    Marker marker =
+        markers.where((marker) => marker.markerId == markerId).first;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Clear Report'),
+          content: Text(
+              'Are you sure you want to delete this report? It will remove it for all users.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () async {
+                await deleteReport(markerId);
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteReport(MarkerId markerId) async {
+    Marker marker =
+        markers.where((marker) => marker.markerId == markerId).first;
+    final collectionRef = FirebaseFirestore.instance.collection('Reports');
+    final query = collectionRef
+        .where('latitude', isEqualTo: marker.position.latitude)
+        .where('longitude', isEqualTo: marker.position.longitude);
+    final snapshot = await query.get();
+
+    if (snapshot.docs.isNotEmpty) {
+      // Delete the document from Firestore
+      final docId = snapshot.docs[0].id;
+      await collectionRef.doc(docId).delete();
+    }
+    // Update the state to remove the marker from the map
+    setState(() {
+      markers.removeWhere((marker) => marker.markerId == markerId);
+    });
+  }
+
+  void createReport(double latitude, double longitude) async {
+    LatLng position = LatLng(latitude, longitude);
+    int _selectedReport = 0;
+    String? reportName;
+    String address = await _getPinAddress(position);
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Report an Issue'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(children: <Widget>[
+                RadioListTile(
+                  value: 1,
+                  title: Text("General Hazard"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "General Hazard";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 2,
+                  title: Text("Weather"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Weather";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 3,
+                  title: Text("Traffic"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Traffic";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 4,
+                  title: Text("Event"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Event";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 5,
+                  title: Text("Suspicious Person"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Suspicious Person";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 6,
+                  title: Text("Other"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Other";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+              ]);
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('CANCEL'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('REPORT'),
+              onPressed: () async {
+                MarkerData markerData =
+                    MarkerData(latitude, longitude, reportName!, address);
+                await addReportPin(markerData);
+                Navigator.of(context).pop();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Report Created!'),
+                      content: Text('You have successfully created a report'),
+                      actions: [
+                        TextButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+                setState(() {});
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _getMarkersFromFirestore() async {
+    final CollectionReference markersCollection =
+        FirebaseFirestore.instance.collection('Reports');
+    final QuerySnapshot querySnapshot = await markersCollection.get();
+
+    setState(() {
+      markers = querySnapshot.docs.map((doc) {
+        final title = doc.get('title');
+        final address = doc.get('address');
+        final latitude = doc.get('latitude');
+        final longitude = doc.get('longitude');
+        String markerId = '($latitude, $longitude';
+        final marker = Marker(
+          markerId: MarkerId(markerId),
+          onTap: () => _onMarkerTapped(MarkerId(markerId)),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+          position: LatLng(latitude, longitude),
+          infoWindow: InfoWindow(title: title, snippet: address),
+        );
+        return marker;
+      }).toSet();
+    });
+  }
+
   //For the scrolling panel
   Widget _buildScrollableSheet(ScrollController scrollController) {
     var height = MediaQuery.of(context).size.height;
@@ -340,7 +707,7 @@ class _allNavScreenState extends State<allNavScreen>
         padding: EdgeInsets.all(16.0),
         children: [
           Text(
-            'Go Places',
+            'Travel With Ease',
             style: GoogleFonts.montserrat(
               fontSize: regularTextSize,
               color: regularTextSizeColor,
@@ -719,6 +1086,27 @@ class _allNavScreenState extends State<allNavScreen>
                         child: Material(
                           color: buttonColor, // button color
                           child: InkWell(
+                            splashColor: Colors.redAccent, // inkwell color
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Icon(Icons.access_alarm),
+                            ),
+                            onTap: () {
+                              _getCurrentLocation();
+                              createReport(
+                                _currentPosition.latitude,
+                                _currentPosition.longitude,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ClipOval(
+                        child: Material(
+                          color: buttonColor, // button color
+                          child: InkWell(
                             splashColor: buttonColor, // inkwell color
                             child: SizedBox(
                               width: 56,
@@ -794,6 +1182,7 @@ class _allNavScreenState extends State<allNavScreen>
 
   //Search functionality
   void searchMapMarkers(String searchQuery) async {
+    searchQuery = searchQuery.toUpperCase();
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('CBUClassRooms')
         .where('title', isGreaterThanOrEqualTo: searchQuery)
@@ -992,7 +1381,11 @@ class _allNavScreenState extends State<allNavScreen>
     double destinationLatitude = _destinationLatitude;
     double destinationLongitude = _destinationLongitude;
     print(availableMaps);
-
+    await _addGeofence();
+    await notificationService.showNotification(
+      title: 'You have started your navigation',
+      body: 'Travel With Ease',
+    );
     await availableMaps.first.showDirections(
         destination:
             mapLauch.Coords(_destinationLatitude, _destinationLongitude),
