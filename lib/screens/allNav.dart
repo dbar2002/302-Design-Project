@@ -80,6 +80,7 @@ class _allNavScreenState extends State<allNavScreen>
     access();
     _getCurrentLocation();
     _getAddress();
+    _getMarkersFromFirestore();
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     _animation =
@@ -99,7 +100,7 @@ class _allNavScreenState extends State<allNavScreen>
     return Scaffold(
       body: SlidingUpPanel(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
-        minHeight: 80.0,
+        minHeight: 200.0,
         parallaxEnabled: true,
         parallaxOffset: 0.5,
         borderRadius: BorderRadius.only(
@@ -316,6 +317,235 @@ class _allNavScreenState extends State<allNavScreen>
     });
   }
 
+//FIX ME FIX ME FIX ME
+
+  Future<void> addReportPin(MarkerData marker) {
+    CollectionReference pinsCollection =
+        FirebaseFirestore.instance.collection("Reports");
+
+    String markerId =
+        '($_currentPosition.latitude, $_currentPosition.longitude)';
+    Marker reportMarker = Marker(
+      markerId: MarkerId(markerId),
+      position: LatLng(_currentPosition.latitude, _currentPosition.longitude),
+      onTap: () => _onMarkerTapped(MarkerId(markerId)),
+      infoWindow: InfoWindow(
+        title: 'Start $markerId',
+        snippet: _startAddress,
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+    );
+    markers.add(reportMarker);
+    return pinsCollection.add({
+      'latitude': marker.latitude,
+      'longitude': marker.longitude,
+      'title': marker.title,
+      'address': marker.address,
+    });
+  }
+
+  void _onMarkerTapped(MarkerId markerId) {
+    Marker marker =
+        markers.where((marker) => marker.markerId == markerId).first;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Clear Report'),
+          content: Text(
+              'Are you sure you want to delete this report? It will remove it for all users.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () async {
+                await deleteReport(markerId);
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+Future<void> deleteReport(MarkerId markerId) async {
+   Marker marker =
+        markers.where((marker) => marker.markerId == markerId).first;
+  final collectionRef = FirebaseFirestore.instance.collection('Reports');
+  final query = collectionRef
+      .where('latitude', isEqualTo: marker.position.latitude)
+      .where('longitude', isEqualTo: marker.position.longitude);
+  final snapshot = await query.get();
+
+  if (snapshot.docs.isNotEmpty) {
+    // Delete the document from Firestore
+    final docId = snapshot.docs[0].id;
+    await collectionRef.doc(docId).delete();
+  }
+  // Update the state to remove the marker from the map
+  setState(() {
+    markers.removeWhere((marker) => marker.markerId == markerId);
+  });
+}
+  void createReport(double latitude, double longitude) async {
+    LatLng position = LatLng(latitude, longitude);
+    int _selectedReport = 0;
+    String? reportName;
+    String address = await _getPinAddress(position);
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Report an Issue'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(children: <Widget>[
+                RadioListTile(
+                  value: 1,
+                  title: Text("General Hazard"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "General Hazard";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 2,
+                  title: Text("Weather"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Weather";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 3,
+                  title: Text("Traffic"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Traffic";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 4,
+                  title: Text("Event"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Event";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 5,
+                  title: Text("Suspicious Person"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Suspicious Person";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+                RadioListTile(
+                  value: 6,
+                  title: Text("Other"),
+                  groupValue: _selectedReport,
+                  activeColor: Colors.green,
+                  onChanged: (val) {
+                    setState(() {
+                      reportName = "Other";
+                      _selectedReport = val!;
+                    });
+                  },
+                ),
+              ]);
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('CANCEL'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('REPORT'),
+              onPressed: () async {
+                MarkerData markerData =
+                    MarkerData(latitude, longitude, reportName!, address);
+                await addReportPin(markerData);
+                Navigator.of(context).pop();
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Report Created!'),
+                      content: Text('You have successfully created a report'),
+                      actions: [
+                        TextButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+                setState(() {});
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _getMarkersFromFirestore() async {
+    final CollectionReference markersCollection =
+        FirebaseFirestore.instance.collection('Reports');
+    final QuerySnapshot querySnapshot = await markersCollection.get();
+
+    setState(() {
+      markers = querySnapshot.docs.map((doc) {
+        final title = doc.get('title');
+        final address = doc.get('address');
+        final latitude = doc.get('latitude');
+        final longitude = doc.get('longitude');
+        String markerId = '($latitude, $longitude';
+        final marker = Marker(
+          markerId: MarkerId(markerId),
+          onTap: () => _onMarkerTapped(MarkerId(markerId)),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+          position: LatLng(latitude, longitude),
+          infoWindow: InfoWindow(title: title, snippet: address),
+        );
+        return marker;
+      }).toSet();
+    });
+  }
+
   //For the scrolling panel
   Widget _buildScrollableSheet(ScrollController scrollController) {
     var height = MediaQuery.of(context).size.height;
@@ -341,7 +571,7 @@ class _allNavScreenState extends State<allNavScreen>
         padding: EdgeInsets.all(16.0),
         children: [
           Text(
-            'Go Places',
+            'Travel With Ease',
             style: GoogleFonts.montserrat(
               fontSize: regularTextSize,
               color: regularTextSizeColor,
@@ -710,6 +940,27 @@ class _allNavScreenState extends State<allNavScreen>
                                     zoom: 18.0,
                                   ),
                                 ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ClipOval(
+                        child: Material(
+                          color: buttonColor, // button color
+                          child: InkWell(
+                            splashColor: Colors.redAccent, // inkwell color
+                            child: SizedBox(
+                              width: 56,
+                              height: 56,
+                              child: Icon(Icons.access_alarm),
+                            ),
+                            onTap: () {
+                              _getCurrentLocation();
+                              createReport(
+                                _currentPosition.latitude,
+                                _currentPosition.longitude,
                               );
                             },
                           ),
