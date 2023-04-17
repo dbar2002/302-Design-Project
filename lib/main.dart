@@ -1,3 +1,4 @@
+import 'package:avandra/resources/notifcation_service.dart';
 import 'package:avandra/screens/add_new_org.dart';
 import 'package:avandra/screens/allNav.dart';
 import 'package:avandra/screens/edit_profile.dart';
@@ -14,6 +15,7 @@ import '../screens/sign_up.dart';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 Future<void> main() async {
   //This following will be uncommented when we add firebase, but it is here
@@ -21,6 +23,7 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await NotificationService().init();
   runApp(const MyApp());
 }
 

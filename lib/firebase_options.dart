@@ -62,15 +62,16 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAC2o_33YwfY8-Ix3OtD_v-Clxyq-uAFQM',
-    appId: '1:53447629858:ios:8b40a1a02a7ad99c567e7b',
-    messagingSenderId: '53447629858',
-    projectId: 'avandra2023',
-    storageBucket: 'avandra2023.appspot.com',
-    androidClientId: '53447629858-jjqvdoqttq4d3fik7n0dlu893oklsri3.apps.googleusercontent.com',
-    iosClientId: '53447629858-s64futdc1r552lamrsn1pd391tr449a1.apps.googleusercontent.com',
-    iosBundleId: 'com.example.avandra',
-  );
+      apiKey: 'AIzaSyAC2o_33YwfY8-Ix3OtD_v-Clxyq-uAFQM',
+      appId: '1:53447629858:ios:3b3674138ca247d0567e7b',
+      messagingSenderId: '53447629858',
+      projectId: 'avandra2023',
+      storageBucket: 'avandra2023.appspot.com',
+      androidClientId:
+          '53447629858-jjqvdoqttq4d3fik7n0dlu893oklsri3.apps.googleusercontent.com',
+      iosClientId:
+          '53447629858-7uqe10at2occmgn88gq9eb96jg3s67i2.apps.googleusercontent.com',
+      iosBundleId: 'com.v2.avandra');
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAC2o_33YwfY8-Ix3OtD_v-Clxyq-uAFQM',
@@ -78,8 +79,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '53447629858',
     projectId: 'avandra2023',
     storageBucket: 'avandra2023.appspot.com',
-    androidClientId: '53447629858-jjqvdoqttq4d3fik7n0dlu893oklsri3.apps.googleusercontent.com',
-    iosClientId: '53447629858-s64futdc1r552lamrsn1pd391tr449a1.apps.googleusercontent.com',
+    androidClientId:
+        '53447629858-jjqvdoqttq4d3fik7n0dlu893oklsri3.apps.googleusercontent.com',
+    iosClientId:
+        '53447629858-s64futdc1r552lamrsn1pd391tr449a1.apps.googleusercontent.com',
     iosBundleId: 'com.example.avandra',
   );
 }

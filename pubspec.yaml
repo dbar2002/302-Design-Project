@@ -29,14 +29,15 @@ dependencies:
   cloud_functions: ^4.0.13
   cupertino_icons: ^1.0.5
   geolocator: ^7.0.3
-  geocoding: ^2.1.0
-  location: ^4.4.0
+  geocoding: ^2.0.0
   flutter_polyline_points: ^1.0.0
   url_launcher: ^6.1.10
   map_launcher: ^2.5.0
   maps_launcher: ^2.2.0
   flutter_animated_splash: ^0.0.10
   sliding_up_panel: ^2.0.0+1
+  flutter_local_notifications: ^6.0.0
+  geofence_service: ^3.5.0
 
 dev_dependencies:
   flutter_test:
