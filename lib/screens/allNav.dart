@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geofence_service/geofence_service.dart' as fence;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -76,10 +77,132 @@ class _allNavScreenState extends State<allNavScreen>
   bool distanceCalced = false;
   final notificationService = NotificationService();
 
+  //Geofencing
+  final _activityStreamController = StreamController<fence.Activity>();
+  final _geofenceStreamController = StreamController<fence.Geofence>();
+  // Create a [Geofence] list.
+  final _geofenceList = <fence.Geofence>[];
+
+  // Create a [GeofenceService] instance and set options.
+  final _geofenceService = fence.GeofenceService.instance.setup(
+      interval: 5000,
+      accuracy: 100,
+      loiteringDelayMs: 60000,
+      statusChangeDelayMs: 10000,
+      useActivityRecognition: true,
+      allowMockLocations: false,
+      printDevLog: false,
+      geofenceRadiusSortType: fence.GeofenceRadiusSortType.DESC);
+
+  // This function is to be called when the geofence status is changed.
+  Future<void> _onGeofenceStatusChanged(
+      fence.Geofence geofence,
+      fence.GeofenceRadius geofenceRadius,
+      fence.GeofenceStatus geofenceStatus,
+      fence.Location location) async {
+    _geofenceStreamController.sink.add(geofence);
+    double distanceInMeters = _coordinateDistance(
+      location.latitude,
+      location.longitude,
+      geofence.latitude,
+      geofence.longitude,
+    );
+    print(distanceInMeters);
+    if (distanceInMeters <= 1.524) {
+      // send a notification
+      await notificationService.showNotification(
+        title: 'You have arrived!',
+        body: 'Welcome!',
+      );
+      _geofenceList.clear();
+    } else if (distanceInMeters <= 3.048) {
+      // 10 feet = 3.048 meters
+      await notificationService.showNotification(
+        title: 'Nearly There',
+        body: '10 feet left',
+      );
+    }
+  }
+
+  // This function is to be called when the activity has changed.
+  void _onActivityChanged(
+      fence.Activity prevActivity, fence.Activity currActivity) {
+    print('prevActivity: ${prevActivity.toJson()}');
+    print('currActivity: ${currActivity.toJson()}');
+    _activityStreamController.sink.add(currActivity);
+  }
+
+  // This function is to be called when the location has changed.
+  void _onLocationChanged(fence.Location location) {
+    print('location: ${location.toJson()}');
+  }
+
+  // This function is to be called when a location services status change occurs
+  // since the service was started.
+  void _onLocationServicesStatusChanged(bool status) {
+    print('isLocationServicesEnabled: $status');
+  }
+
+  // This function is used to handle errors that occur in the service.
+  void _onError(error) {
+    final errorCode = fence.getErrorCodesFromError(error);
+    if (errorCode == null) {
+      print('Undefined error: $error');
+      return;
+    }
+
+    print('ErrorCode: $errorCode');
+  }
+
+  void _addGeofence() async {
+    // get the user's current location
+    final currentPosition = await _getCurrentLocation();
+
+    // create the geofence
+    final geofence = fence.Geofence(
+      id: 'place_2',
+      latitude: _destinationLatitude,
+      longitude: _destinationLongitude,
+      radius: [
+        fence.GeofenceRadius(id: 'radius_2m', length: 2),
+      ],
+    );
+
+    // add the geofence to the list and to the service
+    _geofenceList.add(geofence);
+    _geofenceService.addGeofence(geofence);
+
+    // show a success message
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Geofence added.'),
+      duration: Duration(seconds: 2),
+    ));
+  }
+
+  void _removeGeofenceById(String geofenceId) {
+    int index =
+        _geofenceList.indexWhere((geofence) => geofence.id == geofenceId);
+    if (index != -1) {
+      _geofenceList.removeAt(index);
+      _geofenceService.start(_geofenceList).catchError(_onError);
+    }
+  }
+
   //init state for the whole app
   @override
   void initState() {
     access();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _geofenceService
+          .addGeofenceStatusChangeListener(_onGeofenceStatusChanged);
+      _geofenceService.addLocationChangeListener(_onLocationChanged);
+      _geofenceService.addLocationServicesStatusChangeListener(
+          _onLocationServicesStatusChanged);
+      _geofenceService.addActivityChangeListener(_onActivityChanged);
+      _geofenceService.addStreamErrorListener(_onError);
+      _geofenceService.start(_geofenceList).catchError(_onError);
+    });
     _getCurrentLocation();
     _getAddress();
     _getMarkersFromFirestore();
@@ -94,6 +217,8 @@ class _allNavScreenState extends State<allNavScreen>
   void dispose() {
     destinationAddressController.dispose();
     startAddressController.dispose();
+    _activityStreamController.close();
+    _geofenceStreamController.close();
     super.dispose();
   }
 
@@ -1108,10 +1233,6 @@ class _allNavScreenState extends State<allNavScreen>
   // Method for calculating the distance between two places
   Future<bool> _calculateDistance() async {
     try {
-      notificationService.showNotification(
-        title: 'Notification Title',
-        body: 'Notification Body',
-      );
       // Use the retrieved coordinates of the current position,
       // instead of the address if the start position is user's
       // current position, as it results in better accuracy.
@@ -1252,7 +1373,7 @@ class _allNavScreenState extends State<allNavScreen>
     double destinationLatitude = _destinationLatitude;
     double destinationLongitude = _destinationLongitude;
     print(availableMaps);
-
+    _addGeofence();
     await availableMaps.first.showDirections(
         destination:
             mapLauch.Coords(_destinationLatitude, _destinationLongitude),

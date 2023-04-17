@@ -37,6 +37,7 @@ dependencies:
   flutter_animated_splash: ^0.0.10
   sliding_up_panel: ^2.0.0+1
   flutter_local_notifications: ^6.0.0
+  geofence_service: ^3.5.0
 
 dev_dependencies:
   flutter_test:
