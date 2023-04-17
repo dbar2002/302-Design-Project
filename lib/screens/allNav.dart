@@ -1046,6 +1046,7 @@ Future<void> deleteReport(MarkerId markerId) async {
 
   //Search functionality
   void searchMapMarkers(String searchQuery) async {
+    searchQuery = searchQuery.toUpperCase();
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('CBUClassRooms')
         .where('title', isGreaterThanOrEqualTo: searchQuery)
