@@ -17,6 +17,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:map_launcher/map_launcher.dart' as mapLauch;
 
 import '../model/markers.dart';
+import '../resources/notification_service.dart';
 import '../resources/secrets.dart';
 import '../utils/fonts.dart';
 
@@ -73,6 +74,7 @@ class _allNavScreenState extends State<allNavScreen>
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
   bool distanceCalced = false;
+  final notificationService = NotificationService();
 
   //init state for the whole app
   @override
@@ -374,25 +376,26 @@ class _allNavScreenState extends State<allNavScreen>
     );
   }
 
-Future<void> deleteReport(MarkerId markerId) async {
-   Marker marker =
+  Future<void> deleteReport(MarkerId markerId) async {
+    Marker marker =
         markers.where((marker) => marker.markerId == markerId).first;
-  final collectionRef = FirebaseFirestore.instance.collection('Reports');
-  final query = collectionRef
-      .where('latitude', isEqualTo: marker.position.latitude)
-      .where('longitude', isEqualTo: marker.position.longitude);
-  final snapshot = await query.get();
+    final collectionRef = FirebaseFirestore.instance.collection('Reports');
+    final query = collectionRef
+        .where('latitude', isEqualTo: marker.position.latitude)
+        .where('longitude', isEqualTo: marker.position.longitude);
+    final snapshot = await query.get();
 
-  if (snapshot.docs.isNotEmpty) {
-    // Delete the document from Firestore
-    final docId = snapshot.docs[0].id;
-    await collectionRef.doc(docId).delete();
+    if (snapshot.docs.isNotEmpty) {
+      // Delete the document from Firestore
+      final docId = snapshot.docs[0].id;
+      await collectionRef.doc(docId).delete();
+    }
+    // Update the state to remove the marker from the map
+    setState(() {
+      markers.removeWhere((marker) => marker.markerId == markerId);
+    });
   }
-  // Update the state to remove the marker from the map
-  setState(() {
-    markers.removeWhere((marker) => marker.markerId == markerId);
-  });
-}
+
   void createReport(double latitude, double longitude) async {
     LatLng position = LatLng(latitude, longitude);
     int _selectedReport = 0;
@@ -1105,6 +1108,10 @@ Future<void> deleteReport(MarkerId markerId) async {
   // Method for calculating the distance between two places
   Future<bool> _calculateDistance() async {
     try {
+      notificationService.showNotification(
+        title: 'Notification Title',
+        body: 'Notification Body',
+      );
       // Use the retrieved coordinates of the current position,
       // instead of the address if the start position is user's
       // current position, as it results in better accuracy.

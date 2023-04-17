@@ -1,3 +1,4 @@
+import 'package:avandra/resources/notification_service.dart';
 import 'package:avandra/screens/add_new_org.dart';
 import 'package:avandra/screens/allNav.dart';
 import 'package:avandra/screens/menu.dart';
@@ -21,6 +22,7 @@ Future<void> main() async {
   
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await NotificationService().init();
   runApp(const MyApp());
 }
 
@@ -35,9 +37,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: splashpageColor,
       ),
-      // home: SignUpScreen(),
-
-      // home: SettingUI(),
       home: SplashScreen(),
 
       routes: {
