@@ -108,6 +108,7 @@ class _allNavScreenState extends State<allNavScreen>
       geofence.longitude,
     );
     print(distanceInMeters);
+    int floor = getRoomNumber();
     if (distanceInMeters <= 1.524) {
       // send a notification
       await notificationService.showNotification(
@@ -119,9 +120,16 @@ class _allNavScreenState extends State<allNavScreen>
       // 10 feet = 3.048 meters
       await notificationService.showNotification(
         title: 'Nearly There',
-        body: '10 feet left',
+        body: 'Floor: $floor',
       );
     }
+  }
+
+  int getRoomNumber() {
+    String roomName = destinationAddressController.text;
+    RegExp regExp = RegExp(r'\d+');
+    int floor = int.parse(regExp.stringMatch(roomName)!);
+    return floor; // Output: 1
   }
 
   // This function is to be called when the activity has changed.
@@ -154,7 +162,7 @@ class _allNavScreenState extends State<allNavScreen>
     print('ErrorCode: $errorCode');
   }
 
-  void _addGeofence() async {
+  Future _addGeofence() async {
     // get the user's current location
     final currentPosition = await _getCurrentLocation();
 
@@ -1373,7 +1381,11 @@ class _allNavScreenState extends State<allNavScreen>
     double destinationLatitude = _destinationLatitude;
     double destinationLongitude = _destinationLongitude;
     print(availableMaps);
-    _addGeofence();
+    await _addGeofence();
+    await notificationService.showNotification(
+        title: 'You have started your navigation',
+        body: 'Travel With Ease',
+    );
     await availableMaps.first.showDirections(
         destination:
             mapLauch.Coords(_destinationLatitude, _destinationLongitude),
